@@ -26,7 +26,7 @@ setup(
     test_suite='tests',
     entry_points={
         'console_scripts': [
-            'datetime-app = regexapp.application:execute',
+            'regex-app = regexapp.application:execute',
         ]
     },
     classifiers=[
