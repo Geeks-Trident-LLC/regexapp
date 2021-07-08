@@ -1,4 +1,4 @@
-# import re
+import re
 import yaml
 from pathlib import Path, PurePath
 
@@ -85,3 +85,72 @@ class PatternReference(dict):
             raise PatternReferenceError(msg)
 
 REF = PatternReference()
+
+
+class PatternError(Exception):
+    """Use to capture error during pattern conversion."""
+
+
+class TextPattern(str):
+    """Use to convert text data to regex pattern
+
+    Parameters
+    ----------
+    data (str): a text.
+    used_space (bool): use space character instead of whitespace regex.
+            Default is True.
+
+    Methods
+    -------
+    get_pattern(data) -> str
+
+    Raises
+    ------
+    PatternError: raise an exception if pattern is invalid.
+
+    """
+    def __new__(cls, data, used_space=True):
+        data = str(data)
+        if data:
+            text_pattern = cls.get_pattern(data, used_space=used_space)
+        else:
+            text_pattern = ''
+        return str.__new__(cls, text_pattern)
+
+    @classmethod
+    def get_pattern(cls, text, used_space=True):
+        """convert data to regex pattern
+
+        Parameters
+        ----------
+        text (str): a text
+        used_space (bool): use a space character instead of whitespace regex.
+                Default is True.
+
+        Returns
+        -------
+        str: a regex pattern.
+
+        Raises
+        ------
+        PatternError: raise an exception if pattern is invalid.
+        """
+
+        pattern = ' +' if used_space else r'\s+'
+        result = []
+        for item in re.split(pattern, text):
+            if not item:
+                result.append(pattern)
+            lst = []
+            for v in list(item):
+                lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
+            result.append(''.join(lst))
+        text_pattern = pattern.join(result)
+
+        try:
+            re.compile(text_pattern)
+        except Exception as ex:
+            msg = '{} - {}'.format(type(ex).__name__, ex)
+            raise PatternError(msg)
+
+        return text_pattern
