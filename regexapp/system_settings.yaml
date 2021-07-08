@@ -109,7 +109,7 @@ signed_number:
 mixed_number:
   group: number
   description: a pattern to match a mixed number.
-  pattern: "[+\(\[\$-]?(\\d+(,\\d+)*)?[.]?\\d+[\]\)%a-zA-Z]*"
+  pattern: "[+\\(\\[\\$-]?(\\d+(,\\d+)*)?[.]?\\d+[\\]\\)%a-zA-Z]*"
   positive test:
     pattern match a mixed number: [
         "69", "-69.95", "+0.95", "(.95)",
