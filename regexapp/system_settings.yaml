@@ -1,0 +1,120 @@
+letter:
+  group: word
+  description: a pattern to match a letter.
+  pattern: "[a-zA-Z]"
+  positive test:
+    pattern matches a letter: "a"
+  negative test:
+    pattern can not match a letter: "."
+
+letters:
+  group: word
+  description: a pattern to match letters.
+  pattern: "[a-zA-Z]+"
+  positive test:
+    pattern matches a letters: "abc"
+  negative test:
+    pattern can not match letters: "..."
+
+word:
+  group: word
+  description: a pattern to match a word.
+  pattern: "\\w+"
+  positive test:
+    pattern matches a word: "abc"
+  negative test:
+    pattern can not match a word: "[...]"
+
+words:
+  group: word
+  description: a pattern to match at least one word.
+  pattern: "\\w+(\\s+\\w+)*"
+  positive test:
+    pattern match words: "abc xyz"
+  negative test:
+    pattern can not match words: "... +++"
+
+mixed_word:
+  group: word
+  description: a pattern to match a mixed word that might include a punctuation.
+  pattern: "\\S*[a-zA-Z0-9]\\S*"
+  positive test:
+    pattern matches a mixed word: "abc@xyz.com"
+  negative test:
+    pattern can not match a mixed word: "+-*/"
+
+mixed_words:
+  group: word
+  description: a pattern to match at least one mixed word.
+  pattern: "\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*"
+  positive test:
+    pattern match mixed words: "email: abc@xyz.com"
+  negative test:
+    pattern can not match mixed words: "+-*/ -&^"
+
+phrase:
+  group: word
+  description: a pattern to match a phrase, i.e. at least two words.
+  pattern: "\\w+(\\s+\\w+)+"
+  positive test:
+    pattern match a pharse: "abc xyz"
+  negative test:
+    pattern can not match a phrase: "abc"
+
+mixed_phrase:
+  group: word
+  description: a pattern to match a mixed pharse.
+  pattern: "\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)+"
+  positive test:
+    pattern match a mixed phrase: "email: abc@xyz.com"
+  negative test:
+    pattern can not match a mixed phrase: "email:"
+
+digit:
+  group: number
+  description: a pattern to match a single digit.
+  pattern: "\\d"
+  positive test:
+    pattern match a digit: "5"
+  negative test:
+    pattern can not match a digit: "x"
+
+digits:
+  group: number
+  description: a pattern to match multiple digits.
+  pattern: "\\d+"
+  positive test:
+    pattern match at least one digit: "45"
+  negative test:
+    pattern can not match digits: "xyz"
+
+number:
+  group: number
+  description: a pattern to match a number.
+  pattern: "(\\d+)?[.]?\\d+"
+  positive test:
+    pattern match a number: ["69", "69.95", "0.95", ".95"]
+  negative test:
+    pattern can not match a number: ["ab"]
+
+signed_number:
+  group: number
+  description: a pattern to match a signed number.
+  pattern: "[+(-]?(\\d+)?[.]?\\d+[)]?"
+  positive test:
+    pattern match a signed number: ["69", "-69.95", "+0.95", "(.95)"]
+  negative test:
+    pattern can not match a signed number: ["a.b"]
+
+mixed_number:
+  group: number
+  description: a pattern to match a mixed number.
+  pattern: "[+\(\[\$-]?(\\d+(,\\d+)*)?[.]?\\d+[\]\)%a-zA-Z]*"
+  positive test:
+    pattern match a mixed number: [
+        "69", "-69.95", "+0.95", "(.95)",
+        "9.95%", "$19.99", "11,350.12",
+        "$11,350.12", "1.9Mb"
+    ]
+  negative test:
+    pattern can not match a signed number: ["a.b"]
