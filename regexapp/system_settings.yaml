@@ -1,3 +1,21 @@
+whitespace:
+  group: word
+  description: a pattern to match a word divider such as space, tab, newline, and more.
+  pattern: "\\s+"
+  positive test:
+    pattern matches a letter: " "
+  negative test:
+    pattern can not match a letter: "."
+
+notwhitespace:
+  group: word
+  description: a pattern to match any character which is not a whitespace character.
+  pattern: "\\S+"
+  positive test:
+    pattern matches a letter: "a"
+  negative test:
+    pattern can not match a letter: " "
+
 letter:
   group: word
   description: a pattern to match a letter.
