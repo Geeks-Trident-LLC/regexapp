@@ -154,3 +154,256 @@ class TextPattern(str):
             raise PatternError(msg)
 
         return text_pattern
+
+
+class ElementPattern(str):
+    """Use to convert element data to regex pattern
+
+    Parameters
+    ----------
+    data (str): a text.
+
+    Methods
+    -------
+    get_pattern(data) -> str
+
+    Raises
+    ------
+    PatternError: raise an exception if pattern is invalid.
+
+    """
+    def __new__(cls, data):
+        data = str(data)
+        if data:
+            pattern = cls.get_pattern(data)
+        else:
+            pattern = ''
+        return str.__new__(cls, pattern)
+
+    @classmethod
+    def get_pattern(cls, text):
+        """convert data to regex pattern
+
+        Parameters
+        ----------
+        text (str): a text
+
+        Returns
+        -------
+        str: a regex pattern.
+
+        Raises
+        ------
+        PatternError: raise an exception if pattern is invalid.
+        """
+        sep_pat = r'(?P<keyword>\w+)[(](?P<params>.*)[)]$'
+        match = re.match(sep_pat, text.strip())
+        if match:
+            keyword = match.group('keyword')
+            params = match.group('params')
+            pattern = cls.build_pattern(keyword, params)
+        try:
+            re.compile(pattern)
+            return pattern
+        except Exception as ex:
+            msg = '{} - {}'.format(type(ex).__name__, ex)
+            raise PatternError(msg)
+
+    @classmethod
+    def build_pattern(cls, keyword, params):
+        """build a regex pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        str: a regex pattern.
+
+        Raises
+        ------
+        PatternError: raise an exception if pattern is invalid.
+        """
+        is_built, raw_pattern = cls.build_raw_pattern(keyword, params)
+        if is_built:
+            return raw_pattern
+
+        is_built, custom_pattern = cls.build_custom_pattern(keyword, params)
+        if is_built:
+            return custom_pattern
+
+        is_built, choice_pattern = cls.build_choice_pattern(keyword, params)
+        if is_built:
+            return choice_pattern
+
+        _, default_pattern = cls.build_default_pattern(keyword, params)
+        return default_pattern
+
+    @classmethod
+    def build_custom_pattern(cls, keyword, params):
+        """build a regex pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        tuple: status, a regex pattern.
+
+        Raises
+        ------
+        PatternError: raise an exception if pattern is invalid.
+        """
+        if keyword not in REF:
+            return False, ''
+
+        arguments = re.split(r' *, *', params) if params else []
+
+        lst = [REF.get(keyword).get('pattern')]
+
+        name, vpat = '', r'var_(?P<name>\w+)$'
+        or_pat = r'or_(?P<case>[^,]+)'
+        is_empty = False
+
+        for arg in arguments:
+            match = re.match(vpat, arg, flags=re.I)
+            if match:
+                name = match.group('name') if not name else name
+            else:
+                match = re.match(or_pat, arg, flags=re.I)
+                if match:
+                    case = match.group('case')
+                    if case == 'empty':
+                        is_empty = True
+                    else:
+                        if case in REF:
+                            lst.append(REF.get(case).get('pattern'))
+                        else:
+                            lst.append(case)
+                else:
+                    lst.append(re.escape(arg))
+
+        is_empty and lst.append('')
+        pattern = cls.join_list(lst)
+        pattern = cls.add_var_name(pattern, name)
+        pattern = pattern.replace('__comma__', ',')
+        return True, pattern
+
+    @classmethod
+    def build_choice_pattern(cls, keyword, params):
+        """build a regex pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        str: a regex pattern.
+
+        Raises
+        ------
+        PatternError: raise an exception if pattern is invalid.
+        """
+        if keyword != 'choice':
+            return False, ''
+
+        arguments = re.split(r' *, *', params) if params else []
+        lst = []
+        name, vpat = '', r'var_(?P<name>\w+)$'
+        for arg in arguments:
+            match = re.match(vpat, arg, flags=re.I)
+            if match:
+                name = match.group('name') if not name else name
+            else:
+                lst.append(arg)
+
+        pattern = cls.join_list(lst)
+        pattern = cls.add_var_name(pattern, name)
+        pattern = pattern.replace('__comma__', ',')
+        return True, pattern
+
+    @classmethod
+    def build_raw_pattern(cls, keyword, params):
+        """build a regex pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        str: a regex pattern.
+
+        Raises
+        ------
+        PatternError: raise an exception if pattern is invalid.
+        """
+        if not params.startswith('raw>>>'):
+            return False, ''
+        params = re.sub(r'raw>+', '', params, count=1)
+        pattern = re.escape('{}({})'.format(keyword, params))
+        return True, pattern
+
+    @classmethod
+    def build_default_pattern(cls, keyword, params):
+        """build a regex pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        tuple: status, a regex pattern.
+        """
+        pattern = re.escape('{}({})'.format(keyword, params))
+        return True, pattern
+
+    @classmethod
+    def join_list(cls, lst):
+        """join item of list
+
+        Parameters
+        ----------
+        lst (list): list of pattern
+
+        Returns
+        -------
+        str: a string data.
+        """
+        new_lst = []
+        if len(lst) > 1:
+            for item in lst:
+                v = '({})'.format(item) if re.search(r'\s', item) else item
+                new_lst.append(v)
+        else:
+            new_lst = lst
+
+        result = '|'.join(new_lst)
+        return result
+
+    @classmethod
+    def add_var_name(cls, pattern, name=''):
+        """add var name to regex pattern
+
+        Parameters
+        ----------
+        pattern (str): a pattern
+        name (str): a regex variable name
+
+        Returns
+        -------
+        str: new pattern with variable name.
+        """
+        if name:
+            new_pattern = '(?P<{}>{})'.format(name, pattern)
+            return new_pattern
+        return pattern
