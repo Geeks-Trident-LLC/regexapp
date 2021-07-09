@@ -6,6 +6,22 @@ import logging
 logger = logging.getLogger(__file__)
 
 
+def validate_pattern(pattern, flags=0, exception_cls=None):
+    """validate a pattern
+
+    Parameters
+    ----------
+    pattern (str): a pattern.
+    exception_cls (Exception): an exception class.  Default is None.
+    """
+    exception_cls = exception_cls or Exception
+    try:
+        re.compile(pattern, flags=flags)
+    except Exception as ex:
+        msg = '{} - {}'.format(type(ex).__name__, ex)
+        raise exception_cls(msg)
+
+
 class PatternReferenceError(Exception):
     """Use to capture error for PatternReference instance"""
 
@@ -141,11 +157,12 @@ class TextPattern(str):
         result = []
         for item in re.split(pattern, text):
             if not item:
-                result.append(pattern)
-            lst = []
-            for v in list(item):
-                lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
-            result.append(''.join(lst))
+                result.append(item)
+            else:
+                lst = []
+                for v in list(item):
+                    lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
+                result.append(''.join(lst))
         text_pattern = pattern.join(result)
 
         try:
@@ -398,4 +415,101 @@ class ElementPattern(str):
         if name:
             new_pattern = '(?P<{}>{})'.format(name, pattern)
             return new_pattern
+        return pattern
+
+
+class LinePatternError(PatternError):
+    """Use to capture error during pattern conversion."""
+
+
+class LinePattern(str):
+    """Use to convert a line text to regex pattern
+
+    Parameters
+    ----------
+    text (str): a text.
+    used_space (bool): use space character instead of whitespace regex.
+            Default is True.
+    prepended_ws (bool): prepend a whitespace at the beginning of a pattern.
+            Default is False.
+    appended_ws (bool): append a whitespace at the end of a pattern.
+            Default is False.
+    ignore_case (bool): prepend (?i) at the beginning of a pattern.
+            Default is True.
+
+    Methods
+    -------
+    LinePattern.get_pattern(text, used_space=True) -> str
+
+    Raises
+    ------
+    LinePatternError: raise an exception if pattern is invalid.
+
+    """
+    def __new__(cls, text, used_space=True,
+                prepended_ws=False, appended_ws=False,
+                ignore_case=True):
+        data = str(text)
+        if data:
+            pattern = cls.get_pattern(
+                data, used_space=used_space, prepended_ws=prepended_ws,
+                appended_ws=appended_ws, ignore_case=ignore_case
+            )
+        else:
+            pattern = r'^\s*$'
+        return str.__new__(cls, pattern)
+
+    @classmethod
+    def get_pattern(cls, text, used_space=True,
+                    prepended_ws=False, appended_ws=False,
+                    ignore_case=True):
+        """convert text to regex pattern
+
+        Parameters
+        ----------
+        text (str): a text
+        used_space (bool): use space character instead of whitespace regex.
+                Default is True.
+        prepended_ws (bool): prepend a whitespace at the beginning of a pattern.
+                Default is False.
+        appended_ws (bool): append a whitespace at the end of a pattern.
+                Default is False.
+        ignore_case (bool): prepend (?i) at the beginning of a pattern.
+                Default is True.
+
+        Returns
+        -------
+        str: a regex pattern.
+
+        Raises
+        ------
+        LinePatternError: raise an exception if pattern is invalid.
+        """
+        line = str(text)
+
+        lst = []
+        start = 0
+        for m in re.finditer(r'\w+[(][^)]*[)]', line):
+            pre_match = m.string[start:m.start()]
+            lst.append(TextPattern(pre_match, used_space=used_space))
+            lst.append(ElementPattern(m.group()))
+            start = m.end()
+        else:
+            if start:
+                after_match = m.string[start:]
+                lst.append(TextPattern(after_match, used_space=used_space))
+
+        if len(lst) == 1 and lst[0].strip() == '':
+            return r'^\s*$'
+        elif not lst:
+            if line.strip() == '':
+                return r'^\s*$'
+            lst.append(TextPattern(line, used_space=used_space))
+
+        ws_pat = r' *' if used_space else r'\s*'
+        prepended_ws and lst.insert(0, '^{}'.format(ws_pat))
+        ignore_case and lst.insert(0, '(?i)')
+        appended_ws and lst.append('{}$'.format(ws_pat))
+        pattern = ''.join(lst)
+        validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
