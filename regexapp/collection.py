@@ -13,6 +13,7 @@ class PatternReferenceError(Exception):
 class PatternReference(dict):
     """Use to load regular expression pattern from system_settings.yaml
     or/and user_settings.yaml
+
     Attribute
     ---------
     sys_ref_loc (str): a system settings file name.
@@ -102,7 +103,7 @@ class TextPattern(str):
 
     Methods
     -------
-    get_pattern(data) -> str
+    TextPattern.get_pattern(text, used_space=True) -> str
 
     Raises
     ------
@@ -165,7 +166,14 @@ class ElementPattern(str):
 
     Methods
     -------
-    get_pattern(data) -> str
+    ElementPattern.get_pattern(data) -> str
+    ElementPattern.build_pattern(keyword, params) -> str
+    ElementPattern.build_custom_pattern(keyword, params) -> bool, str
+    ElementPattern.build_choice_pattern(keyword, params) -> bool, str
+    ElementPattern.build_raw_pattern(keyword, params) -> bool, str
+    ElementPattern.build_default_pattern(keyword, params) -> bool, str
+    ElementPattern.join_list(lst) -> str
+    ElementPattern.add_var_name(pattern, name='') -> str
 
     Raises
     ------
@@ -221,10 +229,6 @@ class ElementPattern(str):
         Returns
         -------
         str: a regex pattern.
-
-        Raises
-        ------
-        PatternError: raise an exception if pattern is invalid.
         """
         is_built, raw_pattern = cls.build_raw_pattern(keyword, params)
         if is_built:
@@ -253,10 +257,6 @@ class ElementPattern(str):
         Returns
         -------
         tuple: status, a regex pattern.
-
-        Raises
-        ------
-        PatternError: raise an exception if pattern is invalid.
         """
         if keyword not in REF:
             return False, ''
@@ -305,10 +305,6 @@ class ElementPattern(str):
         Returns
         -------
         str: a regex pattern.
-
-        Raises
-        ------
-        PatternError: raise an exception if pattern is invalid.
         """
         if keyword != 'choice':
             return False, ''
@@ -340,10 +336,6 @@ class ElementPattern(str):
         Returns
         -------
         str: a regex pattern.
-
-        Raises
-        ------
-        PatternError: raise an exception if pattern is invalid.
         """
         if not params.startswith('raw>>>'):
             return False, ''
