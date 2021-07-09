@@ -1,7 +1,9 @@
 import pytest
+import re
 from regexapp.collection import PatternReference
 from regexapp.collection import TextPattern
 from regexapp.collection import ElementPattern
+from regexapp.collection import LinePattern
 
 
 class TestPatternReference:
@@ -70,6 +72,72 @@ class TestElementPattern:
             ('xyz_word()', 'xyz_word\\(\\)'),
         ]
     )
-    def test_text_pattern(self, data, expected_result):
+    def test_element_pattern(self, data, expected_result):
         pattern = ElementPattern(data)
         assert pattern == expected_result
+
+
+class TestLinePattern:
+    @pytest.mark.parametrize(
+        "test_data,user_prepared_data,expected_pattern,used_space,prepended_ws,appended_ws,ignore_case",
+        [
+            (
+                ' \t\n\r\f\v',      # test data
+                ' ',                # user prepared data
+                '^\\s*$',           # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
+                'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
+                '\\S*[a-zA-Z0-9]\\S*\\s+is\\s+up|down|(administratively down),\\s+line\\s+protocol\\s+is\\s+up|down|(administratively down)',   # expected pattern
+                False, False, False, False,
+            ),
+            (
+                'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
+                'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
+                '\\S*[a-zA-Z0-9]\\S* +is +up|down|(administratively down), +line +protocol +is +up|down|(administratively down)',               # expected pattern
+                True, False, False, False,
+            ),
+            (
+                'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
+                'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
+                '(?i)\\S*[a-zA-Z0-9]\\S* +is +up|down|(administratively down), +line +protocol +is +up|down|(administratively down)',           # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
+                'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
+                '(?i)^ *\\S*[a-zA-Z0-9]\\S* +is +up|down|(administratively down), +line +protocol +is +up|down|(administratively down)',        # expected pattern
+                True, True, False, True,
+            ),
+            (
+                'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
+                'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
+                '(?i)^ *\\S*[a-zA-Z0-9]\\S* +is +up|down|(administratively down), +line +protocol +is +up|down|(administratively down) *$',     # expected pattern
+                True, True, True, True,
+            ),
+            (
+                'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                                                                                          # test data
+                'mixed_word(var_interface_name) is choice(up, down, administratively down, var_interface_status), line protocol is choice(up, down, administratively down, var_protocol_status)',           # user prepared data
+                '(?i)^ *(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>up|down|(administratively down)), +line +protocol +is +(?P<protocol_status>up|down|(administratively down)) *$',  # expected pattern
+                True, True, True, True,
+            ),
+            (
+                'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                                                      # test data
+                'mixed_word(var_interface_name) is words(var_interface_status), line protocol is words(var_protocol_status)',                                           # user prepared data
+                '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>\\w+(\\s+\\w+)*), +line +protocol +is +(?P<protocol_status>\\w+(\\s+\\w+)*)',    # expected pattern
+                True, False, False, True,
+            ),
+        ]
+    )
+    def test_line_pattern(self, test_data, user_prepared_data,expected_pattern,
+                          used_space, prepended_ws, appended_ws, ignore_case):
+        pattern = LinePattern(
+            user_prepared_data, used_space=used_space,
+            prepended_ws=prepended_ws, appended_ws=appended_ws,
+            ignore_case=ignore_case
+        )
+        assert pattern == expected_pattern
+        match = re.search(pattern, test_data)
+        assert match is not None
