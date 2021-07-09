@@ -108,12 +108,16 @@ class PatternError(Exception):
     """Use to capture error during pattern conversion."""
 
 
+class TextPatternError(Exception):
+    """Use to capture error during pattern conversion."""
+
+
 class TextPattern(str):
     """Use to convert text data to regex pattern
 
     Parameters
     ----------
-    data (str): a text.
+    text (str): a text.
     used_space (bool): use space character instead of whitespace regex.
             Default is True.
 
@@ -126,8 +130,8 @@ class TextPattern(str):
     PatternError: raise an exception if pattern is invalid.
 
     """
-    def __new__(cls, data, used_space=True):
-        data = str(data)
+    def __new__(cls, text, used_space=True):
+        data = str(text)
         if data:
             text_pattern = cls.get_pattern(data, used_space=used_space)
         else:
@@ -164,14 +168,12 @@ class TextPattern(str):
                     lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
                 result.append(''.join(lst))
         text_pattern = pattern.join(result)
-
-        try:
-            re.compile(text_pattern)
-        except Exception as ex:
-            msg = '{} - {}'.format(type(ex).__name__, ex)
-            raise PatternError(msg)
-
+        validate_pattern(text_pattern, exception_cls=TextPatternError)
         return text_pattern
+
+
+class ElementPatternError(Exception):
+    """Use to capture error during pattern conversion."""
 
 
 class ElementPattern(str):
@@ -179,7 +181,7 @@ class ElementPattern(str):
 
     Parameters
     ----------
-    data (str): a text.
+    text (str): a text.
 
     Methods
     -------
@@ -197,8 +199,8 @@ class ElementPattern(str):
     PatternError: raise an exception if pattern is invalid.
 
     """
-    def __new__(cls, data):
-        data = str(data)
+    def __new__(cls, text):
+        data = str(text)
         if data:
             pattern = cls.get_pattern(data)
         else:
@@ -227,12 +229,11 @@ class ElementPattern(str):
             keyword = match.group('keyword')
             params = match.group('params')
             pattern = cls.build_pattern(keyword, params)
-        try:
-            re.compile(pattern)
-            return pattern
-        except Exception as ex:
-            msg = '{} - {}'.format(type(ex).__name__, ex)
-            raise PatternError(msg)
+        else:
+            pattern = re.escape(text)
+
+        validate_pattern(pattern, exception_cls=ElementPatternError)
+        return pattern
 
     @classmethod
     def build_pattern(cls, keyword, params):
