@@ -444,8 +444,14 @@ class ElementPattern(str):
         new_lst = []
         if len(lst) > 1:
             for item in lst:
-                v = '({})'.format(item) if re.search(r'\s', item) else item
-                new_lst.append(v)
+                if re.search(r'\s', item):
+                    if item.startswith('(') and item.endswith(')'):
+                        v = item
+                    else:
+                        v = '({})'.format(item)
+                else:
+                    v = item
+                v not in new_lst and new_lst.append(v)
         else:
             new_lst = lst
 
