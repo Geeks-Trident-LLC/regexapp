@@ -386,7 +386,8 @@ class ElementPattern(str):
             if match:
                 name = match.group('name') if not name else name
             else:
-                lst.append(arg)
+                pat = arg
+                pat not in lst and lst.append(pat)
 
         pattern = cls.join_list(lst)
         pattern = cls.add_var_name(pattern, name)
