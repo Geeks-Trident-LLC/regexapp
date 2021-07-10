@@ -188,6 +188,7 @@ class ElementPattern(str):
     ElementPattern.get_pattern(data) -> str
     ElementPattern.build_pattern(keyword, params) -> str
     ElementPattern.build_custom_pattern(keyword, params) -> bool, str
+    ElementPattern.build_datetime_pattern(keyword, params) -> bool, str
     ElementPattern.build_choice_pattern(keyword, params) -> bool, str
     ElementPattern.build_raw_pattern(keyword, params) -> bool, str
     ElementPattern.build_default_pattern(keyword, params) -> bool, str
@@ -252,6 +253,10 @@ class ElementPattern(str):
         if is_built:
             return raw_pattern
 
+        is_built, datetime_pattern = cls.build_datetime_pattern(keyword, params)
+        if is_built:
+            return datetime_pattern
+
         is_built, custom_pattern = cls.build_custom_pattern(keyword, params)
         if is_built:
             return custom_pattern
@@ -265,7 +270,7 @@ class ElementPattern(str):
 
     @classmethod
     def build_custom_pattern(cls, keyword, params):
-        """build a regex pattern over given keyword, params
+        """build a custom pattern over given keyword, params
 
         Parameters
         ----------
@@ -312,8 +317,49 @@ class ElementPattern(str):
         return True, pattern
 
     @classmethod
+    def build_datetime_pattern(cls, keyword, params):
+        """build a datetime pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        tuple: status, a regex pattern.
+        """
+        if keyword not in REF:
+            return False, ''
+
+        node = REF.get(keyword)
+        fmt_lst = [key for key in node if key.startswith('format')]
+        if not fmt_lst:
+            return False, ''
+
+        arguments = re.split(r' *, *', params) if params else []
+        lst = []
+        name, vpat = '', r'var_(?P<name>\w+)$'
+        for arg in arguments:
+            match = re.match(vpat, arg, flags=re.I)
+            if match:
+                name = match.group('name') if not name else name
+            else:
+                if arg.startswith('format'):
+                    lst.append(node.get(arg))
+                else:
+                    lst.append(arg)
+        if not lst:
+            lst.append(node.get('format'))
+
+        pattern = cls.join_list(lst)
+        pattern = cls.add_var_name(pattern, name)
+        pattern = pattern.replace('__comma__', ',')
+        return True, pattern
+
+    @classmethod
     def build_choice_pattern(cls, keyword, params):
-        """build a regex pattern over given keyword, params
+        """build a choice pattern over given keyword, params
 
         Parameters
         ----------
@@ -344,7 +390,7 @@ class ElementPattern(str):
 
     @classmethod
     def build_raw_pattern(cls, keyword, params):
-        """build a regex pattern over given keyword, params
+        """build a raw data pattern over given keyword, params
 
         Parameters
         ----------
@@ -363,7 +409,7 @@ class ElementPattern(str):
 
     @classmethod
     def build_default_pattern(cls, keyword, params):
-        """build a regex pattern over given keyword, params
+        """build a default pattern over given keyword, params
 
         Parameters
         ----------

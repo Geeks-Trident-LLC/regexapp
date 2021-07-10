@@ -136,3 +136,24 @@ mixed_number:
     ]
   negative test:
     pattern can not match a signed number: ["a.b"]
+
+datetime:
+  group: datetime
+  description: a pattern to match datetime string
+  format: "[0-9]+/[0-9]+/[0-9]+"
+  format1: "[0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+"
+  format2: "[0-9]+ +[a-zA-Z]+ +[0-9]+ +[0-9]+:[0-9]+:[0-9]+"
+  format3: "[a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+"
+  format4: "[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+"
+  positive test:
+    pattern matches a datetime format: 07/10/2021
+    pattern matches a datetime format1: 07/10/2021 08:56:45
+    pattern matches a datetime format2: 2021 Jun 16 14:44:01
+    pattern matches a datetime format3: Friday, April  9, 2021 8:43:15 PM
+    pattern matches a datetime format4: 2021-04-11 03:03
+  negative test:
+    pattern can not match a datetime format: 07-10-2021
+    pattern can not match a datetime format1: 07-10-2021 08:56:45
+    pattern can not match a datetime format2: 2021 Jun 16, 14:44:01
+    pattern can not match a datetime format3: Friday April  9, 2021 8:43:15 PM
+    pattern can not match a datetime format4: 2021/04/11 03:03
