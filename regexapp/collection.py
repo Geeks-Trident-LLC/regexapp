@@ -127,7 +127,7 @@ class TextPattern(str):
 
     Raises
     ------
-    PatternError: raise an exception if pattern is invalid.
+    TextPatternError: raise an exception if pattern is invalid.
 
     """
     def __new__(cls, text, used_space=True):
@@ -154,7 +154,7 @@ class TextPattern(str):
 
         Raises
         ------
-        PatternError: raise an exception if pattern is invalid.
+        TextPatternError: raise an exception if pattern is invalid.
         """
 
         pattern = ' +' if used_space else r'\s+'
@@ -196,7 +196,7 @@ class ElementPattern(str):
 
     Raises
     ------
-    PatternError: raise an exception if pattern is invalid.
+    ElementPatternError: raise an exception if pattern is invalid.
 
     """
     def __new__(cls, text):
@@ -221,7 +221,7 @@ class ElementPattern(str):
 
         Raises
         ------
-        PatternError: raise an exception if pattern is invalid.
+        ElementPatternError: raise an exception if pattern is invalid.
         """
         sep_pat = r'(?P<keyword>\w+)[(](?P<params>.*)[)]$'
         match = re.match(sep_pat, text.strip())
@@ -514,3 +514,93 @@ class LinePattern(str):
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
+
+
+class PatternBuilderError(PatternError):
+    """Use to capture error during pattern conversion."""
+
+
+class PatternBuilder(str):
+    """Use to convert a list of text to regex pattern
+
+    Parameters
+    ----------
+    lst_of_text (list): a list of text.
+    used_space (bool): use space character instead of whitespace regex.
+            Default is True.
+    var_name (str): a pattern variable.
+
+    Methods
+    -------
+    PatternBuilder.get_pattern(text, used_space=True) -> str
+
+    Raises
+    ------
+    PatternBuilderError: raise an exception if pattern is invalid.
+
+    """
+    def __new__(cls, lst_of_text, used_space=True, var_name=''):
+        lst = []
+        is_empty = False
+        for text in lst_of_text:
+            data = str(text)
+            if data:
+                pattern = cls.get_pattern(data, used_space=used_space)
+                pattern not in lst and lst.append(pattern)
+            else:
+                is_empty = True
+
+        is_empty and lst.append('')
+        pattern = ElementPattern.join_list(lst)
+        pattern = ElementPattern.add_var_name(pattern, name=var_name)
+        validate_pattern(pattern, exception_cls=PatternBuilderError)
+        return str.__new__(cls, pattern)
+
+    @classmethod
+    def get_pattern(cls, text, used_space=True):
+        """convert text to regex pattern
+
+        Parameters
+        ----------
+        text (str): a text
+        used_space (bool): use space character instead of whitespace regex.
+                Default is True.
+
+        Returns
+        -------
+        str: a regex pattern.
+
+        Raises
+        ------
+        PatternBuilderError: raise an exception if pattern is invalid.
+        """
+        start = 0
+        lst = []
+
+        for m in re.finditer(r'[^a-zA-Z0-9]+', text):
+            before_match = text[start:m.start()]
+            lst.append(PatternBuilder.get_alnum_pattern(before_match))
+            lst.append(TextPattern(m.group(), used_space=used_space))
+            start = m.end()
+        else:
+            if start > 0:
+                after_match = text[start:]
+                lst.append(PatternBuilder.get_alnum_pattern(after_match))
+
+        pattern = ''.join(lst) if lst else cls.get_alnum_pattern(text)
+        validate_pattern(pattern, exception_cls=PatternBuilderError)
+        return pattern
+
+    @classmethod
+    def get_alnum_pattern(cls, text):
+        if text:
+            if text.isdigit():
+                return '[0-9]+'
+            elif text.isalpha():
+                return '[a-zA-Z]+'
+            elif text.isalnum():
+                return '[a-zA-Z0-9]+'
+            else:
+                return '.*'
+        else:
+            return ''
