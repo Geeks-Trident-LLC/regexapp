@@ -4,6 +4,7 @@ from regexapp.collection import PatternReference
 from regexapp.collection import TextPattern
 from regexapp.collection import ElementPattern
 from regexapp.collection import LinePattern
+from regexapp.collection import PatternBuilder
 
 
 class TestPatternReference:
@@ -141,3 +142,41 @@ class TestLinePattern:
         assert pattern == expected_pattern
         match = re.search(pattern, test_data)
         assert match is not None
+
+
+class TestPatternBuilder:
+    @pytest.mark.parametrize(
+        "test_data,expected_pattern,used_space,var_name",
+        [
+            (
+                ['Friday, April 9, 2021 8:43:15 PM'],
+                '[a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+',
+                True,
+                ''
+            ),
+            (
+                ['Friday, April 9, 2021 8:43:15 PM', '12/06/2010 08:56:45'],
+                '([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)',
+                True,
+                ''
+            ),
+            (
+                ['2019 Dec 16 14:44:01'],
+                '[0-9]+ +[a-zA-Z]+ +[0-9]+ +[0-9]+:[0-9]+:[0-9]+',
+                True,
+                ''
+            ),
+            (
+                ['2019 Dec 16 14:44:01'],
+                '(?P<datetime>[0-9]+ +[a-zA-Z]+ +[0-9]+ +[0-9]+:[0-9]+:[0-9]+)',
+                True,
+                'datetime'
+            ),
+        ]
+    )
+    def test_pattern_builder(self, test_data, expected_pattern, used_space, var_name):
+        pattern = PatternBuilder(test_data, used_space=used_space, var_name=var_name)
+        assert pattern == expected_pattern
+        for data in test_data:
+            match = re.search(pattern, data)
+            assert match is not None
