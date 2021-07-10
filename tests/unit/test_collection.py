@@ -50,6 +50,12 @@ class TestElementPattern:
             ('number()', '(\\d+)?[.]?\\d+'),
             ('signed_number()', '[+(-]?(\\d+)?[.]?\\d+[)]?'),
             ('mixed_number()', '[+\\(\\[\\$-]?(\\d+(,\\d+)*)?[.]?\\d+[\\]\\)%a-zA-Z]*'),
+            ('datetime()', '[0-9]+/[0-9]+/[0-9]+'),
+            ('datetime(format)', '[0-9]+/[0-9]+/[0-9]+'),
+            ('datetime(format1)', '[0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+'),
+            ('datetime(format1, format3)', '([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)'),
+            ('datetime(var_datetime, format1, format3)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+))'),
+            ('datetime(var_datetime, format1, format3, n/a)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|n/a)'),
             ####################################################################
             # predefined keyword test combining with other flags               #
             ####################################################################
@@ -128,6 +134,30 @@ class TestLinePattern:
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                                                      # test data
                 'mixed_word(var_interface_name) is words(var_interface_status), line protocol is words(var_protocol_status)',                                           # user prepared data
                 '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>\\w+(\\s+\\w+)*), +line +protocol +is +(?P<protocol_status>\\w+(\\s+\\w+)*)',    # expected pattern
+                True, False, False, True,
+            ),
+            (
+                '   Lease Expires . . . . . . . . . . : Sunday, April 11, 2021 8:43:33 AM',  # test data
+                '   Lease Expires . . . . . . . . . . : datetime(var_datetime, format3)',    # user prepared data
+                '(?i) +Lease +Expires +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +: +(?P<datetime>[a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)',   # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'vagrant  + pts/0        2021-04-11 02:58   .          1753 (10.0.2.2)',                    # test data
+                'vagrant  + pts/0        datetime(var_datetime, format4)   .          1753 (10.0.2.2)',     # user prepared data
+                '(?i)vagrant +\\+ +pts/0 +(?P<datetime>[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+) +\\. +1753 +\\(10\\.0\\.2\\.2\\)',  # expected pattern
+                True, False, False, True,
+            ),
+            (
+                '   Lease Expires . . . . . . . . . . : Sunday, April 11, 2021 8:43:33 AM',         # test data
+                '   Lease Expires . . . . . . . . . . : datetime(var_datetime, format3, format4)',  # user prepared data
+                '(?i) +Lease +Expires +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +: +(?P<datetime>([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+))',     # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'vagrant  + pts/0        2021-04-11 02:58   .          1753 (10.0.2.2)',                            # test data
+                'vagrant  + pts/0        datetime(var_datetime, format3, format4)   .          1753 (10.0.2.2)',    # user prepared data
+                '(?i)vagrant +\\+ +pts/0 +(?P<datetime>([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+)) +\\. +1753 +\\(10\\.0\\.2\\.2\\)',     # expected pattern
                 True, False, False, True,
             ),
         ]
