@@ -304,11 +304,14 @@ class ElementPattern(str):
                         is_empty = True
                     else:
                         if case in REF:
-                            lst.append(REF.get(case).get('pattern'))
+                            pat = REF.get(case).get('pattern')
+                            pat not in lst and lst.append(pat)
                         else:
-                            lst.append(case)
+                            pat = case
+                            pat not in lst and lst.append(pat)
                 else:
-                    lst.append(re.escape(arg))
+                    pat = re.escape(arg)
+                    pat not in lst and lst.append(pat)
 
         is_empty and lst.append('')
         pattern = cls.join_list(lst)
