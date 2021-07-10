@@ -349,9 +349,11 @@ class ElementPattern(str):
                 name = match.group('name') if not name else name
             else:
                 if arg.startswith('format'):
-                    lst.append(node.get(arg))
+                    pat = node.get(arg)
+                    pat not in lst and lst.append(pat)
                 else:
-                    lst.append(arg)
+                    pat = arg
+                    pat not in lst and lst.append(pat)
         if not lst:
             lst.append(node.get('format'))
 
