@@ -195,6 +195,7 @@ class ElementPattern(str):
     ElementPattern.join_list(lst) -> str
     ElementPattern.add_var_name(pattern, name='') -> str
     ElementPattern.add_word_bound(pattern, word_bound='') -> str
+    ElementPattern.add_start_of_string(pattern, started='') -> str
 
     Raises
     ------
@@ -293,16 +294,22 @@ class ElementPattern(str):
         or_pat = r'or_(?P<case>[^,]+)'
         is_empty = False
         word_bound = ''
+        started = ''
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
-            elif re.search('(left|right|raw)?word_bound', arg):
+            elif re.match('(left_|right_|raw_)?word_bound$', arg):
                 if arg == 'raw_word_bound':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
+            elif re.match('(ws_|raw_)?started', arg):
+                if arg == 'raw_started':
+                    'started' not in lst and lst.append('started')
+                else:
+                    started = arg
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -324,6 +331,7 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name)
+        pattern = cls.add_start_of_string(pattern, started=started)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -486,7 +494,7 @@ class ElementPattern(str):
 
     @classmethod
     def add_word_bound(cls, pattern, word_bound=''):
-        """add var name to regex pattern
+        """add word bound i.e \\b to regex pattern
 
         Parameters
         ----------
@@ -504,6 +512,29 @@ class ElementPattern(str):
                 new_pattern = '{}\\b'.format(pattern)
             else:
                 new_pattern = '\\b{}\\b'.format(pattern)
+            return new_pattern
+        return pattern
+
+    @classmethod
+    def add_start_of_string(cls, pattern, started=''):
+        """add var name to regex pattern
+
+        Parameters
+        ----------
+        pattern (str): a pattern
+        started (str): start of string case.  Default is empty.
+
+        Returns
+        -------
+        str: new pattern with start of string pattern
+        """
+        if started:
+            if started == 'started':
+                new_pattern = '\\A{}'.format(pattern)
+            elif started == 'ws_started':
+                new_pattern = '\\A\\s*{}'.format(pattern)
+            else:
+                new_pattern = pattern
             return new_pattern
         return pattern
 
