@@ -194,6 +194,7 @@ class ElementPattern(str):
     ElementPattern.build_default_pattern(keyword, params) -> bool, str
     ElementPattern.join_list(lst) -> str
     ElementPattern.add_var_name(pattern, name='') -> str
+    ElementPattern.add_word_bound(pattern, word_bound='') -> str
 
     Raises
     ------
@@ -291,11 +292,17 @@ class ElementPattern(str):
         name, vpat = '', r'var_(?P<name>\w+)$'
         or_pat = r'or_(?P<case>[^,]+)'
         is_empty = False
+        word_bound = ''
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
+            elif re.search('(left|right|raw)?word_bound', arg):
+                if arg == 'raw_word_bound':
+                    'word_bound' not in lst and lst.append('word_bound')
+                else:
+                    word_bound = arg
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -315,6 +322,7 @@ class ElementPattern(str):
 
         is_empty and lst.append('')
         pattern = cls.join_list(lst)
+        pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -473,6 +481,29 @@ class ElementPattern(str):
         """
         if name:
             new_pattern = '(?P<{}>{})'.format(name, pattern)
+            return new_pattern
+        return pattern
+
+    @classmethod
+    def add_word_bound(cls, pattern, word_bound=''):
+        """add var name to regex pattern
+
+        Parameters
+        ----------
+        pattern (str): a pattern
+        word_bound (str): word bound case.  Default is empty.
+
+        Returns
+        -------
+        str: new pattern with enclosing word bound pattern
+        """
+        if word_bound:
+            if word_bound == 'left_word_bound':
+                new_pattern = '\\b{}'.format(pattern)
+            elif word_bound == 'right_word_bound':
+                new_pattern = '{}\\b'.format(pattern)
+            else:
+                new_pattern = '\\b{}\\b'.format(pattern)
             return new_pattern
         return pattern
 
