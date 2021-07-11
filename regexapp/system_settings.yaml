@@ -5,7 +5,7 @@ whitespace:
   positive test:
     pattern matches a letter: " "
   negative test:
-    pattern can not match a letter: "."
+    the whitespace pattern can not match data: "."
 
 notwhitespace:
   group: word
@@ -14,7 +14,7 @@ notwhitespace:
   positive test:
     pattern matches a letter: "a"
   negative test:
-    pattern can not match a letter: " "
+    the notwhitespace pattern can not match data: " "
 
 letter:
   group: word
@@ -23,7 +23,7 @@ letter:
   positive test:
     pattern matches a letter: "a"
   negative test:
-    pattern can not match a letter: "."
+    the letter pattern can not match data: "."
 
 letters:
   group: word
@@ -32,7 +32,7 @@ letters:
   positive test:
     pattern matches a letters: "abc"
   negative test:
-    pattern can not match letters: "..."
+    the letters pattern can not match data: "..."
 
 word:
   group: word
@@ -41,7 +41,7 @@ word:
   positive test:
     pattern matches a word: "abc"
   negative test:
-    pattern can not match a word: "[...]"
+    the word pattern can not match data: "[...]"
 
 words:
   group: word
@@ -50,7 +50,7 @@ words:
   positive test:
     pattern match words: "abc xyz"
   negative test:
-    pattern can not match words: "... +++"
+    the words pattern can not match data: "... +++"
 
 mixed_word:
   group: word
@@ -59,7 +59,7 @@ mixed_word:
   positive test:
     pattern matches a mixed word: "abc@xyz.com"
   negative test:
-    pattern can not match a mixed word: "+-*/"
+    the mixed word pattern can not match data: "+-*/"
 
 mixed_words:
   group: word
@@ -68,7 +68,7 @@ mixed_words:
   positive test:
     pattern match mixed words: "email: abc@xyz.com"
   negative test:
-    pattern can not match mixed words: "+-*/ -&^"
+    the mixed words pattern can not match data: "+-*/ -&^"
 
 phrase:
   group: word
@@ -77,7 +77,7 @@ phrase:
   positive test:
     pattern match a pharse: "abc xyz"
   negative test:
-    pattern can not match a phrase: "abc"
+    the phrase pattern can not match data: "abc"
 
 mixed_phrase:
   group: word
@@ -86,7 +86,7 @@ mixed_phrase:
   positive test:
     pattern match a mixed phrase: "email: abc@xyz.com"
   negative test:
-    pattern can not match a mixed phrase: "email:"
+    the mixed phrase pattern can not match data: "email:"
 
 digit:
   group: number
@@ -95,7 +95,7 @@ digit:
   positive test:
     pattern match a digit: "5"
   negative test:
-    pattern can not match a digit: "x"
+    the digit pattern can not match data: "x"
 
 digits:
   group: number
@@ -104,38 +104,38 @@ digits:
   positive test:
     pattern match at least one digit: "45"
   negative test:
-    pattern can not match digits: "xyz"
+    the digits pattern can not match data: "xyz"
 
 number:
   group: number
   description: a pattern to match a number.
   pattern: "(\\d+)?[.]?\\d+"
   positive test:
-    pattern match a number: ["69", "69.95", "0.95", ".95"]
+    pattern match numbers: ["69", "69.95", "0.95", ".95"]
   negative test:
-    pattern can not match a number: ["ab"]
+    the number pattern can not match data: ["ab"]
 
 signed_number:
   group: number
   description: a pattern to match a signed number.
   pattern: "[+(-]?(\\d+)?[.]?\\d+[)]?"
   positive test:
-    pattern match a signed number: ["69", "-69.95", "+0.95", "(.95)"]
+    pattern match signed numbers: ["69", "-69.95", "+0.95", "(.95)"]
   negative test:
-    pattern can not match a signed number: ["a.b"]
+    the signed number pattern can not match data: ["a.b"]
 
 mixed_number:
   group: number
   description: a pattern to match a mixed number.
   pattern: "[+\\(\\[\\$-]?(\\d+(,\\d+)*)?[.]?\\d+[\\]\\)%a-zA-Z]*"
   positive test:
-    pattern match a mixed number: [
+    pattern match mixed numbers: [
         "69", "-69.95", "+0.95", "(.95)",
         "9.95%", "$19.99", "11,350.12",
         "$11,350.12", "1.9Mb"
     ]
   negative test:
-    pattern can not match a signed number: ["a.b"]
+    the mixed number pattern can not match data: ["a.b"]
 
 datetime:
   group: datetime
@@ -152,8 +152,29 @@ datetime:
     pattern matches a datetime format3: Friday, April  9, 2021 8:43:15 PM
     pattern matches a datetime format4: 2021-04-11 03:03
   negative test:
-    pattern can not match a datetime format: 07-10-2021
-    pattern can not match a datetime format1: 07-10-2021 08:56:45
-    pattern can not match a datetime format2: 2021 Jun 16, 14:44:01
-    pattern can not match a datetime format3: Friday April  9, 2021 8:43:15 PM
-    pattern can not match a datetime format4: 2021/04/11 03:03
+    the format datetime pattern can not match data: 07-10-2021
+    the format1 datetime pattern can not match data: 07-10-2021 08:56:45
+    the format2 datetime pattern can not match data: 2021 Jun 16, 14:44:01
+    the format3 datetime pattern can not match data: Friday April  9, 2021 8:43:15 PM
+    the format4 datetime pattern can not match data: 2021/04/11 03:03
+
+mac_address:
+  group: address
+  description: a pattern to match an MAC address.
+  pattern: "([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})"
+  positive test:
+    pattern matches mac addresses: [
+        "11:22:33:aa:bb:cc",
+        "11-22-33-aa-bb-cc",
+        "11 22 33 aa bb cc",
+        "1122.33aa.bbcc"
+    ]
+  negative test:
+    the mac address pattern can not match data: [
+        "11:22:33 09:30:20",
+        "11:22 33:09 30:20",
+        "11:22:33:09 30-20",
+        "1122 33aa bbcc",
+        "1122-33aa-bbcc",
+        "1122:33aa:bbcc",
+    ]

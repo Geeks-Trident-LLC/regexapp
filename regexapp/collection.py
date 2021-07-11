@@ -304,11 +304,14 @@ class ElementPattern(str):
                         is_empty = True
                     else:
                         if case in REF:
-                            lst.append(REF.get(case).get('pattern'))
+                            pat = REF.get(case).get('pattern')
+                            pat not in lst and lst.append(pat)
                         else:
-                            lst.append(case)
+                            pat = case
+                            pat not in lst and lst.append(pat)
                 else:
-                    lst.append(re.escape(arg))
+                    pat = re.escape(arg)
+                    pat not in lst and lst.append(pat)
 
         is_empty and lst.append('')
         pattern = cls.join_list(lst)
@@ -346,9 +349,11 @@ class ElementPattern(str):
                 name = match.group('name') if not name else name
             else:
                 if arg.startswith('format'):
-                    lst.append(node.get(arg))
+                    pat = node.get(arg)
+                    pat not in lst and lst.append(pat)
                 else:
-                    lst.append(arg)
+                    pat = arg
+                    pat not in lst and lst.append(pat)
         if not lst:
             lst.append(node.get('format'))
 
@@ -381,7 +386,8 @@ class ElementPattern(str):
             if match:
                 name = match.group('name') if not name else name
             else:
-                lst.append(arg)
+                pat = arg
+                pat not in lst and lst.append(pat)
 
         pattern = cls.join_list(lst)
         pattern = cls.add_var_name(pattern, name)
@@ -438,8 +444,14 @@ class ElementPattern(str):
         new_lst = []
         if len(lst) > 1:
             for item in lst:
-                v = '({})'.format(item) if re.search(r'\s', item) else item
-                new_lst.append(v)
+                if re.search(r'\s', item):
+                    if item.startswith('(') and item.endswith(')'):
+                        v = item
+                    else:
+                        v = '({})'.format(item)
+                else:
+                    v = item
+                v not in new_lst and new_lst.append(v)
         else:
             new_lst = lst
 
