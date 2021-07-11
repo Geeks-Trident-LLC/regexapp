@@ -69,6 +69,9 @@ class TestElementPattern:
             ('word(var_v1, right_word_bound)', '(?P<v1>\\w+\\b)'),
             ('word(var_v1, word_bound)', '(?P<v1>\\b\\w+\\b)'),
             ('word(var_v1, raw_word_bound)', '(?P<v1>\\w+|word_bound)'),
+            ('word(var_v1, started)', '\\A(?P<v1>\\w+)'),
+            ('word(var_v1, ws_started)', '\\A\\s*(?P<v1>\\w+)'),
+            ('word(var_v1, raw_started)', '(?P<v1>\\w+|started)'),
             ####################################################################
             # choice keyword test                                              #
             ####################################################################
@@ -189,6 +192,24 @@ class TestLinePattern:
                 'today is Friday.',                         # test data
                 'today is word(var_day, word_bound).',      # user prepared data
                 '(?i)today +is +(?P<day>\\b\\w+\\b)\\.',    # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'cherry is delicious.',                     # test data
+                'word(var_fruit, started) is delicious.',   # user prepared data
+                '(?i)\\A(?P<fruit>\\w+) +is +delicious\\.', # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'cherry is delicious.',                             # test data
+                'word(var_fruit, ws_started) is delicious.',        # user prepared data
+                '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
+                True, False, False, True,
+            ),
+            (
+                ' cherry is delicious.',                            # test data
+                'word(var_fruit, ws_started) is delicious.',        # user prepared data
+                '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
                 True, False, False, True,
             ),
         ]
