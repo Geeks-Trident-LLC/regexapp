@@ -72,6 +72,9 @@ class TestElementPattern:
             ('word(var_v1, started)', '\\A(?P<v1>\\w+)'),
             ('word(var_v1, ws_started)', '\\A\\s*(?P<v1>\\w+)'),
             ('word(var_v1, raw_started)', '(?P<v1>\\w+|started)'),
+            ('word(var_v1, ended)', '(?P<v1>\\w+)\\Z'),
+            ('word(var_v1, ws_ended)', '(?P<v1>\\w+)\\s*\\Z'),
+            ('word(var_v1, raw_ended)', '(?P<v1>\\w+|ended)'),
             ####################################################################
             # choice keyword test                                              #
             ####################################################################
@@ -207,9 +210,27 @@ class TestLinePattern:
                 True, False, False, True,
             ),
             (
-                ' cherry is delicious.',                            # test data
+                '\r\n cherry is delicious.',                        # test data
                 'word(var_fruit, ws_started) is delicious.',        # user prepared data
                 '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'I live in ABC',                                        # test data
+                'I live in words(var_city, ended)',                     # user prepared data
+                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\Z',        # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'I live in ABC',                                        # test data
+                'I live in words(var_city, ws_ended)',                  # user prepared data
+                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*\\Z',    # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'I live in ABC \r\n',                                   # test data
+                'I live in words(var_city, ws_ended)',                  # user prepared data
+                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*\\Z',    # expected pattern
                 True, False, False, True,
             ),
         ]
