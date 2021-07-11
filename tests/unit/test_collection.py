@@ -65,6 +65,10 @@ class TestElementPattern:
             ('word(var_v1, or_empty)', '(?P<v1>\\w+|)'),
             ('word(var_v1, or_n/a, or_empty)', '(?P<v1>\\w+|n/a|)'),
             ('word(var_v1, or_abc xyz, or_12.95 19.95, or_empty)', '(?P<v1>\\w+|(abc xyz)|(12.95 19.95)|)'),
+            ('word(var_v1, left_word_bound)', '(?P<v1>\\b\\w+)'),
+            ('word(var_v1, right_word_bound)', '(?P<v1>\\w+\\b)'),
+            ('word(var_v1, word_bound)', '(?P<v1>\\b\\w+\\b)'),
+            ('word(var_v1, raw_word_bound)', '(?P<v1>\\w+|word_bound)'),
             ####################################################################
             # choice keyword test                                              #
             ####################################################################
@@ -179,6 +183,12 @@ class TestLinePattern:
                 'addresses are 11-22-33-44-55-aa, 11:22:33:44:55:bb, 11 22 33 44 55 cc, 1122.3344.55dd',    # test data
                 'addresses are mac_address(var_addr1), mac_address(var_addr2), mac_address(var_addr3), mac_address(var_addr4)',     # user prepared data
                 '(?i)addresses +are +(?P<addr1>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})), +(?P<addr2>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})), +(?P<addr3>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})), +(?P<addr4>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2}))',  # expected pattern
+                True, False, False, True,
+            ),
+            (
+                'today is Friday.',                         # test data
+                'today is word(var_day, word_bound).',      # user prepared data
+                '(?i)today +is +(?P<day>\\b\\w+\\b)\\.',    # expected pattern
                 True, False, False, True,
             ),
         ]
