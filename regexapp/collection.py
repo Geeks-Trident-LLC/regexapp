@@ -196,6 +196,7 @@ class ElementPattern(str):
     ElementPattern.add_var_name(pattern, name='') -> str
     ElementPattern.add_word_bound(pattern, word_bound='') -> str
     ElementPattern.add_start_of_string(pattern, started='') -> str
+    ElementPattern.add_end_of_string(pattern, ended='') -> str
 
     Raises
     ------
@@ -295,6 +296,7 @@ class ElementPattern(str):
         is_empty = False
         word_bound = ''
         started = ''
+        ended = ''
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
@@ -310,6 +312,11 @@ class ElementPattern(str):
                     'started' not in lst and lst.append('started')
                 else:
                     started = arg
+            elif re.match('(ws_|raw_)?ended', arg):
+                if arg == 'raw_ended':
+                    'ended' not in lst and lst.append('ended')
+                else:
+                    ended = arg
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -332,6 +339,7 @@ class ElementPattern(str):
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name)
         pattern = cls.add_start_of_string(pattern, started=started)
+        pattern = cls.add_end_of_string(pattern, ended=ended)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -517,7 +525,7 @@ class ElementPattern(str):
 
     @classmethod
     def add_start_of_string(cls, pattern, started=''):
-        """add var name to regex pattern
+        """prepend start of string i.e \\A or \\A\\s* regex pattern
 
         Parameters
         ----------
@@ -533,6 +541,29 @@ class ElementPattern(str):
                 new_pattern = '\\A{}'.format(pattern)
             elif started == 'ws_started':
                 new_pattern = '\\A\\s*{}'.format(pattern)
+            else:
+                new_pattern = pattern
+            return new_pattern
+        return pattern
+
+    @classmethod
+    def add_end_of_string(cls, pattern, ended=''):
+        """append end of string i.e \\Z or \\s*\\Z regex pattern
+
+        Parameters
+        ----------
+        pattern (str): a pattern
+        ended (str): end of string case.  Default is empty.
+
+        Returns
+        -------
+        str: new pattern with end of string pattern
+        """
+        if ended:
+            if ended == 'ended':
+                new_pattern = '{}\\Z'.format(pattern)
+            elif ended == 'ws_ended':
+                new_pattern = '{}\\s*\\Z'.format(pattern)
             else:
                 new_pattern = pattern
             return new_pattern
