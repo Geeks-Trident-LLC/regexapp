@@ -59,6 +59,7 @@ class TestElementPattern:
             ('mac_address()', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})'),
             ('mac_address(or_n/a)', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a'),
             ('mac_address(var_mac_addr, or_n/a)', '(?P<mac_addr>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a)'),
+            ('ipv4_address()', '((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3}'),
             ####################################################################
             # predefined keyword test combining with other flags               #
             ####################################################################
@@ -99,144 +100,189 @@ class TestElementPattern:
 
 class TestLinePattern:
     @pytest.mark.parametrize(
-        "test_data,user_prepared_data,expected_pattern,used_space,prepended_ws,appended_ws,ignore_case",
+        "test_data,user_prepared_data,expected_pattern,used_space,prepended_ws,appended_ws,ignore_case,is_matched",
         [
             (
                 ' \t\n\r\f\v',      # test data
                 ' ',                # user prepared data
                 '^\\s*$',           # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
                 '\\S*[a-zA-Z0-9]\\S*\\s+is\\s+up|down|(administratively down),\\s+line\\s+protocol\\s+is\\s+up|down|(administratively down)',   # expected pattern
                 False, False, False, False,
+                True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
                 '\\S*[a-zA-Z0-9]\\S* +is +up|down|(administratively down), +line +protocol +is +up|down|(administratively down)',               # expected pattern
                 True, False, False, False,
+                True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
                 '(?i)\\S*[a-zA-Z0-9]\\S* +is +up|down|(administratively down), +line +protocol +is +up|down|(administratively down)',           # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
                 '(?i)^ *\\S*[a-zA-Z0-9]\\S* +is +up|down|(administratively down), +line +protocol +is +up|down|(administratively down)',        # expected pattern
                 True, True, False, True,
+                True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
                 '(?i)^ *\\S*[a-zA-Z0-9]\\S* +is +up|down|(administratively down), +line +protocol +is +up|down|(administratively down) *$',     # expected pattern
                 True, True, True, True,
+                True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                                                                                          # test data
                 'mixed_word(var_interface_name) is choice(up, down, administratively down, var_interface_status), line protocol is choice(up, down, administratively down, var_protocol_status)',           # user prepared data
                 '(?i)^ *(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>up|down|(administratively down)), +line +protocol +is +(?P<protocol_status>up|down|(administratively down)) *$',  # expected pattern
                 True, True, True, True,
+                True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                                                      # test data
                 'mixed_word(var_interface_name) is words(var_interface_status), line protocol is words(var_protocol_status)',                                           # user prepared data
                 '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>\\w+(\\s+\\w+)*), +line +protocol +is +(?P<protocol_status>\\w+(\\s+\\w+)*)',    # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 '   Lease Expires . . . . . . . . . . : Sunday, April 11, 2021 8:43:33 AM',  # test data
                 '   Lease Expires . . . . . . . . . . : datetime(var_datetime, format3)',    # user prepared data
                 '(?i) +Lease +Expires +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +: +(?P<datetime>[a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)',   # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'vagrant  + pts/0        2021-04-11 02:58   .          1753 (10.0.2.2)',                    # test data
                 'vagrant  + pts/0        datetime(var_datetime, format4)   .          1753 (10.0.2.2)',     # user prepared data
                 '(?i)vagrant +\\+ +pts/0 +(?P<datetime>[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+) +\\. +1753 +\\(10\\.0\\.2\\.2\\)',  # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 '   Lease Expires . . . . . . . . . . : Sunday, April 11, 2021 8:43:33 AM',         # test data
                 '   Lease Expires . . . . . . . . . . : datetime(var_datetime, format3, format4)',  # user prepared data
                 '(?i) +Lease +Expires +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +: +(?P<datetime>([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+))',     # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'vagrant  + pts/0        2021-04-11 02:58   .          1753 (10.0.2.2)',                            # test data
                 'vagrant  + pts/0        datetime(var_datetime, format3, format4)   .          1753 (10.0.2.2)',    # user prepared data
                 '(?i)vagrant +\\+ +pts/0 +(?P<datetime>([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+)) +\\. +1753 +\\(10\\.0\\.2\\.2\\)',     # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 '  Hardware is TenGigE, address is 0800.4539.d909 (bia 0800.4539.d909)',    # test data
                 '  Hardware is TenGigE, address is mac_address() (mac_address())',          # user prepared data
                 '(?i) +Hardware +is +TenGigE, +address +is +([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2}) +\\(([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})\\)',     # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 '  Hardware is TenGigE, address is 0800.4539.d909 (bia 0800.4539.d909)',  # test data
                 '  Hardware is TenGigE, address is mac_address(var_addr1) (bia mac_address(var_addr2))',  # user prepared data
                 '(?i) +Hardware +is +TenGigE, +address +is +(?P<addr1>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})) +\\(bia +(?P<addr2>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2}))\\)',    # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'addresses are 11-22-33-44-55-aa, 11:22:33:44:55:bb, 11 22 33 44 55 cc, 1122.3344.55dd',    # test data
                 'addresses are mac_address(var_addr1), mac_address(var_addr2), mac_address(var_addr3), mac_address(var_addr4)',     # user prepared data
                 '(?i)addresses +are +(?P<addr1>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})), +(?P<addr2>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})), +(?P<addr3>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})), +(?P<addr4>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2}))',  # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'today is Friday.',                         # test data
                 'today is word(var_day, word_bound).',      # user prepared data
                 '(?i)today +is +(?P<day>\\b\\w+\\b)\\.',    # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'cherry is delicious.',                     # test data
                 'word(var_fruit, started) is delicious.',   # user prepared data
                 '(?i)\\A(?P<fruit>\\w+) +is +delicious\\.', # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'cherry is delicious.',                             # test data
                 'word(var_fruit, ws_started) is delicious.',        # user prepared data
                 '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 '\r\n cherry is delicious.',                        # test data
                 'word(var_fruit, ws_started) is delicious.',        # user prepared data
                 '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'I live in ABC',                                        # test data
                 'I live in words(var_city, ended)',                     # user prepared data
                 '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\Z',        # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'I live in ABC',                                        # test data
                 'I live in words(var_city, ws_ended)',                  # user prepared data
                 '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*\\Z',    # expected pattern
                 True, False, False, True,
+                True
             ),
             (
                 'I live in ABC \r\n',                                   # test data
                 'I live in words(var_city, ws_ended)',                  # user prepared data
                 '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*\\Z',    # expected pattern
                 True, False, False, True,
+                True
+            ),
+            (
+                '          inet addr:10.0.2.15  Bcast:10.0.2.255  Mask:255.255.255.0',  # test data
+                '          inet addr:ipv4_address(var_inet_addr)  Bcast:ipv4_address(var_bcast_addr)  Mask:ipv4_address(var_mask_addr)',  # user prepared data
+                '(?i) +inet +addr:(?P<inet_addr>((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3}) +Bcast:(?P<bcast_addr>((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3}) +Mask:(?P<mask_addr>((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3})',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                '192.168.0.1 is IPv4 address',  # test data
+                'ipv4_address() is IPv4 address',  # user prepared data
+                '(?i)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3} +is +IPv4 +address',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'Is 192.168.0.256 an IPv4 address?',  # test data
+                'Is ipv4_address() an IPv4 address?',  # user prepared data
+                '(?i)Is +((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3} +an +IPv4 +address\\?',
+                # expected pattern
+                True, False, False, True,
+                False
             ),
         ]
     )
     def test_line_pattern(self, test_data, user_prepared_data,expected_pattern,
-                          used_space, prepended_ws, appended_ws, ignore_case):
+                          used_space, prepended_ws, appended_ws, ignore_case,
+                          is_matched):
         pattern = LinePattern(
             user_prepared_data, used_space=used_space,
             prepended_ws=prepended_ws, appended_ws=appended_ws,
@@ -244,7 +290,10 @@ class TestLinePattern:
         )
         assert pattern == expected_pattern
         match = re.search(pattern, test_data)
-        assert match is not None
+        if is_matched:
+            assert match is not None
+        else:
+            assert match is None
 
 
 class TestPatternBuilder:
