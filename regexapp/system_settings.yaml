@@ -178,3 +178,21 @@ mac_address:
         "1122-33aa-bbcc",
         "1122:33aa:bbcc",
     ]
+
+ipv4_address:
+  group: address
+  description: a pattern to match an ipv4 address.
+  pattern: "((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3}"
+  positive test:
+    pattern matches ipv4 addresses: [
+        "127.0.0.1",
+        "192.168.0.1",
+        "255.255.255.255",
+    ]
+  negative test:
+    the ipv4 address pattern can not match data: [
+        "127.1111.0.1",
+        "127.256.1.1",
+        "256.1.1.1",
+        "127.0 0.1",
+    ]
