@@ -297,6 +297,7 @@ class ElementPattern(str):
         word_bound = ''
         started = ''
         ended = ''
+        is_repeated = False
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
@@ -317,6 +318,10 @@ class ElementPattern(str):
                     'ended' not in lst and lst.append('ended')
                 else:
                     ended = arg
+            elif re.match(r'repetition_\d*(_\d*)?$', arg):
+                if not is_repeated:
+                    lst = cls.add_repetition(lst, repetition=arg)
+                    is_repeated = True
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -568,6 +573,35 @@ class ElementPattern(str):
                 new_pattern = pattern
             return new_pattern
         return pattern
+
+    @classmethod
+    def add_repetition(cls, lst, repetition=''):
+        """insert regex repetition for a first item of list
+
+        Parameters
+        ----------
+        lst (lst): a list of sub pattens
+        repetition (str): a repetition expression.  Default is empty.
+
+        Returns
+        -------
+        lst: a new list if repetition is required.
+        """
+        if not repetition:
+            return lst
+
+        new_lst = lst[:]
+        item = new_lst[0]
+        if ' ' in item or r'\s' in item:
+            if ' ' != item or r'\s' != item:
+                item = '(%s)' % item
+        _, m, *last = repetition.split('_', 2)
+        if last:
+            n = last[0]
+            new_lst[0] = '%s{%s,%s}' % (item, m, n)
+        else:
+            new_lst[0] = '%s{%s}' % (item, m)
+        return new_lst
 
 
 class LinePatternError(PatternError):
