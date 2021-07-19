@@ -626,6 +626,9 @@ class LinePatternError(PatternError):
 class LinePattern(str):
     """Use to convert a line text to regex pattern
 
+    Attributes:
+    variables (list): a list of pattern variable
+
     Parameters
     ----------
     text (str): a text.
@@ -650,6 +653,7 @@ class LinePattern(str):
     def __new__(cls, text, used_space=True,
                 prepended_ws=False, appended_ws=False,
                 ignore_case=True):
+        cls.variables = list()
         data = str(text)
         if data:
             pattern = cls.get_pattern(
@@ -693,7 +697,11 @@ class LinePattern(str):
         for m in re.finditer(r'\w+[(][^)]*[)]', line):
             pre_match = m.string[start:m.start()]
             lst.append(TextPattern(pre_match, used_space=used_space))
-            lst.append(ElementPattern(m.group()))
+            elm_pat = ElementPattern(m.group())
+            if elm_pat.var_name:
+                pair = (elm_pat.var_name, elm_pat.base_pattern)
+                cls.variables.append(pair)
+            lst.append(elm_pat)
             start = m.end()
         else:
             if start:
