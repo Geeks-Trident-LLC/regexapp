@@ -473,11 +473,14 @@ class ElementPattern(str):
         new_lst = []
         if len(lst) > 1:
             for item in lst:
-                if re.search(r'\s', item):
+                if ' ' in item or r'\s' in item:
                     if item.startswith('(') and item.endswith(')'):
                         v = item
                     else:
-                        v = '({})'.format(item)
+                        if re.match(r' ([?+*]+|([{][0-9,]+[}]))$', item):
+                            v = item
+                        else:
+                            v = '({})'.format(item)
                 else:
                     v = item
                 v not in new_lst and new_lst.append(v)
