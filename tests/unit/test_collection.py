@@ -77,6 +77,10 @@ class TestElementPattern:
             ('word(var_v1, ended)', '(?P<v1>\\w+)\\Z'),
             ('word(var_v1, ws_ended)', '(?P<v1>\\w+)\\s*\\Z'),
             ('word(var_v1, raw_ended)', '(?P<v1>\\w+|ended)'),
+            ('letter(var_word, repetition_3)', '(?P<word>[a-zA-Z]{3})'),
+            ('letter(var_word, repetition_3_8)', '(?P<word>[a-zA-Z]{3,8})'),
+            ('letter(var_word, repetition_3_)', '(?P<word>[a-zA-Z]{3,})'),
+            ('letter(var_word, repetition__8)', '(?P<word>[a-zA-Z]{,8})'),
             ####################################################################
             # choice keyword test                                              #
             ####################################################################
