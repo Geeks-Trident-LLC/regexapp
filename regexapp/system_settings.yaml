@@ -1,3 +1,30 @@
+ws:
+  group: word
+  description: a pattern to match a character divider such as space, tab, newline, and more.
+  pattern: "\\s"
+  positive test:
+    pattern matches a letter: " "
+  negative test:
+    the whitespace pattern can not match data: "."
+
+notws:
+  group: word
+  description: a pattern to match a character which is not a whitespace character.
+  pattern: "\\S"
+  positive test:
+    pattern matches a letter: "a"
+  negative test:
+    the notwhitespace pattern can not match data: " "
+
+nonews:
+  group: word
+  description: a pattern to match a character which is not a whitespace character.
+  pattern: "\\S"
+  positive test:
+    pattern matches a letter: "a"
+  negative test:
+    the notwhitespace pattern can not match data: " "
+
 whitespace:
   group: word
   description: a pattern to match a word divider such as space, tab, newline, and more.
@@ -8,6 +35,15 @@ whitespace:
     the whitespace pattern can not match data: "."
 
 notwhitespace:
+  group: word
+  description: a pattern to match any character which is not a whitespace character.
+  pattern: "\\S+"
+  positive test:
+    pattern matches a letter: "a"
+  negative test:
+    the notwhitespace pattern can not match data: " "
+
+nonewhitespace:
   group: word
   description: a pattern to match any character which is not a whitespace character.
   pattern: "\\S+"
