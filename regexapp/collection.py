@@ -94,9 +94,12 @@ class PatternReference(dict):
                     if key not in self:
                         self[key] = value
                     else:
-                        fmt = ('%r key is already existed.  '
-                               'Wont update %r data to key.')
-                        logger.warning(fmt, key, value)
+                        if key == 'datetime':
+                            self[key] = value
+                        else:
+                            fmt = ('%r key is already existed.  '
+                                   'Wont update %r data to key.')
+                            logger.warning(fmt, key, value)
         except Exception as ex:
             msg = '{} - {}'.format(type(ex).__name__, ex)
             raise PatternReferenceError(msg)
