@@ -272,7 +272,7 @@ class ElementPattern(str):
             params = match.group('params')
             pattern = cls.build_pattern(keyword, params)
         else:
-            pattern = re.escape(text)
+            pattern = do_soft_regex_escape(text)
 
         validate_pattern(pattern, exception_cls=ElementPatternError)
         return pattern
@@ -374,7 +374,7 @@ class ElementPattern(str):
                             pat = case
                             pat not in lst and lst.append(pat)
                 else:
-                    pat = re.escape(arg)
+                    pat = do_soft_regex_escape(arg)
                     pat not in lst and lst.append(pat)
 
         is_empty and lst.append('')
@@ -494,7 +494,7 @@ class ElementPattern(str):
         -------
         tuple: status, a regex pattern.
         """
-        pattern = re.escape('{}({})'.format(keyword, params))
+        pattern = do_soft_regex_escape('{}({})'.format(keyword, params))
         return True, pattern
 
     @classmethod
