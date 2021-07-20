@@ -4,6 +4,7 @@ import re
 import yaml
 import string
 from pathlib import Path, PurePath
+from regexapp.exceptions import EscapePatternError
 from regexapp.exceptions import PatternReferenceError
 from regexapp.exceptions import TextPatternError
 from regexapp.exceptions import ElementPatternError
@@ -42,6 +43,10 @@ def do_soft_regex_escape(pattern, is_validated=True):
     Returns
     -------
     str: return a new pattern if there is special characters that needs to escape.
+
+    Raises
+    ------
+    EscapePatternError: if error during validating pattern.
     """
     pattern = str(pattern)
     chk1, chk2 = string.punctuation + ' ', '^$.?*+|{}[]()'
@@ -53,7 +58,7 @@ def do_soft_regex_escape(pattern, is_validated=True):
         else:
             result.append(echar)
     new_pattern = ''.join(result)
-    is_validated and validate_pattern(new_pattern)
+    is_validated and validate_pattern(new_pattern, exception_cls=EscapePatternError)
     return new_pattern
 
 
