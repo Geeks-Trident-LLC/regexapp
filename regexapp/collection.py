@@ -2,7 +2,14 @@
 
 import re
 import yaml
+import string
 from pathlib import Path, PurePath
+from regexapp.exceptions import EscapePatternError
+from regexapp.exceptions import PatternReferenceError
+from regexapp.exceptions import TextPatternError
+from regexapp.exceptions import ElementPatternError
+from regexapp.exceptions import LinePatternError
+from regexapp.exceptions import PatternBuilderError
 
 import logging
 logger = logging.getLogger(__file__)
@@ -24,8 +31,35 @@ def validate_pattern(pattern, flags=0, exception_cls=None):
         raise exception_cls(msg)
 
 
-class PatternReferenceError(Exception):
-    """Use to capture error for PatternReference instance"""
+def do_soft_regex_escape(pattern, is_validated=True):
+    """Escape special characters in a string.  This method will help
+    consistency pattern during invoking re.escape on different Python version.
+
+    Parameters
+    ----------
+    pattern (str): a pattern.
+    is_validated (bool): need to validate pattern after escape.  Default is False.
+
+    Returns
+    -------
+    str: return a new pattern if there is special characters that needs to escape.
+
+    Raises
+    ------
+    EscapePatternError: if error during validating pattern.
+    """
+    pattern = str(pattern)
+    chk1, chk2 = string.punctuation + ' ', '^$.?*+|{}[]()'
+    result = []
+    for char in pattern:
+        echar = re.escape(char)
+        if char in chk1:
+            result.append(echar if char in chk2 else char)
+        else:
+            result.append(echar)
+    new_pattern = ''.join(result)
+    is_validated and validate_pattern(new_pattern, exception_cls=EscapePatternError)
+    return new_pattern
 
 
 class PatternReference(dict):
@@ -109,14 +143,6 @@ class PatternReference(dict):
 REF = PatternReference()
 
 
-class PatternError(Exception):
-    """Use to capture error during pattern conversion."""
-
-
-class TextPatternError(Exception):
-    """Use to capture error during pattern conversion."""
-
-
 class TextPattern(str):
     """Use to convert text data to regex pattern
 
@@ -168,17 +194,11 @@ class TextPattern(str):
             if not item:
                 result.append(item)
             else:
-                lst = []
-                for v in list(item):
-                    lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
-                result.append(''.join(lst))
+                new_item = do_soft_regex_escape(item)
+                result.append(new_item)
         text_pattern = pattern.join(result)
         validate_pattern(text_pattern, exception_cls=TextPatternError)
         return text_pattern
-
-
-class ElementPatternError(Exception):
-    """Use to capture error during pattern conversion."""
 
 
 class ElementPattern(str):
@@ -246,7 +266,7 @@ class ElementPattern(str):
             params = match.group('params')
             pattern = cls.build_pattern(keyword, params)
         else:
-            pattern = re.escape(text)
+            pattern = do_soft_regex_escape(text)
 
         validate_pattern(pattern, exception_cls=ElementPatternError)
         return pattern
@@ -348,7 +368,7 @@ class ElementPattern(str):
                             pat = case
                             pat not in lst and lst.append(pat)
                 else:
-                    pat = re.escape(arg)
+                    pat = do_soft_regex_escape(arg)
                     pat not in lst and lst.append(pat)
 
         is_empty and lst.append('')
@@ -451,10 +471,8 @@ class ElementPattern(str):
         if not params.startswith('raw>>>'):
             return False, ''
         params = re.sub(r'raw>+', '', params, count=1)
-        lst = []
-        for v in list(params):
-            lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
-        pattern = r'{}\({}\)'.format(keyword, ''.join(lst))
+        new_params = do_soft_regex_escape(params)
+        pattern = r'{}\({}\)'.format(keyword, new_params)
         return True, pattern
 
     @classmethod
@@ -470,7 +488,7 @@ class ElementPattern(str):
         -------
         tuple: status, a regex pattern.
         """
-        pattern = re.escape('{}({})'.format(keyword, params))
+        pattern = do_soft_regex_escape('{}({})'.format(keyword, params))
         return True, pattern
 
     @classmethod
@@ -624,10 +642,6 @@ class ElementPattern(str):
         return new_lst
 
 
-class LinePatternError(PatternError):
-    """Use to capture error during pattern conversion."""
-
-
 class LinePattern(str):
     """Use to convert a line text to regex pattern
 
@@ -727,10 +741,6 @@ class LinePattern(str):
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
-
-
-class PatternBuilderError(PatternError):
-    """Use to capture error during pattern conversion."""
 
 
 class PatternBuilder(str):
