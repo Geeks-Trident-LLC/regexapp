@@ -4,6 +4,11 @@ import re
 import yaml
 import string
 from pathlib import Path, PurePath
+from regexapp.exceptions import PatternReferenceError
+from regexapp.exceptions import TextPatternError
+from regexapp.exceptions import ElementPatternError
+from regexapp.exceptions import LinePatternError
+from regexapp.exceptions import PatternBuilderError
 
 import logging
 logger = logging.getLogger(__file__)
@@ -50,10 +55,6 @@ def do_soft_regex_escape(pattern, is_validated=True):
     new_pattern = ''.join(result)
     is_validated and validate_pattern(new_pattern)
     return new_pattern
-
-
-class PatternReferenceError(Exception):
-    """Use to capture error for PatternReference instance"""
 
 
 class PatternReference(dict):
@@ -137,14 +138,6 @@ class PatternReference(dict):
 REF = PatternReference()
 
 
-class PatternError(Exception):
-    """Use to capture error during pattern conversion."""
-
-
-class TextPatternError(Exception):
-    """Use to capture error during pattern conversion."""
-
-
 class TextPattern(str):
     """Use to convert text data to regex pattern
 
@@ -201,10 +194,6 @@ class TextPattern(str):
         text_pattern = pattern.join(result)
         validate_pattern(text_pattern, exception_cls=TextPatternError)
         return text_pattern
-
-
-class ElementPatternError(Exception):
-    """Use to capture error during pattern conversion."""
 
 
 class ElementPattern(str):
@@ -648,10 +637,6 @@ class ElementPattern(str):
         return new_lst
 
 
-class LinePatternError(PatternError):
-    """Use to capture error during pattern conversion."""
-
-
 class LinePattern(str):
     """Use to convert a line text to regex pattern
 
@@ -751,10 +736,6 @@ class LinePattern(str):
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
-
-
-class PatternBuilderError(PatternError):
-    """Use to capture error during pattern conversion."""
 
 
 class PatternBuilder(str):
