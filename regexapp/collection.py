@@ -2,6 +2,7 @@
 
 import re
 import yaml
+import string
 from pathlib import Path, PurePath
 
 import logging
@@ -22,6 +23,33 @@ def validate_pattern(pattern, flags=0, exception_cls=None):
     except Exception as ex:
         msg = '{} - {}'.format(type(ex).__name__, ex)
         raise exception_cls(msg)
+
+
+def do_soft_regex_escape(pattern, is_validated=True):
+    """Escape special characters in a string.  This method will help
+    consistency pattern during invoking re.escape on different Python version.
+
+    Parameters
+    ----------
+    pattern (str): a pattern.
+    is_validated (bool): need to validate pattern after escape.  Default is False.
+
+    Returns
+    -------
+    str: return a new pattern if there is special characters that needs to escape.
+    """
+    pattern = str(pattern)
+    chk1, chk2 = string.punctuation + ' ', '^$.?*+|{}[]()'
+    result = []
+    for char in pattern:
+        echar = re.escape(char)
+        if char in chk1:
+            result.append(echar if char in chk2 else char)
+        else:
+            result.append(echar)
+    new_pattern = ''.join(result)
+    is_validated and validate_pattern(new_pattern)
+    return new_pattern
 
 
 class PatternReferenceError(Exception):
@@ -168,10 +196,8 @@ class TextPattern(str):
             if not item:
                 result.append(item)
             else:
-                lst = []
-                for v in list(item):
-                    lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
-                result.append(''.join(lst))
+                new_item = do_soft_regex_escape(item)
+                result.append(new_item)
         text_pattern = pattern.join(result)
         validate_pattern(text_pattern, exception_cls=TextPatternError)
         return text_pattern
@@ -451,10 +477,8 @@ class ElementPattern(str):
         if not params.startswith('raw>>>'):
             return False, ''
         params = re.sub(r'raw>+', '', params, count=1)
-        lst = []
-        for v in list(params):
-            lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
-        pattern = r'{}\({}\)'.format(keyword, ''.join(lst))
+        new_params = do_soft_regex_escape(params)
+        pattern = r'{}\({}\)'.format(keyword, new_params)
         return True, pattern
 
     @classmethod
