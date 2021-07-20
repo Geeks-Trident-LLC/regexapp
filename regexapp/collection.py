@@ -1,3 +1,5 @@
+"""Module containing the logic for the collection of pattern."""
+
 import re
 import yaml
 from pathlib import Path, PurePath
@@ -449,7 +451,10 @@ class ElementPattern(str):
         if not params.startswith('raw>>>'):
             return False, ''
         params = re.sub(r'raw>+', '', params, count=1)
-        pattern = re.escape('{}({})'.format(keyword, params))
+        lst = []
+        for v in list(params):
+            lst += re.escape(v) if v in '^$.?*+|{}[]()' else v
+        pattern = r'{}\({}\)'.format(keyword, ''.join(lst))
         return True, pattern
 
     @classmethod
