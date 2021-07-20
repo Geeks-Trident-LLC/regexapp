@@ -1,3 +1,5 @@
+"""Module containing the logic for the collection of pattern."""
+
 import re
 import yaml
 from pathlib import Path, PurePath
