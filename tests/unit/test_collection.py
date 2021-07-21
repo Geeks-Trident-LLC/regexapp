@@ -27,6 +27,10 @@ class TestTextPattern:
         text_pat = TextPattern(data, used_space=used_space)
         assert text_pat == expected_result
 
+    def test_pattern_is_empty(self):
+        text_pat = TextPattern('')
+        is_empty = text_pat.is_empty
+        assert is_empty
 
 class TestElementPattern:
     @pytest.mark.parametrize(
