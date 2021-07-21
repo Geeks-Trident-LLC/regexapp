@@ -400,6 +400,11 @@ class ElementPattern(str):
                 if not is_repeated:
                     lst = cls.add_repetition(lst, repetition=arg)
                     is_repeated = True
+            elif re.match(r'^meta_data_\w+', arg):
+                if arg == 'meta_data_raw':
+                    'meta_data' not in lst and lst.append('meta_data')
+                else:
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
