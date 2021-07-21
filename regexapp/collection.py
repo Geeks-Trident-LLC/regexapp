@@ -248,6 +248,8 @@ class ElementPattern(str):
     Attributes
     ----------
     variable (VarCls): a regex variable.
+    or_empty (bool): a flag if pattern is expecting a zero match, i.e. empty.
+            Default is False.
 
     Parameters
     ----------
@@ -276,6 +278,7 @@ class ElementPattern(str):
     """
     def __new__(cls, text):
         cls._variable = VarCls()
+        cls._or_empty = False
         data = str(text)
         if data:
             pattern = cls.get_pattern(data)
@@ -285,9 +288,11 @@ class ElementPattern(str):
 
     def __init__(self, text):
         self.variable = self._variable
+        self.or_empty = self._or_empty
 
         # clear class variable after initialization
         self._variable = VarCls()
+        self._or_empty = False
 
     @classmethod
     def get_pattern(cls, text):
@@ -411,6 +416,7 @@ class ElementPattern(str):
                     case = match.group('case')
                     if case == 'empty':
                         is_empty = True
+                        cls._or_empty = is_empty
                     else:
                         if case in REF:
                             pat = REF.get(case).get('pattern')
