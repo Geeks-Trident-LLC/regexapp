@@ -386,12 +386,12 @@ class ElementPattern(str):
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('(ws_|raw_)?started', arg):
+            elif re.match('((plus_)?ws_|raw_)?started$', arg):
                 if arg == 'raw_started':
                     'started' not in lst and lst.append('started')
                 else:
                     started = arg
-            elif re.match('(ws_|raw_)?ended', arg):
+            elif re.match('((plus_)?ws_|raw_)?ended$', arg):
                 if arg == 'raw_ended':
                     'ended' not in lst and lst.append('ended')
                 else:
@@ -655,10 +655,13 @@ class ElementPattern(str):
         str: new pattern with end of string pattern
         """
         if ended:
-            if ended == 'ended':
-                new_pattern = '{}\\Z'.format(pattern)
-            elif ended == 'ws_ended':
-                new_pattern = '{}\\s*\\Z'.format(pattern)
+            case1, case2, case3 = r'\Z', r'\s*\Z', r'\s+\Z'
+            if ended == 'ended' and not pattern.endswith(case1):
+                new_pattern = '{}{}'.format(pattern, case1)
+            elif ended == 'ws_ended' and not pattern.endswith(case2):
+                new_pattern = '{}{}'.format(pattern, case2)
+            elif ended == 'plus_ws_ended' and not pattern.endswith(case3):
+                new_pattern = '{}{}'.format(pattern, case3)
             else:
                 new_pattern = pattern
             return new_pattern
