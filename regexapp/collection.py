@@ -267,6 +267,7 @@ class ElementPattern(str):
     ElementPattern.add_word_bound(pattern, word_bound='') -> str
     ElementPattern.add_start_of_string(pattern, started='') -> str
     ElementPattern.add_end_of_string(pattern, ended='') -> str
+    ElementPattern.add_repetition(lst, repetition='') -> list
 
     Raises
     ------
@@ -668,7 +669,7 @@ class ElementPattern(str):
 
         Returns
         -------
-        lst: a new list if repetition is required.
+        list: a new list if repetition is required.
         """
         if not repetition:
             return lst
