@@ -600,15 +600,18 @@ class ElementPattern(str):
 
         Returns
         -------
-        str: new pattern with enclosing word bound pattern
+        str: new pattern with enclosing word bound pattern if it is required.
         """
         if word_bound:
+            has_ws = ' ' in pattern or r'\s' in pattern
+            new_pattern = '({})'.format(pattern) if has_ws else pattern
+
             if word_bound == 'left_word_bound':
-                new_pattern = '\\b{}'.format(pattern)
+                new_pattern = r'\b{}'.format(new_pattern)
             elif word_bound == 'right_word_bound':
-                new_pattern = '{}\\b'.format(pattern)
+                new_pattern = r'{}\b'.format(new_pattern)
             else:
-                new_pattern = '\\b{}\\b'.format(pattern)
+                new_pattern = r'\b{}\b'.format(new_pattern)
             return new_pattern
         return pattern
 
