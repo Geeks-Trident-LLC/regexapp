@@ -925,14 +925,22 @@ class LinePattern(str):
                 after_match = m.string[start:]
                 lst.append(TextPattern(after_match, used_space=used_space))
 
+        ws_pat = r' *' if used_space else r'\s*'
+
         if len(lst) == 1 and lst[0].strip() == '':
             return r'^\s*$'
         elif not lst:
             if line.strip() == '':
                 return r'^\s*$'
             lst.append(TextPattern(line, used_space=used_space))
+        elif len(lst) >= 2:
+            prev, last = lst[-2], lst[-1]
+            is_prev_text_pat = isinstance(prev, TextPattern)
+            is_last_elm_pat = isinstance(last, ElementPattern)
+            if is_prev_text_pat and is_last_elm_pat:
+                if prev.is_whitespace and last.or_empty:
+                    lst[-2] = ws_pat
 
-        ws_pat = r' *' if used_space else r'\s*'
         prepended_ws and lst.insert(0, '^{}'.format(ws_pat))
         ignore_case and lst.insert(0, '(?i)')
         appended_ws and lst.append('{}$'.format(ws_pat))
