@@ -196,6 +196,7 @@ class TextPattern(str):
     Properties
     ----------
     is_empty (bool): check if a pattern matches empty string.
+    is_empty_or_whitespace (bool): check if a pattern matches empty string or whitespace
 
     Methods
     -------
@@ -221,6 +222,12 @@ class TextPattern(str):
         else:
             result = re.match(self, '')
             return bool(result)
+
+    @property
+    def is_empty_or_whitespace(self):
+        is_empty = self.is_empty
+        is_ws = bool(re.match(self, ' '))
+        return is_empty or is_ws
 
     @classmethod
     def get_pattern(cls, text, used_space=True):
