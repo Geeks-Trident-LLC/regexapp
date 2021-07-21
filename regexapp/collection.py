@@ -647,6 +647,7 @@ class LinePattern(str):
 
     Attributes:
     variables (list): a list of pattern variable
+    items (list): a list of sub-pattern
 
     Parameters
     ----------
@@ -672,7 +673,8 @@ class LinePattern(str):
     def __new__(cls, text, used_space=True,
                 prepended_ws=False, appended_ws=False,
                 ignore_case=True):
-        cls.variables = list()
+        cls._variables = list()
+        cls._items = list()
         data = str(text)
         if data:
             pattern = cls.get_pattern(
@@ -682,6 +684,16 @@ class LinePattern(str):
         else:
             pattern = r'^\s*$'
         return str.__new__(cls, pattern)
+
+    def __init__(self, text, used_space=True,
+                prepended_ws=False, appended_ws=False,
+                ignore_case=True):
+        self.variables = self._variables
+        self.items = self._items
+
+        # clear class variable after initialization
+        self._variables = list()
+        self._items = list()
 
     @classmethod
     def get_pattern(cls, text, used_space=True,
@@ -718,8 +730,8 @@ class LinePattern(str):
             lst.append(TextPattern(pre_match, used_space=used_space))
             elm_pat = ElementPattern(m.group())
             if elm_pat.var_name:
-                pair = (elm_pat.var_name, elm_pat.base_pattern)
-                cls.variables.append(pair)
+                group = (elm_pat.var_name, elm_pat.base_pattern)
+                cls._variables.append(group)
             lst.append(elm_pat)
             start = m.end()
         else:
@@ -738,6 +750,7 @@ class LinePattern(str):
         prepended_ws and lst.insert(0, '^{}'.format(ws_pat))
         ignore_case and lst.insert(0, '(?i)')
         appended_ws and lst.append('{}$'.format(ws_pat))
+        cls._items = lst
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
