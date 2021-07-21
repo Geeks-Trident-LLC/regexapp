@@ -62,6 +62,47 @@ def do_soft_regex_escape(pattern, is_validated=True):
     return new_pattern
 
 
+class VarCls:
+    """Use to store variable for pattern
+
+    Attribute
+    ---------
+    name (str): variable name.  Default is empty.
+    pattern (str): a regex pattern.  Default is empty.
+    option (str): a option for value assignment.  Default is empty.
+
+    Properties
+    ----------
+    is_empty -> bool
+    value -> str
+    var_name -> str
+    """
+    def __init__(self, name='', pattern='', option=''):
+        self.name = str(name).strip()
+        self.pattern = str(pattern)
+        self.option = ','.join(re.split(r'\s*_\s*', str(option)))
+        self.option = self.option.replace(' ', '')
+
+    @property
+    def is_empty(self):
+        return self.name == ''
+
+    @property
+    def value(self):
+        if self.option:
+            fmt = 'Value {} {} ({})'
+            value = fmt.format(self.name, self.option, self.pattern)
+        else:
+            fmt = 'Value {} ({})'
+            value = fmt.format(self.name, self.pattern)
+        return value
+
+    @property
+    def var_name(self):
+        result = '${%s}' % self.name
+        return result
+
+
 class PatternReference(dict):
     """Use to load regular expression pattern from system_settings.yaml
     or/and user_settings.yaml
