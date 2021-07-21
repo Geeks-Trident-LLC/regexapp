@@ -465,18 +465,69 @@ class ElementPattern(str):
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
-            else:
-                if arg.startswith('format'):
-                    pat = node.get(arg)
-                    pat not in lst and lst.append(pat)
-                else:
-                    pat = arg
-                    pat not in lst and lst.append(pat)
+            elif arg.startswith('format'):
+                pat = node.get(arg)
+                pat not in lst and lst.append(pat)
+            # else:
+            #     pat = arg
+            #     pat not in lst and lst.append(pat)
         if not lst:
             lst.append(node.get('format'))
 
+        or_pat = r'or_(?P<case>[^,]+)'
+        is_empty = False
+        word_bound = ''
+        started = ''
+        ended = ''
+
+        for arg in arguments:
+            match = re.match(vpat, arg, flags=re.I)
+            if match or arg.startswith('format'):
+                continue
+            elif re.match('(left_|right_|raw_)?word_bound$', arg):
+                if arg == 'raw_word_bound':
+                    'word_bound' not in lst and lst.append('word_bound')
+                else:
+                    word_bound = arg
+            elif re.match('((plus_)?ws_|raw_)?started$', arg):
+                if arg == 'raw_started':
+                    'started' not in lst and lst.append('started')
+                else:
+                    started = arg
+            elif re.match('((plus_)?ws_|raw_)?ended$', arg):
+                if arg == 'raw_ended':
+                    'ended' not in lst and lst.append('ended')
+                else:
+                    ended = arg
+            elif re.match(r'^meta_data_\w+', arg):
+                if arg == 'meta_data_raw':
+                    'meta_data' not in lst and lst.append('meta_data')
+                else:
+                    cls._variable.option = arg.lstrip('meta_data_')
+            else:
+                match = re.match(or_pat, arg, flags=re.I)
+                if match:
+                    case = match.group('case')
+                    if case == 'empty':
+                        is_empty = True
+                        cls._or_empty = is_empty
+                    else:
+                        if case in REF:
+                            pat = REF.get(case).get('pattern')
+                            pat not in lst and lst.append(pat)
+                        else:
+                            pat = case
+                            pat not in lst and lst.append(pat)
+                else:
+                    pat = do_soft_regex_escape(arg)
+                    pat not in lst and lst.append(pat)
+
+        is_empty and lst.append('')
         pattern = cls.join_list(lst)
+        pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
+        pattern = cls.add_start_of_string(pattern, started=started)
+        pattern = cls.add_end_of_string(pattern, ended=ended)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
