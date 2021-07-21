@@ -813,6 +813,8 @@ class PatternBuilder(str):
     Methods
     -------
     PatternBuilder.get_pattern(text, used_space=True) -> str
+    PatternBuilder.get_alnum_pattern(text) -> str
+    PatternBuilder.add_var_name(pattern, name='') -> str
 
     Raises
     ------
@@ -832,7 +834,7 @@ class PatternBuilder(str):
 
         is_empty and lst.append('')
         pattern = ElementPattern.join_list(lst)
-        pattern = ElementPattern.add_var_name(pattern, name=var_name)
+        pattern = cls.add_var_name(pattern, name=var_name)
         validate_pattern(pattern, exception_cls=PatternBuilderError)
         return str.__new__(cls, pattern)
 
@@ -884,3 +886,21 @@ class PatternBuilder(str):
                 return '.*'
         else:
             return ''
+
+    @classmethod
+    def add_var_name(cls, pattern, name=''):
+        """add var name to regex pattern
+
+        Parameters
+        ----------
+        pattern (str): a pattern
+        name (str): a regex variable name
+
+        Returns
+        -------
+        str: new pattern with variable name.
+        """
+        if name:
+            new_pattern = '(?P<{}>{})'.format(name, pattern)
+            return new_pattern
+        return pattern
