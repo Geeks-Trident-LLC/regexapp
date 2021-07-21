@@ -234,14 +234,22 @@ class ElementPattern(str):
 
     """
     def __new__(cls, text):
-        cls.var_name = ''
-        cls.base_pattern = ''
+        cls._variable = ''
+        cls._base_pattern = ''
         data = str(text)
         if data:
             pattern = cls.get_pattern(data)
         else:
             pattern = ''
         return str.__new__(cls, pattern)
+
+    def __init__(self, text):
+        self.variable = self._variable
+        self.base_pattern = self._base_pattern
+
+        # clear class variable after initialization
+        self._variable = ''
+        self._base_pattern = ''
 
     @classmethod
     def get_pattern(cls, text):
@@ -537,8 +545,8 @@ class ElementPattern(str):
         str: new pattern with variable name.
         """
         if name:
-            cls.var_name = name
-            cls.base_pattern = pattern
+            cls._variable = name
+            cls._base_pattern = pattern
             new_pattern = '(?P<{}>{})'.format(name, pattern)
             return new_pattern
         return pattern
@@ -729,8 +737,8 @@ class LinePattern(str):
             pre_match = m.string[start:m.start()]
             lst.append(TextPattern(pre_match, used_space=used_space))
             elm_pat = ElementPattern(m.group())
-            if elm_pat.var_name:
-                group = (elm_pat.var_name, elm_pat.base_pattern)
+            if elm_pat.variable:
+                group = (elm_pat.variable, elm_pat.base_pattern)
                 cls._variables.append(group)
             lst.append(elm_pat)
             start = m.end()
