@@ -42,6 +42,16 @@ class TestTextPattern:
             chk = text_pat.is_empty_or_whitespace
             assert chk
 
+    def test_pattern_is_whitespace(self):
+        data = ' '
+        text_pat = TextPattern(data, used_space=True)
+        chk = text_pat.is_empty_or_whitespace
+        assert chk
+
+        text_pat = TextPattern(data, used_space=False)
+        chk = text_pat.is_empty_or_whitespace
+        assert chk
+
 
 class TestElementPattern:
     @pytest.mark.parametrize(
