@@ -859,13 +859,13 @@ class PatternBuilder(str):
 
         for m in re.finditer(r'[^a-zA-Z0-9]+', text):
             before_match = text[start:m.start()]
-            lst.append(PatternBuilder.get_alnum_pattern(before_match))
+            lst.append(cls.get_alnum_pattern(before_match))
             lst.append(TextPattern(m.group(), used_space=used_space))
             start = m.end()
         else:
             if start > 0:
                 after_match = text[start:]
-                lst.append(PatternBuilder.get_alnum_pattern(after_match))
+                lst.append(cls.get_alnum_pattern(after_match))
 
         pattern = ''.join(lst) if lst else cls.get_alnum_pattern(text)
         validate_pattern(pattern, exception_cls=PatternBuilderError)
