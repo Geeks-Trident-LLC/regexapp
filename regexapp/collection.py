@@ -247,8 +247,7 @@ class ElementPattern(str):
 
     Attributes
     ----------
-    var_name (str): a regex variable name
-    base_pattern (str): a base regex pattern before enclosing pattern var name.
+    variable (VarCls): a regex variable.
 
     Parameters
     ----------
@@ -275,8 +274,7 @@ class ElementPattern(str):
 
     """
     def __new__(cls, text):
-        cls._variable = ''
-        cls._base_pattern = ''
+        cls._variable = VarCls()
         data = str(text)
         if data:
             pattern = cls.get_pattern(data)
@@ -286,11 +284,9 @@ class ElementPattern(str):
 
     def __init__(self, text):
         self.variable = self._variable
-        self.base_pattern = self._base_pattern
 
         # clear class variable after initialization
-        self._variable = ''
-        self._base_pattern = ''
+        self._variable = VarCls()
 
     @classmethod
     def get_pattern(cls, text):
@@ -586,8 +582,8 @@ class ElementPattern(str):
         str: new pattern with variable name.
         """
         if name:
-            cls._variable = name
-            cls._base_pattern = pattern
+            cls._variable.name = name
+            cls._variable.pattern = pattern
             new_pattern = '(?P<{}>{})'.format(name, pattern)
             return new_pattern
         return pattern
@@ -778,9 +774,8 @@ class LinePattern(str):
             pre_match = m.string[start:m.start()]
             lst.append(TextPattern(pre_match, used_space=used_space))
             elm_pat = ElementPattern(m.group())
-            if elm_pat.variable:
-                group = (elm_pat.variable, elm_pat.base_pattern)
-                cls._variables.append(group)
+            if not elm_pat.variable.is_empty:
+                cls._variables.append(elm_pat.variable)
             lst.append(elm_pat)
             start = m.end()
         else:
