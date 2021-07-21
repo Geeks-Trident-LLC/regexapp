@@ -88,6 +88,8 @@ class TestElementPattern:
             ####################################################################
             ('choice(up, down, administratively down)', 'up|down|(administratively down)'),
             ('choice(up, down, administratively down, var_v2)', '(?P<v2>up|down|(administratively down))'),
+            ('choice(up, down, administratively down, var_v2, or_empty)', '(?P<v2>up|down|(administratively down)|)'),
+            ('choice(up, down, administratively down, var_v2, or_empty, or_digits)', '(?P<v2>up|down|(administratively down)|\\d+|)'),
             ####################################################################
             # raw data test                                                    #
             ####################################################################
