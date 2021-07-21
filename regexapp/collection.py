@@ -193,6 +193,10 @@ class TextPattern(str):
     used_space (bool): use space character instead of whitespace regex.
             Default is True.
 
+    Properties
+    ----------
+    is_empty (bool): check if a pattern matches empty string.
+
     Methods
     -------
     TextPattern.get_pattern(text, used_space=True) -> str
@@ -209,6 +213,14 @@ class TextPattern(str):
         else:
             text_pattern = ''
         return str.__new__(cls, text_pattern)
+
+    @property
+    def is_empty(self):
+        if self == '':
+            return True
+        else:
+            result = re.match(self, '')
+            return bool(result)
 
     @classmethod
     def get_pattern(cls, text, used_space=True):
