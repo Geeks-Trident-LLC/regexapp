@@ -868,6 +868,7 @@ class LinePattern(str):
     Methods
     -------
     LinePattern.get_pattern(text, used_space=True) -> str
+    LinePattern.readjust_if_or_empty(lst, used_space=True) -> None
     LinePattern.prepend_whitespace(lst, used_space=True) -> None
     LinePattern.prepend_ignorecase_flag(lst) -> None
     LinePattern.append_whitespace(lst, used_space=True) -> None
@@ -960,22 +961,14 @@ class LinePattern(str):
                 if after_match:
                     lst.append(TextPattern(after_match, used_space=used_space))
 
-        ws_pat = r' *' if used_space else r'\s*'
-
         if len(lst) == 1 and lst[0].strip() == '':
             return r'^\s*$'
         elif not lst:
             if line.strip() == '':
                 return r'^\s*$'
             lst.append(TextPattern(line, used_space=used_space))
-        elif len(lst) >= 2:
-            prev, last = lst[-2], lst[-1]
-            is_prev_text_pat = isinstance(prev, TextPattern)
-            is_last_elm_pat = isinstance(last, ElementPattern)
-            if is_prev_text_pat and is_last_elm_pat:
-                if prev.is_whitespace and last.or_empty:
-                    lst[-2] = ws_pat
 
+        cls.readjust_if_or_empty(lst, used_space=used_space)
         prepended_ws and cls.prepend_whitespace(lst, used_space=used_space)
         ignore_case and cls.prepend_ignorecase_flag(lst)
         appended_ws and cls.append_whitespace(lst, used_space=used_space)
@@ -983,6 +976,28 @@ class LinePattern(str):
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
+
+    @classmethod
+    def readjust_if_or_empty(cls, lst, used_space=True):
+        """readjust pattern if ElementPattern has or_empty flag
+
+        Parameters
+        ----------
+        lst (list): a list of pattern
+        used_space (bool): use space character instead of whitespace regex.
+                Default is True.
+        """
+        if len(lst) < 2:
+            return
+
+        ws_pat = r' *' if used_space else r'\s*'
+        for index, item in enumerate(lst[:-1]):
+            next_item = lst[index+1]
+            is_item_text_pat = isinstance(item, TextPattern)
+            is_next_item_elm_pat = isinstance(next_item, ElementPattern)
+            if is_item_text_pat and is_next_item_elm_pat:
+                if item.is_whitespace and next_item.or_empty:
+                    lst[index] = ws_pat
 
     @classmethod
     def prepend_whitespace(cls, lst, used_space=True):
