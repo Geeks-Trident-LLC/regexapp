@@ -749,7 +749,7 @@ class ElementPattern(str):
 
     @classmethod
     def add_start_of_string(cls, pattern, started=''):
-        """prepend start of string i.e \\A or \\A\\s* or \\A\\s+ regex pattern
+        """prepend start of string i.e ^ or ^\\s* or ^\\s+ or ^ * or ^ + regex pattern
 
         Parameters
         ----------
@@ -761,17 +761,19 @@ class ElementPattern(str):
         str: new pattern with start of string pattern
         """
         if started:
-            case1, case2, case3 = r'\A', r'\A\s*', r'\A\s+'
-            case4, case5 = r'\A *', r'\A +'
-            if started == 'started' and not pattern.startswith(case1):
+            case1, case2 = r'^\s*', r'^\s+'
+            case3, case4 = r'^ *', r'^ +'
+            case5 = r'^'
+
+            if started == 'started_ws' and not pattern.startswith(case1):
                 new_pattern = '{}{}'.format(case1, pattern)
-            elif started == 'started_ws' and not pattern.startswith(case2):
+            elif started == 'started_ws_plus' and not pattern.startswith(case2):
                 new_pattern = '{}{}'.format(case2, pattern)
-            elif started == 'started_ws_plus' and not pattern.startswith(case3):
+            elif started == 'started_space' and not pattern.startswith(case3):
                 new_pattern = '{}{}'.format(case3, pattern)
-            elif started == 'started_space' and not pattern.startswith(case4):
+            elif started == 'started_space_plus' and not pattern.startswith(case4):
                 new_pattern = '{}{}'.format(case4, pattern)
-            elif started == 'started_space_plus' and not pattern.startswith(case5):
+            elif started == 'started' and not pattern.startswith(case5):
                 new_pattern = '{}{}'.format(case5, pattern)
             else:
                 new_pattern = pattern
@@ -780,7 +782,7 @@ class ElementPattern(str):
 
     @classmethod
     def add_end_of_string(cls, pattern, ended=''):
-        """append end of string i.e \\Z or \\s*\\Z regex pattern
+        """append end of string i.e $ or \\s*$ or $\\s+$ or  *$ or  +$ regex pattern
 
         Parameters
         ----------
@@ -792,17 +794,18 @@ class ElementPattern(str):
         str: new pattern with end of string pattern
         """
         if ended:
-            case1, case2, case3 = r'\Z', r'\s*\Z', r'\s+\Z'
-            case4, case5 = r' *\Z', r' +\Z'
-            if ended == 'ended' and not pattern.endswith(case1):
+            case1, case2 = r'\s*$', r'\s+$'
+            case3, case4 = r' *$', r' +$'
+            case5 = r'$'
+            if ended == 'ended_ws' and not pattern.endswith(case1):
                 new_pattern = '{}{}'.format(pattern, case1)
-            elif ended == 'ended_ws' and not pattern.endswith(case2):
+            elif ended == 'ended_ws_plus' and not pattern.endswith(case2):
                 new_pattern = '{}{}'.format(pattern, case2)
-            elif ended == 'ended_ws_plus' and not pattern.endswith(case3):
+            elif ended == 'ended_space' and not pattern.endswith(case3):
                 new_pattern = '{}{}'.format(pattern, case3)
-            elif ended == 'ended_space' and not pattern.endswith(case4):
+            elif ended == 'ended_space_plus' and not pattern.endswith(case4):
                 new_pattern = '{}{}'.format(pattern, case4)
-            elif ended == 'ended_space_plus' and not pattern.endswith(case5):
+            elif ended == 'ended' and not pattern.endswith(case5):
                 new_pattern = '{}{}'.format(pattern, case5)
             else:
                 new_pattern = pattern
@@ -846,6 +849,10 @@ class LinePattern(str):
     variables (list): a list of pattern variable
     items (list): a list of sub-pattern
 
+    Properties
+    ----------
+    statement (str): a template statement
+
     Parameters
     ----------
     text (str): a text.
@@ -856,11 +863,12 @@ class LinePattern(str):
     appended_ws (bool): append a whitespace at the end of a pattern.
             Default is False.
     ignore_case (bool): prepend (?i) at the beginning of a pattern.
-            Default is True.
+            Default is False.
 
     Methods
     -------
     LinePattern.get_pattern(text, used_space=True) -> str
+    LinePattern.readjust_if_or_empty(lst, used_space=True) -> None
     LinePattern.prepend_whitespace(lst, used_space=True) -> None
     LinePattern.prepend_ignorecase_flag(lst) -> None
     LinePattern.append_whitespace(lst, used_space=True) -> None
@@ -872,7 +880,7 @@ class LinePattern(str):
     """
     def __new__(cls, text, used_space=True,
                 prepended_ws=False, appended_ws=False,
-                ignore_case=True):
+                ignore_case=False):
         cls._variables = list()
         cls._items = list()
         data = str(text)
@@ -887,7 +895,7 @@ class LinePattern(str):
 
     def __init__(self, text, used_space=True,
                 prepended_ws=False, appended_ws=False,
-                ignore_case=True):
+                ignore_case=False):
         self.variables = self._variables
         self.items = self._items
 
@@ -895,10 +903,23 @@ class LinePattern(str):
         self._variables = list()
         self._items = list()
 
+    @property
+    def statement(self):
+        lst = []
+        for item in self.items:
+            if isinstance(item, ElementPattern):
+                if not item.variable.is_empty:
+                    lst.append(item.variable.var_name)
+                else:
+                    lst.append(item)
+            else:
+                lst.append(item)
+        return ''.join(lst)
+
     @classmethod
     def get_pattern(cls, text, used_space=True,
                     prepended_ws=False, appended_ws=False,
-                    ignore_case=True):
+                    ignore_case=False):
         """convert text to regex pattern
 
         Parameters
@@ -911,7 +932,7 @@ class LinePattern(str):
         appended_ws (bool): append a whitespace at the end of a pattern.
                 Default is False.
         ignore_case (bool): prepend (?i) at the beginning of a pattern.
-                Default is True.
+                Default is False.
 
         Returns
         -------
@@ -940,22 +961,14 @@ class LinePattern(str):
                 if after_match:
                     lst.append(TextPattern(after_match, used_space=used_space))
 
-        ws_pat = r' *' if used_space else r'\s*'
-
         if len(lst) == 1 and lst[0].strip() == '':
             return r'^\s*$'
         elif not lst:
             if line.strip() == '':
                 return r'^\s*$'
             lst.append(TextPattern(line, used_space=used_space))
-        elif len(lst) >= 2:
-            prev, last = lst[-2], lst[-1]
-            is_prev_text_pat = isinstance(prev, TextPattern)
-            is_last_elm_pat = isinstance(last, ElementPattern)
-            if is_prev_text_pat and is_last_elm_pat:
-                if prev.is_whitespace and last.or_empty:
-                    lst[-2] = ws_pat
 
+        cls.readjust_if_or_empty(lst, used_space=used_space)
         prepended_ws and cls.prepend_whitespace(lst, used_space=used_space)
         ignore_case and cls.prepend_ignorecase_flag(lst)
         appended_ws and cls.append_whitespace(lst, used_space=used_space)
@@ -963,6 +976,28 @@ class LinePattern(str):
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
+
+    @classmethod
+    def readjust_if_or_empty(cls, lst, used_space=True):
+        """readjust pattern if ElementPattern has or_empty flag
+
+        Parameters
+        ----------
+        lst (list): a list of pattern
+        used_space (bool): use space character instead of whitespace regex.
+                Default is True.
+        """
+        if len(lst) < 2:
+            return
+
+        ws_pat = r' *' if used_space else r'\s*'
+        for index, item in enumerate(lst[:-1]):
+            next_item = lst[index+1]
+            is_item_text_pat = isinstance(item, TextPattern)
+            is_next_item_elm_pat = isinstance(next_item, ElementPattern)
+            if is_item_text_pat and is_next_item_elm_pat:
+                if item.is_whitespace and next_item.or_empty:
+                    lst[index] = ws_pat
 
     @classmethod
     def prepend_whitespace(cls, lst, used_space=True):
