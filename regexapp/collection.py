@@ -851,6 +851,7 @@ class LinePattern(str):
     Methods
     -------
     LinePattern.get_pattern(text, used_space=True) -> str
+    LinePattern.prepend_whitespace(lst, used_space=True) -> None
 
     Raises
     ------
@@ -914,7 +915,8 @@ class LinePattern(str):
         start = 0
         for m in re.finditer(r'\w+[(][^)]*[)]', line):
             pre_match = m.string[start:m.start()]
-            lst.append(TextPattern(pre_match, used_space=used_space))
+            if pre_match:
+                lst.append(TextPattern(pre_match, used_space=used_space))
             elm_pat = ElementPattern(m.group())
             if not elm_pat.variable.is_empty:
                 cls._variables.append(elm_pat.variable)
@@ -923,7 +925,8 @@ class LinePattern(str):
         else:
             if start:
                 after_match = m.string[start:]
-                lst.append(TextPattern(after_match, used_space=used_space))
+                if after_match:
+                    lst.append(TextPattern(after_match, used_space=used_space))
 
         ws_pat = r' *' if used_space else r'\s*'
 
@@ -941,13 +944,31 @@ class LinePattern(str):
                 if prev.is_whitespace and last.or_empty:
                     lst[-2] = ws_pat
 
-        prepended_ws and lst.insert(0, '^{}'.format(ws_pat))
+        prepended_ws and cls.prepend_whitespace(lst, used_space=used_space)
         ignore_case and lst.insert(0, '(?i)')
         appended_ws and lst.append('{}$'.format(ws_pat))
         cls._items = lst
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
+
+    @classmethod
+    def prepend_whitespace(cls, lst, used_space=True):
+        """prepend whitespace pattern to list
+
+        Parameters
+        ----------
+        lst (list): a list of pattern
+        used_space (bool): use space character instead of whitespace regex.
+                Default is True.
+        """
+        if not lst:
+            return
+
+        pat = r'(\^|\\A)( |\\s)[*+]?'
+        if not re.match(pat, lst[0]):
+            ws_pat = r' *' if used_space else r'\s*'
+            lst.insert(0, '^{}'.format(ws_pat))
 
 
 class PatternBuilder(str):
