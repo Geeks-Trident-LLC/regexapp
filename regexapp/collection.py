@@ -794,17 +794,18 @@ class ElementPattern(str):
         str: new pattern with end of string pattern
         """
         if ended:
-            case1, case2, case3 = r'\Z', r'\s*\Z', r'\s+\Z'
-            case4, case5 = r' *\Z', r' +\Z'
-            if ended == 'ended' and not pattern.endswith(case1):
+            case1, case2 = r'\s*\Z', r'\s+\Z'
+            case3, case4 = r' *\Z', r' +\Z'
+            case5 = r'\Z'
+            if ended == 'ended_ws' and not pattern.endswith(case1):
                 new_pattern = '{}{}'.format(pattern, case1)
-            elif ended == 'ended_ws' and not pattern.endswith(case2):
+            elif ended == 'ended_ws_plus' and not pattern.endswith(case2):
                 new_pattern = '{}{}'.format(pattern, case2)
-            elif ended == 'ended_ws_plus' and not pattern.endswith(case3):
+            elif ended == 'ended_space' and not pattern.endswith(case3):
                 new_pattern = '{}{}'.format(pattern, case3)
-            elif ended == 'ended_space' and not pattern.endswith(case4):
+            elif ended == 'ended_space_plus' and not pattern.endswith(case4):
                 new_pattern = '{}{}'.format(pattern, case4)
-            elif ended == 'ended_space_plus' and not pattern.endswith(case5):
+            elif ended == 'ended' and not pattern.endswith(case5):
                 new_pattern = '{}{}'.format(pattern, case5)
             else:
                 new_pattern = pattern
