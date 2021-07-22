@@ -761,17 +761,19 @@ class ElementPattern(str):
         str: new pattern with start of string pattern
         """
         if started:
-            case1, case2, case3 = r'\A', r'\A\s*', r'\A\s+'
-            case4, case5 = r'\A *', r'\A +'
-            if started == 'started' and not pattern.startswith(case1):
+            case1, case2 = r'\A\s*', r'\A\s+'
+            case3, case4 = r'\A *', r'\A +'
+            case5 = r'\A'
+
+            if started == 'started_ws' and not pattern.startswith(case1):
                 new_pattern = '{}{}'.format(case1, pattern)
-            elif started == 'started_ws' and not pattern.startswith(case2):
+            elif started == 'started_ws_plus' and not pattern.startswith(case2):
                 new_pattern = '{}{}'.format(case2, pattern)
-            elif started == 'started_ws_plus' and not pattern.startswith(case3):
+            elif started == 'started_space' and not pattern.startswith(case3):
                 new_pattern = '{}{}'.format(case3, pattern)
-            elif started == 'started_space' and not pattern.startswith(case4):
+            elif started == 'started_space_plus' and not pattern.startswith(case4):
                 new_pattern = '{}{}'.format(case4, pattern)
-            elif started == 'started_space_plus' and not pattern.startswith(case5):
+            elif started == 'started' and not pattern.startswith(case5):
                 new_pattern = '{}{}'.format(case5, pattern)
             else:
                 new_pattern = pattern
