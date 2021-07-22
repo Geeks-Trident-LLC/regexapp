@@ -749,7 +749,7 @@ class ElementPattern(str):
 
     @classmethod
     def add_start_of_string(cls, pattern, started=''):
-        """prepend start of string i.e \\A or \\A\\s* or \\A\\s+ regex pattern
+        """prepend start of string i.e ^ or ^\\s* or ^\\s+ or ^ * or ^ + regex pattern
 
         Parameters
         ----------
@@ -761,9 +761,9 @@ class ElementPattern(str):
         str: new pattern with start of string pattern
         """
         if started:
-            case1, case2 = r'\A\s*', r'\A\s+'
-            case3, case4 = r'\A *', r'\A +'
-            case5 = r'\A'
+            case1, case2 = r'^\s*', r'^\s+'
+            case3, case4 = r'^ *', r'^ +'
+            case5 = r'^'
 
             if started == 'started_ws' and not pattern.startswith(case1):
                 new_pattern = '{}{}'.format(case1, pattern)

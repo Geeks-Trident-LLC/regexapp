@@ -96,11 +96,11 @@ class TestElementPattern:
             ('word(var_v1, word_bound_right)', '(?P<v1>\\w+\\b)'),
             ('word(var_v1, word_bound)', '(?P<v1>\\b\\w+\\b)'),
             ('word(var_v1, word_bound_raw)', '(?P<v1>\\w+|word_bound)'),
-            ('word(var_v1, started)', '\\A(?P<v1>\\w+)'),
-            ('word(var_v1, started_ws)', '\\A\\s*(?P<v1>\\w+)'),
-            ('word(var_v1, started_ws_plus)', '\\A\\s+(?P<v1>\\w+)'),
-            ('word(var_v1, started_space)', '\\A *(?P<v1>\\w+)'),
-            ('word(var_v1, started_space_plus)', '\\A +(?P<v1>\\w+)'),
+            ('word(var_v1, started)', '^(?P<v1>\\w+)'),
+            ('word(var_v1, started_ws)', '^\\s*(?P<v1>\\w+)'),
+            ('word(var_v1, started_ws_plus)', '^\\s+(?P<v1>\\w+)'),
+            ('word(var_v1, started_space)', '^ *(?P<v1>\\w+)'),
+            ('word(var_v1, started_space_plus)', '^ +(?P<v1>\\w+)'),
             ('word(var_v1, started_raw)', '(?P<v1>\\w+|started)'),
             ('word(var_v1, ended)', '(?P<v1>\\w+)\\Z'),
             ('word(var_v1, ended_ws)', '(?P<v1>\\w+)\\s*\\Z'),
@@ -255,21 +255,21 @@ class TestLinePattern:
             (
                 'cherry is delicious.',                     # test data
                 'word(var_fruit, started) is delicious.',   # user prepared data
-                '(?i)\\A(?P<fruit>\\w+) +is +delicious\\.', # expected pattern
+                '(?i)^(?P<fruit>\\w+) +is +delicious\\.', # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'cherry is delicious.',                             # test data
                 'word(var_fruit, started_ws) is delicious.',        # user prepared data
-                '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
+                '(?i)^\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 '\r\n cherry is delicious.',                        # test data
                 'word(var_fruit, started_ws) is delicious.',        # user prepared data
-                '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
+                '(?i)^\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
                 True, False, False, True,
                 True
             ),
