@@ -12,7 +12,7 @@ from regexapp.collection import LinePattern
 from regexapp.collection import PatternBuilder
 from regexapp.collection import PatternReference
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 version = __version__
 
 __all__ = [
