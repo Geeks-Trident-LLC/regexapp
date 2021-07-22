@@ -852,6 +852,7 @@ class LinePattern(str):
     -------
     LinePattern.get_pattern(text, used_space=True) -> str
     LinePattern.prepend_whitespace(lst, used_space=True) -> None
+    LinePattern.prepend_ignorecase_flag(lst) -> None
     LinePattern.append_whitespace(lst, used_space=True) -> None
 
     Raises
@@ -946,7 +947,7 @@ class LinePattern(str):
                     lst[-2] = ws_pat
 
         prepended_ws and cls.prepend_whitespace(lst, used_space=used_space)
-        ignore_case and lst.insert(0, '(?i)')
+        ignore_case and cls.prepend_ignorecase_flag(lst)
         appended_ws and cls.append_whitespace(lst, used_space=used_space)
         cls._items = lst
         pattern = ''.join(lst)
@@ -970,6 +971,21 @@ class LinePattern(str):
         if not re.match(pat, lst[0]):
             ws_pat = r' *' if used_space else r'\s*'
             lst.insert(0, '^{}'.format(ws_pat))
+
+    @classmethod
+    def prepend_ignorecase_flag(cls, lst):
+        """prepend regex ignorecase flag, i.e. (?i) to list
+
+        Parameters
+        ----------
+        lst (list): a list of pattern
+        """
+        if not lst:
+            return
+
+        pat = r'[(][?]i[)]'
+        if not re.match(pat, lst[0]):
+            lst.insert(0, '(?i)')
 
     @classmethod
     def append_whitespace(cls, lst, used_space=True):
