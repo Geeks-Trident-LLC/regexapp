@@ -368,6 +368,72 @@ class TestLinePattern:
         else:
             assert match is None
 
+    @pytest.mark.parametrize(
+        "test_data,user_prepared_data,expected_pattern,expected_statement,used_space,prepended_ws,appended_ws,ignore_case",
+        [
+            (
+                ['cherry is good for health'],  # test data
+                'cherry is good for health',    # user prepared data
+                '^ *cherry +is +good +for +health',  # expected pattern
+                '^ *cherry +is +good +for +health',  # expected statement
+                True, True, False, False,
+            ),
+            (
+                ['cherry is good for health'],  # test data
+                'word() is words()',  # user prepared data
+                '^ *\\w+ +is +\\w+(\\s+\\w+)*',  # expected pattern
+                '^ *\\w+ +is +\\w+(\\s+\\w+)*',  # expected statement
+                True, True, False, False,
+            ),
+            (
+                ['cherry is good for health'],  # test data
+                'word(var_fruit) is words(var_desc)',  # user prepared data
+                '^ *(?P<fruit>\\w+) +is +(?P<desc>\\w+(\\s+\\w+)*)',  # expected pattern
+                '^ *${fruit} +is +${desc}',     # expected statement
+                True, True, False, False,
+            ),
+            (
+                ['123   abc   567'],    # test data
+                'digits(var_v1)   letters(var_v2)     digits(var_v3)',  # user prepared data
+                '^ *(?P<v1>\\d+) +(?P<v2>[a-zA-Z]+) +(?P<v3>\\d+)',  # expected pattern
+                '^ *${v1} +${v2} +${v3}',  # expected statement
+                True, True, False, False,
+            ),
+            (
+                [
+                    '123   abc   567',
+                    '123   567'
+                ],  # test data
+                'digits(var_v1)   letters(var_v2, or_empty)     digits(var_v3)',  # user prepared data
+                '^ *(?P<v1>\\d+) +(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
+                '^ *${v1} +${v2} +${v3}',  # expected statement
+                True, True, False, False,
+            ),
+            (
+                [
+                    '123   abc   567',
+                    '123   abc'
+                ],  # test data
+                'digits(var_v1)   letters(var_v2)     digits(var_v3, or_empty)',  # user prepared data
+                '^ *(?P<v1>\\d+) +(?P<v2>[a-zA-Z]+) *(?P<v3>\\d+|)',  # expected pattern
+                '^ *${v1} +${v2} *${v3}',  # expected statement
+                True, True, False, False,
+            ),
+        ]
+    )
+    def test_line_statement(self, test_data, user_prepared_data,
+                            expected_pattern, expected_statement,
+                            used_space,prepended_ws,appended_ws,ignore_case):
+        pattern = LinePattern(user_prepared_data, used_space=used_space,
+                              prepended_ws=prepended_ws,
+                              appended_ws=appended_ws, ignore_case=ignore_case)
+        assert pattern == expected_pattern
+        assert pattern.statement == expected_statement
+
+        for line in test_data:
+            match = re.search(pattern, line)
+            assert match is not None
+
 
 class TestPatternBuilder:
     @pytest.mark.parametrize(
