@@ -782,7 +782,7 @@ class ElementPattern(str):
 
     @classmethod
     def add_end_of_string(cls, pattern, ended=''):
-        """append end of string i.e \\Z or \\s*\\Z regex pattern
+        """append end of string i.e $ or \\s*$ or $\\s+$ or  *$ or  +$ regex pattern
 
         Parameters
         ----------
@@ -794,9 +794,9 @@ class ElementPattern(str):
         str: new pattern with end of string pattern
         """
         if ended:
-            case1, case2 = r'\s*\Z', r'\s+\Z'
-            case3, case4 = r' *\Z', r' +\Z'
-            case5 = r'\Z'
+            case1, case2 = r'\s*$', r'\s+$'
+            case3, case4 = r' *$', r' +$'
+            case5 = r'$'
             if ended == 'ended_ws' and not pattern.endswith(case1):
                 new_pattern = '{}{}'.format(pattern, case1)
             elif ended == 'ended_ws_plus' and not pattern.endswith(case2):
