@@ -859,7 +859,7 @@ class LinePattern(str):
     appended_ws (bool): append a whitespace at the end of a pattern.
             Default is False.
     ignore_case (bool): prepend (?i) at the beginning of a pattern.
-            Default is True.
+            Default is False.
 
     Methods
     -------
@@ -875,7 +875,7 @@ class LinePattern(str):
     """
     def __new__(cls, text, used_space=True,
                 prepended_ws=False, appended_ws=False,
-                ignore_case=True):
+                ignore_case=False):
         cls._variables = list()
         cls._items = list()
         data = str(text)
@@ -890,7 +890,7 @@ class LinePattern(str):
 
     def __init__(self, text, used_space=True,
                 prepended_ws=False, appended_ws=False,
-                ignore_case=True):
+                ignore_case=False):
         self.variables = self._variables
         self.items = self._items
 
@@ -901,7 +901,7 @@ class LinePattern(str):
     @classmethod
     def get_pattern(cls, text, used_space=True,
                     prepended_ws=False, appended_ws=False,
-                    ignore_case=True):
+                    ignore_case=False):
         """convert text to regex pattern
 
         Parameters
@@ -914,7 +914,7 @@ class LinePattern(str):
         appended_ws (bool): append a whitespace at the end of a pattern.
                 Default is False.
         ignore_case (bool): prepend (?i) at the beginning of a pattern.
-                Default is True.
+                Default is False.
 
         Returns
         -------
