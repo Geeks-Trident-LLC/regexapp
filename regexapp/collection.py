@@ -852,6 +852,7 @@ class LinePattern(str):
     -------
     LinePattern.get_pattern(text, used_space=True) -> str
     LinePattern.prepend_whitespace(lst, used_space=True) -> None
+    LinePattern.append_whitespace(lst, used_space=True) -> None
 
     Raises
     ------
@@ -946,7 +947,7 @@ class LinePattern(str):
 
         prepended_ws and cls.prepend_whitespace(lst, used_space=used_space)
         ignore_case and lst.insert(0, '(?i)')
-        appended_ws and lst.append('{}$'.format(ws_pat))
+        appended_ws and cls.append_whitespace(lst, used_space=used_space)
         cls._items = lst
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
@@ -969,6 +970,23 @@ class LinePattern(str):
         if not re.match(pat, lst[0]):
             ws_pat = r' *' if used_space else r'\s*'
             lst.insert(0, '^{}'.format(ws_pat))
+
+    @classmethod
+    def append_whitespace(cls, lst, used_space=True):
+        """append whitespace pattern to list
+
+        Parameters
+        ----------
+        lst (list): a list of pattern
+        used_space (bool): use space character instead of whitespace regex.
+                Default is True.
+        """
+        if not lst:
+            return
+        pat = r'( |\\s)[*+]?(\$|\\Z)$'
+        if not re.search(pat, lst[-1]):
+            ws_pat = r' *' if used_space else r'\s*'
+            lst.append('{}$'.format(ws_pat))
 
 
 class PatternBuilder(str):
