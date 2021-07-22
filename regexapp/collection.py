@@ -411,8 +411,8 @@ class ElementPattern(str):
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
-            elif re.match('(left_|right_|raw_)?word_bound$', arg):
-                if arg == 'raw_word_bound':
+            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+                if arg == 'word_bound_raw':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
@@ -509,8 +509,8 @@ class ElementPattern(str):
             match = re.match(vpat, arg, flags=re.I)
             if match or arg.startswith('format'):
                 continue
-            elif re.match('(left_|right_|raw_)?word_bound$', arg):
-                if arg == 'raw_word_bound':
+            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+                if arg == 'word_bound_raw':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
@@ -586,8 +586,8 @@ class ElementPattern(str):
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
-            elif re.match('(left_|right_|raw_)?word_bound$', arg):
-                if arg == 'raw_word_bound':
+            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+                if arg == 'word_bound_raw':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
@@ -738,9 +738,9 @@ class ElementPattern(str):
             has_ws = ' ' in pattern or r'\s' in pattern
             new_pattern = '({})'.format(pattern) if has_ws else pattern
 
-            if word_bound == 'left_word_bound':
+            if word_bound == 'word_bound_left':
                 new_pattern = r'\b{}'.format(new_pattern)
-            elif word_bound == 'right_word_bound':
+            elif word_bound == 'word_bound_right':
                 new_pattern = r'{}\b'.format(new_pattern)
             else:
                 new_pattern = r'\b{}\b'.format(new_pattern)
