@@ -849,6 +849,10 @@ class LinePattern(str):
     variables (list): a list of pattern variable
     items (list): a list of sub-pattern
 
+    Properties
+    ----------
+    statement (str): a template statement
+
     Parameters
     ----------
     text (str): a text.
@@ -897,6 +901,19 @@ class LinePattern(str):
         # clear class variable after initialization
         self._variables = list()
         self._items = list()
+
+    @property
+    def statement(self):
+        lst = []
+        for item in self.items:
+            if isinstance(item, ElementPattern):
+                if not item.variable.is_empty:
+                    lst.append(item.variable.var_name)
+                else:
+                    lst.append(item)
+            else:
+                lst.append(item)
+        return ''.join(lst)
 
     @classmethod
     def get_pattern(cls, text, used_space=True,
