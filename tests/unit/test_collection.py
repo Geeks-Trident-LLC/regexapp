@@ -27,6 +27,31 @@ class TestTextPattern:
         text_pat = TextPattern(data, used_space=used_space)
         assert text_pat == expected_result
 
+    def test_pattern_is_empty(self):
+        text_pat = TextPattern('')
+        is_empty = text_pat.is_empty
+        assert is_empty
+
+    def test_pattern_is_empty_or_whitespace(self):
+        for data in ['', ' ']:
+            text_pat = TextPattern(data, used_space=True)
+            chk = text_pat.is_empty_or_whitespace
+            assert chk
+
+            text_pat = TextPattern(data, used_space=False)
+            chk = text_pat.is_empty_or_whitespace
+            assert chk
+
+    def test_pattern_is_whitespace(self):
+        data = ' '
+        text_pat = TextPattern(data, used_space=True)
+        chk = text_pat.is_empty_or_whitespace
+        assert chk
+
+        text_pat = TextPattern(data, used_space=False)
+        chk = text_pat.is_empty_or_whitespace
+        assert chk
+
 
 class TestElementPattern:
     @pytest.mark.parametrize(
@@ -67,16 +92,22 @@ class TestElementPattern:
             ('word(var_v1, or_empty)', '(?P<v1>\\w+|)'),
             ('word(var_v1, or_n/a, or_empty)', '(?P<v1>\\w+|n/a|)'),
             ('word(var_v1, or_abc xyz, or_12.95 19.95, or_empty)', '(?P<v1>\\w+|(abc xyz)|(12.95 19.95)|)'),
-            ('word(var_v1, left_word_bound)', '(?P<v1>\\b\\w+)'),
-            ('word(var_v1, right_word_bound)', '(?P<v1>\\w+\\b)'),
+            ('word(var_v1, word_bound_left)', '(?P<v1>\\b\\w+)'),
+            ('word(var_v1, word_bound_right)', '(?P<v1>\\w+\\b)'),
             ('word(var_v1, word_bound)', '(?P<v1>\\b\\w+\\b)'),
-            ('word(var_v1, raw_word_bound)', '(?P<v1>\\w+|word_bound)'),
+            ('word(var_v1, word_bound_raw)', '(?P<v1>\\w+|word_bound)'),
             ('word(var_v1, started)', '\\A(?P<v1>\\w+)'),
-            ('word(var_v1, ws_started)', '\\A\\s*(?P<v1>\\w+)'),
-            ('word(var_v1, raw_started)', '(?P<v1>\\w+|started)'),
+            ('word(var_v1, started_ws)', '\\A\\s*(?P<v1>\\w+)'),
+            ('word(var_v1, started_ws_plus)', '\\A\\s+(?P<v1>\\w+)'),
+            ('word(var_v1, started_space)', '\\A *(?P<v1>\\w+)'),
+            ('word(var_v1, started_space_plus)', '\\A +(?P<v1>\\w+)'),
+            ('word(var_v1, started_raw)', '(?P<v1>\\w+|started)'),
             ('word(var_v1, ended)', '(?P<v1>\\w+)\\Z'),
-            ('word(var_v1, ws_ended)', '(?P<v1>\\w+)\\s*\\Z'),
-            ('word(var_v1, raw_ended)', '(?P<v1>\\w+|ended)'),
+            ('word(var_v1, ended_ws)', '(?P<v1>\\w+)\\s*\\Z'),
+            ('word(var_v1, ended_ws_plus)', '(?P<v1>\\w+)\\s+\\Z'),
+            ('word(var_v1, ended_space)', '(?P<v1>\\w+) *\\Z'),
+            ('word(var_v1, ended_space_plus)', '(?P<v1>\\w+) +\\Z'),
+            ('word(var_v1, ended_raw)', '(?P<v1>\\w+|ended)'),
             ('letter(var_word, repetition_3)', '(?P<word>[a-zA-Z]{3})'),
             ('letter(var_word, repetition_3_8)', '(?P<word>[a-zA-Z]{3,8})'),
             ('letter(var_word, repetition_3_)', '(?P<word>[a-zA-Z]{3,})'),
@@ -86,6 +117,8 @@ class TestElementPattern:
             ####################################################################
             ('choice(up, down, administratively down)', 'up|down|(administratively down)'),
             ('choice(up, down, administratively down, var_v2)', '(?P<v2>up|down|(administratively down))'),
+            ('choice(up, down, administratively down, var_v2, or_empty)', '(?P<v2>up|down|(administratively down)|)'),
+            ('choice(up, down, administratively down, var_v2, or_empty, or_digits)', '(?P<v2>up|down|(administratively down)|\\d+|)'),
             ####################################################################
             # raw data test                                                    #
             ####################################################################
@@ -228,14 +261,14 @@ class TestLinePattern:
             ),
             (
                 'cherry is delicious.',                             # test data
-                'word(var_fruit, ws_started) is delicious.',        # user prepared data
+                'word(var_fruit, started_ws) is delicious.',        # user prepared data
                 '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 '\r\n cherry is delicious.',                        # test data
-                'word(var_fruit, ws_started) is delicious.',        # user prepared data
+                'word(var_fruit, started_ws) is delicious.',        # user prepared data
                 '(?i)\\A\\s*(?P<fruit>\\w+) +is +delicious\\.',     # expected pattern
                 True, False, False, True,
                 True
@@ -249,14 +282,14 @@ class TestLinePattern:
             ),
             (
                 'I live in ABC',                                        # test data
-                'I live in words(var_city, ws_ended)',                  # user prepared data
+                'I live in words(var_city, ended_ws)',                  # user prepared data
                 '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*\\Z',    # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'I live in ABC \r\n',                                   # test data
-                'I live in words(var_city, ws_ended)',                  # user prepared data
+                'I live in words(var_city, ended_ws)',                  # user prepared data
                 '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*\\Z',    # expected pattern
                 True, False, False, True,
                 True

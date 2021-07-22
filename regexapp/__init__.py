@@ -1,4 +1,4 @@
-"""Top-level module for regexap.
+"""Top-level module for regexapp.
 
 - support TextPattern, ElementPattern, LinePattern, and PatternBuilder
 - support predefine pattern reference on system_setting.yaml
@@ -12,7 +12,7 @@ from regexapp.collection import LinePattern
 from regexapp.collection import PatternBuilder
 from regexapp.collection import PatternReference
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 version = __version__
 
 __all__ = [
