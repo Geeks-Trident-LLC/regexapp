@@ -120,6 +120,14 @@ class TestElementPattern:
             ('choice(up, down, administratively down, var_v2, or_empty)', '(?P<v2>up|down|(administratively down)|)'),
             ('choice(up, down, administratively down, var_v2, or_empty, or_digits)', '(?P<v2>up|down|(administratively down)|\\d+|)'),
             ####################################################################
+            # start keyword test                                               #
+            ####################################################################
+            ('start()', '^\\s*'),
+            ('start(space)', '^ *'),
+            ('start(space_plus)', '^ +'),
+            ('start(ws)', '^\\s*'),
+            ('start(ws_plus)', '^\\s+'),
+            ####################################################################
             # raw data test                                                    #
             ####################################################################
             ('word(raw>>>)', 'word\\(\\)'),
