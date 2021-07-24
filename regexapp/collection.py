@@ -287,6 +287,8 @@ class ElementPattern(str):
     ElementPattern.build_custom_pattern(keyword, params) -> bool, str
     ElementPattern.build_datetime_pattern(keyword, params) -> bool, str
     ElementPattern.build_choice_pattern(keyword, params) -> bool, str
+    ElementPattern.build_start_pattern(keyword, params) -> bool, str
+    ElementPattern.build_end_pattern(keyword, params) -> bool, str
     ElementPattern.build_raw_pattern(keyword, params) -> bool, str
     ElementPattern.build_default_pattern(keyword, params) -> bool, str
     ElementPattern.join_list(lst) -> str
@@ -367,6 +369,10 @@ class ElementPattern(str):
         is_built, start_pattern = cls.build_start_pattern(keyword, params)
         if is_built:
             return start_pattern
+
+        is_built, end_pattern = cls.build_end_pattern(keyword, params)
+        if is_built:
+            return end_pattern
 
         is_built, datetime_pattern = cls.build_datetime_pattern(keyword, params)
         if is_built:
@@ -639,7 +645,7 @@ class ElementPattern(str):
 
     @classmethod
     def build_start_pattern(cls, keyword, params):
-        """build a choice pattern over given keyword, params
+        """build a start pattern over given keyword, params
 
         Parameters
         ----------
@@ -656,6 +662,27 @@ class ElementPattern(str):
         table = dict(space=r'^ *', space_plus=r'^ +',
                      ws=r'^\s*', ws_plus=r'^\s+')
         pat = table.get(params, r'^\s*')
+        return True, pat
+
+    @classmethod
+    def build_end_pattern(cls, keyword, params):
+        """build an end pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        str: a regex pattern.
+        """
+        if keyword != 'end':
+            return False, ''
+
+        table = dict(space=r' *$', space_plus=r' +$',
+                     ws=r'\s*$', ws_plus=r'\s+$')
+        pat = table.get(params, r'\s*$')
         return True, pat
 
     @classmethod
