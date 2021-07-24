@@ -364,6 +364,10 @@ class ElementPattern(str):
         if is_built:
             return raw_pattern
 
+        is_built, start_pattern = cls.build_start_pattern(keyword, params)
+        if is_built:
+            return start_pattern
+
         is_built, datetime_pattern = cls.build_datetime_pattern(keyword, params)
         if is_built:
             return datetime_pattern
@@ -632,6 +636,27 @@ class ElementPattern(str):
         pattern = cls.add_end_of_string(pattern, ended=ended)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
+
+    @classmethod
+    def build_start_pattern(cls, keyword, params):
+        """build a choice pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        str: a regex pattern.
+        """
+        if keyword != 'start':
+            return False, ''
+
+        table = dict(space=r'^ *', space_plus=r'^ +',
+                     ws=r'^\s*', ws_plus=r'^\s+')
+        pat = table.get(params, r'^\s*')
+        return True, pat
 
     @classmethod
     def build_raw_pattern(cls, keyword, params):
