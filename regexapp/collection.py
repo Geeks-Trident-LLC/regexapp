@@ -1055,7 +1055,7 @@ class LinePattern(str):
 
     @classmethod
     def ensure_start_of_line_pattern(cls, lst):
-        """Ensure a start pattern does not contai duplicate whitespace
+        """Ensure a start pattern does not contain duplicate whitespace
 
         Parameters
         ----------
