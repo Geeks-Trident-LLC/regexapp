@@ -367,6 +367,34 @@ class TestLinePattern:
                 True, False, False, True,
                 False
             ),
+            (
+                'cherry is delicious.',  # test data
+                'start()cherry is delicious.',  # user prepared data
+                '(?i)^\\s*cherry +is +delicious\\.',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'cherry is delicious.',  # test data
+                'start() cherry is delicious.',  # user prepared data
+                '(?i)^\\s*cherry +is +delicious\\.',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'cherry is delicious.',  # test data
+                'start(space)word(var_fruit) is delicious.',  # user prepared data
+                '(?i)^ *(?P<fruit>\\w+) +is +delicious\\.',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'cherry is delicious.',  # test data
+                'start(space) word(var_fruit) is delicious.',  # user prepared data
+                '(?i)^ *(?P<fruit>\\w+) +is +delicious\\.',  # expected pattern
+                True, False, False, True,
+                True
+            ),
         ]
     )
     def test_line_pattern(self, test_data, user_prepared_data,expected_pattern,
