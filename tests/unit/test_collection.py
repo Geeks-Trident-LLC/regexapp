@@ -395,6 +395,27 @@ class TestLinePattern:
                 True, False, False, True,
                 True
             ),
+            (
+                'this box is green',  # test data
+                'this box is green end()',  # user prepared data
+                '(?i)this +box +is +green\\s*$',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'this box is green',  # test data
+                'this box is word(var_color)end()',  # user prepared data
+                '(?i)this +box +is +(?P<color>\\w+)\\s*$',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'this box is green',  # test data
+                'this box is word(var_color) end()',  # user prepared data
+                '(?i)this +box +is +(?P<color>\\w+)\\s*$',  # expected pattern
+                True, False, False, True,
+                True
+            ),
         ]
     )
     def test_line_pattern(self, test_data, user_prepared_data,expected_pattern,
