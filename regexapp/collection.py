@@ -922,6 +922,7 @@ class LinePattern(str):
     LinePattern.get_pattern(text, used_space=True) -> str
     LinePattern.readjust_if_or_empty(lst, used_space=True) -> None
     LinePattern.ensure_start_of_line_pattern(lst) -> None
+    LinePattern.ensure_end_of_line_pattern(lst) -> None
     LinePattern.prepend_whitespace(lst, used_space=True) -> None
     LinePattern.prepend_ignorecase_flag(lst) -> None
     LinePattern.append_whitespace(lst, used_space=True) -> None
@@ -1023,6 +1024,7 @@ class LinePattern(str):
 
         cls.readjust_if_or_empty(lst, used_space=used_space)
         cls.ensure_start_of_line_pattern(lst)
+        cls.ensure_end_of_line_pattern(lst)
         prepended_ws and cls.prepend_whitespace(lst, used_space=used_space)
         ignore_case and cls.prepend_ignorecase_flag(lst)
         appended_ws and cls.append_whitespace(lst, used_space=used_space)
@@ -1074,6 +1076,28 @@ class LinePattern(str):
                     lst.pop(1)
                 else:
                     lst[1] = new_val
+
+    @classmethod
+    def ensure_end_of_line_pattern(cls, lst):
+        """Ensure an end pattern does not contain duplicate whitespace
+
+        Parameters
+        ----------
+        lst (list): a list of pattern
+        """
+        if len(lst) < 2:
+            return
+
+        last, prev = lst[-1], lst[-2]
+        match = re.search(r'(?P<post_ws>( |\\s)[*+]*)$', prev)
+        if re.match(r'( |\\s)[*+]?(\$|\\Z)$', last):
+            if isinstance(prev, TextPattern) and match:
+                index = len(match.group('post_ws'))
+                new_val = prev[:-index]
+                if new_val == '':
+                    lst.pop(-2)
+                else:
+                    lst[-2] = new_val
 
     @classmethod
     def prepend_whitespace(cls, lst, used_space=True):
