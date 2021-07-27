@@ -165,7 +165,8 @@ def add_reference(name='', pattern='', **kwargs):
 
     Raises
     ------
-    PatternReferenceError
+    PatternReferenceError: if adding an existing keyword from
+        system_settings.yaml or user_settings.yaml
     """
     if not name:
         fmt = '{} keyword can not be empty name.'
@@ -187,3 +188,34 @@ def add_reference(name='', pattern='', **kwargs):
                 fmt = ('{} already exists in system_settings.yaml '
                        'or user_settings.yaml')
                 raise PatternReferenceError(fmt.format(name))
+
+def remove_reference(name=''):
+    """remove keyword reference from PatternReference.  This method only remove
+    any inline adding keyword reference.
+
+    Parameters
+    ----------
+    name (str): a keyword.
+
+    Raises
+    ------
+    PatternReferenceError: if removing an existing keyword from
+        system_settings.yaml or user_settings.yaml
+    """
+    if not name:
+        fmt = '{} keyword can not be empty name.'
+        PatternReferenceError(fmt.format(name))
+
+    if name in REF:
+        if name not in BASELINE_REF:
+            REF.pop(name)
+        else:
+            if name == 'datetime':
+                REF['datetime'] = deepcopy(BASELINE_REF['datetime'])
+            else:
+                fmt = ('CANT remove {!r} from system_settings.yaml '
+                       'or user_settings.yaml')
+                raise PatternReferenceError(fmt.format(name))
+    else:
+        fmt = 'CANT remove {!r} keyword because it does not exist.'
+        raise PatternReferenceError(fmt.format(name))
