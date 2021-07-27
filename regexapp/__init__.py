@@ -11,8 +11,9 @@ from regexapp.collection import ElementPattern
 from regexapp.collection import LinePattern
 from regexapp.collection import PatternBuilder
 from regexapp.collection import PatternReference
+from regexapp.core import RegexBuilder
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 version = __version__
 
 __all__ = [
@@ -21,4 +22,5 @@ __all__ = [
     'LinePattern',
     'PatternBuilder',
     'PatternReference',
+    'RegexBuilder',
 ]
