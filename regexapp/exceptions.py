@@ -27,3 +27,7 @@ class LinePatternError(PatternError):
 
 class PatternBuilderError(PatternError):
     """Use to capture error during pattern conversion."""
+
+
+class RegexBuilderError(Exception):
+    """Use to capture error for RegexBuilder class."""
