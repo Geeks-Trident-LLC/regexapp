@@ -2,6 +2,7 @@ import pytest
 from textwrap import dedent
 from regexapp import RegexBuilder
 from regexapp import add_reference
+from regexapp import remove_reference
 from regexapp.exceptions import PatternReferenceError
 
 
@@ -104,3 +105,16 @@ def test_add_reference(user_data1, test_data1, report1):
 def test_add_reference_exception():
     with pytest.raises(PatternReferenceError):
         add_reference(name='word', pattern='\\w+')
+
+def test_remove_reference():
+    add_reference(name='month_day', pattern=r'[a-zA-Z]{3} +\d{1,2}')
+    remove_reference(name='month_day')
+
+def test_add_reference_exception():
+    with pytest.raises(PatternReferenceError):
+        remove_reference(name='word')
+
+    with pytest.raises(PatternReferenceError):
+        add_reference(name='month_day', pattern=r'[a-zA-Z]{3} +\d{1,2}')
+        remove_reference(name='month_day')
+        remove_reference(name='month_day')
