@@ -287,6 +287,8 @@ class ElementPattern(str):
     ElementPattern.build_custom_pattern(keyword, params) -> bool, str
     ElementPattern.build_datetime_pattern(keyword, params) -> bool, str
     ElementPattern.build_choice_pattern(keyword, params) -> bool, str
+    ElementPattern.build_start_pattern(keyword, params) -> bool, str
+    ElementPattern.build_end_pattern(keyword, params) -> bool, str
     ElementPattern.build_raw_pattern(keyword, params) -> bool, str
     ElementPattern.build_default_pattern(keyword, params) -> bool, str
     ElementPattern.join_list(lst) -> str
@@ -363,6 +365,14 @@ class ElementPattern(str):
         is_built, raw_pattern = cls.build_raw_pattern(keyword, params)
         if is_built:
             return raw_pattern
+
+        is_built, start_pattern = cls.build_start_pattern(keyword, params)
+        if is_built:
+            return start_pattern
+
+        is_built, end_pattern = cls.build_end_pattern(keyword, params)
+        if is_built:
+            return end_pattern
 
         is_built, datetime_pattern = cls.build_datetime_pattern(keyword, params)
         if is_built:
@@ -634,6 +644,48 @@ class ElementPattern(str):
         return True, pattern
 
     @classmethod
+    def build_start_pattern(cls, keyword, params):
+        """build a start pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        str: a regex pattern.
+        """
+        if keyword != 'start':
+            return False, ''
+
+        table = dict(space=r'^ *', space_plus=r'^ +',
+                     ws=r'^\s*', ws_plus=r'^\s+')
+        pat = table.get(params, r'^\s*')
+        return True, pat
+
+    @classmethod
+    def build_end_pattern(cls, keyword, params):
+        """build an end pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        str: a regex pattern.
+        """
+        if keyword != 'end':
+            return False, ''
+
+        table = dict(space=r' *$', space_plus=r' +$',
+                     ws=r'\s*$', ws_plus=r'\s+$')
+        pat = table.get(params, r'\s*$')
+        return True, pat
+
+    @classmethod
     def build_raw_pattern(cls, keyword, params):
         """build a raw data pattern over given keyword, params
 
@@ -869,6 +921,8 @@ class LinePattern(str):
     -------
     LinePattern.get_pattern(text, used_space=True) -> str
     LinePattern.readjust_if_or_empty(lst, used_space=True) -> None
+    LinePattern.ensure_start_of_line_pattern(lst) -> None
+    LinePattern.ensure_end_of_line_pattern(lst) -> None
     LinePattern.prepend_whitespace(lst, used_space=True) -> None
     LinePattern.prepend_ignorecase_flag(lst) -> None
     LinePattern.append_whitespace(lst, used_space=True) -> None
@@ -969,6 +1023,8 @@ class LinePattern(str):
             lst.append(TextPattern(line, used_space=used_space))
 
         cls.readjust_if_or_empty(lst, used_space=used_space)
+        cls.ensure_start_of_line_pattern(lst)
+        cls.ensure_end_of_line_pattern(lst)
         prepended_ws and cls.prepend_whitespace(lst, used_space=used_space)
         ignore_case and cls.prepend_ignorecase_flag(lst)
         appended_ws and cls.append_whitespace(lst, used_space=used_space)
@@ -998,6 +1054,50 @@ class LinePattern(str):
             if is_item_text_pat and is_next_item_elm_pat:
                 if item.is_whitespace and next_item.or_empty:
                     lst[index] = ws_pat
+
+    @classmethod
+    def ensure_start_of_line_pattern(cls, lst):
+        """Ensure a start pattern does not contain duplicate whitespace
+
+        Parameters
+        ----------
+        lst (list): a list of pattern
+        """
+        if len(lst) < 2:
+            return
+
+        curr, nxt = lst[0], lst[1]
+        match = re.match(r'(?P<pre_ws>( |\\s)[*+]*)', nxt)
+        if re.match(r'(\^|\\A)( |\\s)[*+]*$', curr):
+            if isinstance(nxt, TextPattern) and match:
+                index = len(match.group('pre_ws'))
+                new_val = nxt[index:]
+                if new_val == '':
+                    lst.pop(1)
+                else:
+                    lst[1] = new_val
+
+    @classmethod
+    def ensure_end_of_line_pattern(cls, lst):
+        """Ensure an end pattern does not contain duplicate whitespace
+
+        Parameters
+        ----------
+        lst (list): a list of pattern
+        """
+        if len(lst) < 2:
+            return
+
+        last, prev = lst[-1], lst[-2]
+        match = re.search(r'(?P<post_ws>( |\\s)[*+]*)$', prev)
+        if re.match(r'( |\\s)[*+]?(\$|\\Z)$', last):
+            if isinstance(prev, TextPattern) and match:
+                index = len(match.group('post_ws'))
+                new_val = prev[:-index]
+                if new_val == '':
+                    lst.pop(-2)
+                else:
+                    lst[-2] = new_val
 
     @classmethod
     def prepend_whitespace(cls, lst, used_space=True):

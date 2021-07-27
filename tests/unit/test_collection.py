@@ -120,6 +120,22 @@ class TestElementPattern:
             ('choice(up, down, administratively down, var_v2, or_empty)', '(?P<v2>up|down|(administratively down)|)'),
             ('choice(up, down, administratively down, var_v2, or_empty, or_digits)', '(?P<v2>up|down|(administratively down)|\\d+|)'),
             ####################################################################
+            # start keyword test                                               #
+            ####################################################################
+            ('start()', '^\\s*'),
+            ('start(space)', '^ *'),
+            ('start(space_plus)', '^ +'),
+            ('start(ws)', '^\\s*'),
+            ('start(ws_plus)', '^\\s+'),
+            ####################################################################
+            # end keyword test                                               #
+            ####################################################################
+            ('end()', '\\s*$'),
+            ('end(space)', ' *$'),
+            ('end(space_plus)', ' +$'),
+            ('end(ws)', '\\s*$'),
+            ('end(ws_plus)', '\\s+$'),
+            ####################################################################
             # raw data test                                                    #
             ####################################################################
             ('word(raw>>>)', 'word\\(\\)'),
@@ -350,6 +366,55 @@ class TestLinePattern:
                 '(?i)Is +(?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) +an +IPv6 +address',    # expected pattern
                 True, False, False, True,
                 False
+            ),
+            (
+                'cherry is delicious.',  # test data
+                'start()cherry is delicious.',  # user prepared data
+                '(?i)^\\s*cherry +is +delicious\\.',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'cherry is delicious.',  # test data
+                'start() cherry is delicious.',  # user prepared data
+                '(?i)^\\s*cherry +is +delicious\\.',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'cherry is delicious.',  # test data
+                'start(space)word(var_fruit) is delicious.',  # user prepared data
+                '(?i)^ *(?P<fruit>\\w+) +is +delicious\\.',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'cherry is delicious.',  # test data
+                'start(space) word(var_fruit) is delicious.',  # user prepared data
+                '(?i)^ *(?P<fruit>\\w+) +is +delicious\\.',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'this box is green',  # test data
+                'this box is green end()',  # user prepared data
+                '(?i)this +box +is +green\\s*$',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'this box is green',  # test data
+                'this box is word(var_color)end()',  # user prepared data
+                '(?i)this +box +is +(?P<color>\\w+)\\s*$',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'this box is green',  # test data
+                'this box is word(var_color) end()',  # user prepared data
+                '(?i)this +box +is +(?P<color>\\w+)\\s*$',  # expected pattern
+                True, False, False, True,
+                True
             ),
         ]
     )
