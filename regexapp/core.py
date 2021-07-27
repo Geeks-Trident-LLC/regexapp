@@ -1,6 +1,11 @@
 import re
 from regexapp import LinePattern
 from regexapp.exceptions import RegexBuilderError
+from regexapp.exceptions import PatternReferenceError
+from regexapp.collection import REF
+from copy import deepcopy
+
+BASELINE_REF = deepcopy(REF)
 
 
 class RegexBuilder:
@@ -146,3 +151,39 @@ class RegexBuilder:
         showed and print(self.test_report)
 
         return test_result
+
+
+def add_reference(name='', pattern='', **kwargs):
+    """add keyword reference to PatternReference.  This is an inline adding
+    PatternReference for quick test.
+
+    Parameters
+    ----------
+    name (str): a keyword.
+    pattern (str): a regex pattern.
+    kwargs (dict): keyword argument which will use for special case such as datetime.
+
+    Raises
+    ------
+    PatternReferenceError
+    """
+    if not name:
+        fmt = '{} keyword can not be empty name.'
+        PatternReferenceError(fmt.format(name))
+
+    obj = dict(pattern=pattern,
+               description='inline_{}_{}'.format(name, pattern))
+    if name not in REF:
+        REF[name] = obj
+    else:
+        if name == 'datetime':
+            for key, value in kwargs.items():
+                if re.match(r'format\d+$', key):
+                    REF['datetime'][key] = value
+        else:
+            if name not in BASELINE_REF:
+                REF[name] = obj
+            else:
+                fmt = ('{} already exists in system_settings.yaml '
+                       'or user_settings.yaml')
+                raise PatternReferenceError(fmt.format(name))
