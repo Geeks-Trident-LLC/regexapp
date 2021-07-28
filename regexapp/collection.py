@@ -751,6 +751,11 @@ class ElementPattern(str):
             new_lst = lst
 
         result = '|'.join(new_lst)
+
+        has_empty = bool([True for i in new_lst if i == ''])
+        if has_empty:
+            result = '({})'.format(result)
+
         return result
 
     @classmethod
