@@ -429,7 +429,7 @@ class TestLinePattern:
                 True
             ),
             (
-                "'My Documents' -> /c/Users/admin/Documents/",  # test data
+                "'My Documents' -> /c/Users/test/Documents/",  # test data
                 'mixed_words(var_file_name) data(->, or_empty) mixed_words(var_link_name, or_empty) end()',     # user prepared data
                 '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',    # expected pattern
                 True, False, False, True,
