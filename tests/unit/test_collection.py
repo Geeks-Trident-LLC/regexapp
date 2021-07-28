@@ -120,6 +120,11 @@ class TestElementPattern:
             ('choice(up, down, administratively down, var_v2, or_empty)', '(?P<v2>up|down|(administratively down)|)'),
             ('choice(up, down, administratively down, var_v2, or_empty, or_digits)', '(?P<v2>up|down|(administratively down)|\\d+|)'),
             ####################################################################
+            # data keyword test                                                #
+            ####################################################################
+            ('data(->)', '->'),
+            ('data(->, or_empty)', '(->|)'),
+            ####################################################################
             # start keyword test                                               #
             ####################################################################
             ('start()', '^\\s*'),
@@ -413,6 +418,20 @@ class TestLinePattern:
                 'this box is green',  # test data
                 'this box is word(var_color) end()',  # user prepared data
                 '(?i)this +box +is +(?P<color>\\w+)\\s*$',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                'file1.txt',  # test data
+                'mixed_words(var_file_name) data(->, or_empty) mixed_words(var_link_name, or_empty) end()',  # user prepared data
+                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',  # expected pattern
+                True, False, False, True,
+                True
+            ),
+            (
+                "'My Documents' -> /c/Users/test/Documents/",  # test data
+                'mixed_words(var_file_name) data(->, or_empty) mixed_words(var_link_name, or_empty) end()',     # user prepared data
+                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',    # expected pattern
                 True, False, False, True,
                 True
             ),

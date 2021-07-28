@@ -287,6 +287,7 @@ class ElementPattern(str):
     ElementPattern.build_custom_pattern(keyword, params) -> bool, str
     ElementPattern.build_datetime_pattern(keyword, params) -> bool, str
     ElementPattern.build_choice_pattern(keyword, params) -> bool, str
+    ElementPattern.build_data_pattern(keyword, params) -> bool, str
     ElementPattern.build_start_pattern(keyword, params) -> bool, str
     ElementPattern.build_end_pattern(keyword, params) -> bool, str
     ElementPattern.build_raw_pattern(keyword, params) -> bool, str
@@ -378,13 +379,17 @@ class ElementPattern(str):
         if is_built:
             return datetime_pattern
 
-        is_built, custom_pattern = cls.build_custom_pattern(keyword, params)
-        if is_built:
-            return custom_pattern
-
         is_built, choice_pattern = cls.build_choice_pattern(keyword, params)
         if is_built:
             return choice_pattern
+
+        is_built, data_pattern = cls.build_data_pattern(keyword, params)
+        if is_built:
+            return data_pattern
+
+        is_built, custom_pattern = cls.build_custom_pattern(keyword, params)
+        if is_built:
+            return custom_pattern
 
         _, default_pattern = cls.build_default_pattern(keyword, params)
         return default_pattern
@@ -644,6 +649,83 @@ class ElementPattern(str):
         return True, pattern
 
     @classmethod
+    def build_data_pattern(cls, keyword, params):
+        """build a data pattern over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a custom keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        str: a regex pattern.
+        """
+        if keyword != 'data':
+            return False, ''
+
+        arguments = re.split(r' *, *', params) if params else []
+        lst = []
+
+        name, vpat = '', r'var_(?P<name>\w+)$'
+        or_pat = r'or_(?P<case>[^,]+)'
+        is_empty = False
+        word_bound = ''
+        started = ''
+        ended = ''
+
+        for arg in arguments:
+            match = re.match(vpat, arg, flags=re.I)
+            if match:
+                name = match.group('name') if not name else name
+            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+                if arg == 'word_bound_raw':
+                    'word_bound' not in lst and lst.append('word_bound')
+                else:
+                    word_bound = arg
+            elif re.match('started(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'started_raw':
+                    'started' not in lst and lst.append('started')
+                else:
+                    started = arg
+            elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'ended_raw':
+                    'ended' not in lst and lst.append('ended')
+                else:
+                    ended = arg
+            elif re.match(r'^meta_data_\w+', arg):
+                if arg == 'meta_data_raw':
+                    'meta_data' not in lst and lst.append('meta_data')
+                else:
+                    cls._variable.option = arg.lstrip('meta_data_')
+            else:
+                match = re.match(or_pat, arg, flags=re.I)
+                if match:
+                    case = match.group('case')
+                    if case == 'empty':
+                        is_empty = True
+                        cls._or_empty = is_empty
+                    else:
+                        if case in REF:
+                            pat = REF.get(case).get('pattern')
+                            pat not in lst and lst.append(pat)
+                        else:
+                            pat = case
+                            pat not in lst and lst.append(pat)
+                else:
+                    pat = do_soft_regex_escape(arg)
+                    pat not in lst and lst.append(pat)
+
+        is_empty and lst.append('')
+        pattern = cls.join_list(lst)
+        pattern = cls.add_word_bound(pattern, word_bound=word_bound)
+        pattern = cls.add_var_name(pattern, name=name)
+        pattern = cls.add_start_of_string(pattern, started=started)
+        pattern = cls.add_end_of_string(pattern, ended=ended)
+        pattern = pattern.replace('__comma__', ',')
+        return True, pattern
+
+    @classmethod
     def build_start_pattern(cls, keyword, params):
         """build a start pattern over given keyword, params
 
@@ -751,6 +833,11 @@ class ElementPattern(str):
             new_lst = lst
 
         result = '|'.join(new_lst)
+
+        has_empty = bool([True for i in new_lst if i == ''])
+        if has_empty:
+            result = '({})'.format(result)
+
         return result
 
     @classmethod
@@ -769,7 +856,10 @@ class ElementPattern(str):
         if name:
             cls._variable.name = name
             cls._variable.pattern = pattern
-            new_pattern = '(?P<{}>{})'.format(name, pattern)
+            if pattern.startswith('(') and pattern.endswith('|)'):
+                new_pattern = '(?P<{}>{})'.format(name, pattern[1:-1])
+            else:
+                new_pattern = '(?P<{}>{})'.format(name, pattern)
             return new_pattern
         return pattern
 
