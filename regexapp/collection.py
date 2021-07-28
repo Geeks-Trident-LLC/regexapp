@@ -774,7 +774,10 @@ class ElementPattern(str):
         if name:
             cls._variable.name = name
             cls._variable.pattern = pattern
-            new_pattern = '(?P<{}>{})'.format(name, pattern)
+            if pattern.startswith('(') and pattern.endswith('|)'):
+                new_pattern = '(?P<{}>{})'.format(name, pattern[1:-1])
+            else:
+                new_pattern = '(?P<{}>{})'.format(name, pattern)
             return new_pattern
         return pattern
 
