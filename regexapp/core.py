@@ -4,6 +4,7 @@ from regexapp import LinePattern
 from regexapp.exceptions import RegexBuilderError
 from regexapp.exceptions import PatternReferenceError
 from regexapp.collection import REF
+from regexapp import edition
 from copy import deepcopy
 from collections import OrderedDict
 
@@ -17,6 +18,12 @@ def get_template():
         return obj
 
 template = get_template()
+
+
+def is_pro_edition():
+    """return True if regexapp is Pro or Enterprise edition"""
+    chk = edition == 'Pro' or edition == 'Enterprise'
+    return chk
 
 
 class RegexBuilder:
