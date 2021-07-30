@@ -4,6 +4,7 @@ from regexapp.exceptions import RegexBuilderError
 from regexapp.exceptions import PatternReferenceError
 from regexapp.collection import REF
 from copy import deepcopy
+from collections import OrderedDict
 
 BASELINE_REF = deepcopy(REF)
 
@@ -26,6 +27,8 @@ class RegexBuilder:
     line_patterns (list): a list of patterns.
     test_report (str): a test report.
     test_result (bool): a test result.
+    line_pattern_table (OrderedDict): a variable holds line and pattern pair.
+    pattern_line_table (OrderedDict): a variable holds pattern and line pair.
 
     Methods
     -------
@@ -49,6 +52,8 @@ class RegexBuilder:
         self.line_patterns = []
         self.test_report = ''
         self.test_result = False
+        self.line_pattern_table = OrderedDict()
+        self.pattern_line_table = OrderedDict()
 
     @classmethod
     def validate_data(cls, **kwargs):
@@ -105,6 +110,8 @@ class RegexBuilder:
                 ignore_case=self.ignore_case
             )
             line not in self.line_patterns and self.line_patterns.append(line_pat)
+            self.line_pattern_table[line] = line_pat
+            self.pattern_line_table[line_pat] = line
 
     def test(self, showed=False):
         """test regex pattern via test data.
