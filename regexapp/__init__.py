@@ -17,6 +17,8 @@ from regexapp.core import remove_reference
 
 __version__ = '0.0.5'
 version = __version__
+__edition__ = 'Community'
+edition = __edition__
 
 __all__ = [
     'TextPattern',
@@ -27,4 +29,6 @@ __all__ = [
     'RegexBuilder',
     'add_reference',
     'remove_reference',
+    'version',
+    'edition',
 ]
