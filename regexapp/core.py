@@ -1,4 +1,5 @@
 import re
+import yaml
 from regexapp import LinePattern
 from regexapp.exceptions import RegexBuilderError
 from regexapp.exceptions import PatternReferenceError
@@ -7,6 +8,15 @@ from copy import deepcopy
 from collections import OrderedDict
 
 BASELINE_REF = deepcopy(REF)
+
+
+def get_template():
+    """return yaml instance for template.yaml"""
+    with open('template.yaml') as stream:
+        obj = yaml.load(stream, Loader=yaml.SafeLoader)
+        return obj
+
+template = get_template()
 
 
 class RegexBuilder:
