@@ -27,8 +27,10 @@ class RegexBuilder:
     line_patterns (list): a list of patterns.
     test_report (str): a test report.
     test_result (bool): a test result.
-    line_pattern_table (OrderedDict): a variable holds line and pattern pair.
-    pattern_line_table (OrderedDict): a variable holds pattern and line pair.
+    line_pattern_table (OrderedDict): a variable holds (line, pattern) pair.
+    pattern_line_table (OrderedDict): a variable holds (pattern, line) pair.
+    data_pattern_table (OrderedDict): a variable holds (data, pattern) pair.
+    pattern_data_table (OrderedDict): a variable holds (pattern, data) pair.
 
     Methods
     -------
@@ -54,6 +56,8 @@ class RegexBuilder:
         self.test_result = False
         self.line_pattern_table = OrderedDict()
         self.pattern_line_table = OrderedDict()
+        self.data_pattern_table = OrderedDict()
+        self.pattern_data_table = OrderedDict()
 
     @classmethod
     def validate_data(cls, **kwargs):
@@ -146,6 +150,8 @@ class RegexBuilder:
                 if match:
                     is_matched = True
                     match.groupdict() and lst.append(match.groupdict())
+                    self.data_pattern_table[line] = pat
+                    self.pattern_data_table[pat] = line
 
             test_result &= is_matched
             tr = 'NO' if not is_matched else lst if lst else 'YES'
