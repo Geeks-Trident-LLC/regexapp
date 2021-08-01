@@ -1,0 +1,72 @@
+unittest_regexapp_template1: |-
+  {module_docstring}
+
+  import unittest
+  import re
+
+  class {test_cls_name}(unittest.TestCase):
+      def __init__(self, test_name='', test_data=None,
+                   prepared_data=None, pattern=None):
+          super().__init__(test_name)
+          self.test_data = test_data
+          self.prepared_data = prepared_data
+          self.pattern = pattern
+
+unittest_regexapp_template2: |-
+  def {test_name}(self):
+      result = re.search(self.pattern, self.test_data)
+      self.assertIsNotNone(result)
+
+unittest_regexapp_template3: |-
+  def load_tests(loader, tests, pattern):
+      test_cases = unittest.TestSuite()
+
+      {data_insertion}
+
+      for arg in arguments:
+          test_name, test_data, prepared_data, pattern = arg
+          testcase = {test_cls_name}(
+              test_name=test_name,
+              test_data=test_data,
+              prepared_data=prepared_data,
+              pattern=pattern
+          )
+          test_cases.addTest(testcase)
+      return test_cases
+
+regexapp_data_insertion_fmt: |-
+  arguments.append(
+      (
+          {test_name},    # test name
+          {test_data},    # test data
+          {prepared_data},    # ref. user prepared data
+          r{pattern}   # pattern
+      )
+  )
+
+pytest_regexapp_template: |-
+  {module_docstring}
+
+  import pytest
+  import re
+
+  class {test_cls_name}:
+      {parametrize_invocation}
+      def {test_name}(self, test_data, prepared_data, pattern):
+          result = re.search(pattern, test_data)
+          assert result is not None
+
+pytest_parametrize_regexapp_template: |-
+  @pytest.mark.parametrize(
+      ('test_data', 'prepared_data', 'pattern'),
+      (
+          {parametrize_data}
+      )
+  )
+
+regexapp_parametrize_item_fmt: |-
+  (
+      {test_data},    # test data
+      {prepared_data},    # ref. user prepared data
+      r{pattern}   # pattern
+  ),
