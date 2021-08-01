@@ -4,6 +4,9 @@
 - support predefine pattern reference on system_setting.yaml
 - allow end-user to customize pattern on /home/.regexapp/user_settings.yaml
 - allow end-user to generate on GUI application and verify it.
+- dynamically generate Python unittest script
+- dynamically generate Python pytest script
+- dynamically generate Robotframework test script
 """
 
 from regexapp.collection import TextPattern
@@ -12,11 +15,14 @@ from regexapp.collection import LinePattern
 from regexapp.collection import PatternBuilder
 from regexapp.collection import PatternReference
 from regexapp.core import RegexBuilder
+from regexapp.core import DynamicGenTestScript
 from regexapp.core import add_reference
 from regexapp.core import remove_reference
 
 __version__ = '0.0.5'
 version = __version__
+__edition__ = 'Community'
+edition = __edition__
 
 __all__ = [
     'TextPattern',
@@ -25,6 +31,9 @@ __all__ = [
     'PatternBuilder',
     'PatternReference',
     'RegexBuilder',
+    'DynamicGenTestScript',
     'add_reference',
     'remove_reference',
+    'version',
+    'edition',
 ]
