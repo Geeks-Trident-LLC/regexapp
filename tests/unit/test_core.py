@@ -1,9 +1,20 @@
+import sys
+
 import pytest
 from textwrap import dedent
 from regexapp import RegexBuilder
+from regexapp import DynamicGenTestScript
 from regexapp import add_reference
 from regexapp import remove_reference
 from regexapp.exceptions import PatternReferenceError
+from datetime import datetime
+from pathlib import Path, PurePath
+
+
+def is_python_v35_or_older():
+    major_ver = int(sys.version_info.major)
+    minor_ver = int(sys.version_info.minor)
+    return major_ver == 3 and minor_ver < 6
 
 
 @pytest.fixture
@@ -45,7 +56,10 @@ def report():
     """
     yield dedent(test_report).strip()
 
-
+@pytest.mark.skipif(
+    is_python_v35_or_older(),
+    reason='Python 3.5 dictionary is unordered hash object'
+)
 def test_regex_builder(user_data, test_data, report):
     obj = RegexBuilder(user_data=user_data, test_data=test_data)
     obj.build()
@@ -90,6 +104,10 @@ def report1():
     yield dedent(test_report).strip()
 
 
+@pytest.mark.skipif(
+    is_python_v35_or_older(),
+    reason='Python 3.5 dictionary is unordered hash object'
+)
 def test_add_reference(user_data1, test_data1, report1):
     add_reference(name='file_type', pattern=r'\S')
     add_reference(name='file_permission', pattern=r'\S+')
@@ -106,9 +124,11 @@ def test_add_reference_exception():
     with pytest.raises(PatternReferenceError):
         add_reference(name='word', pattern='\\w+')
 
+
 def test_remove_reference():
     add_reference(name='month_day', pattern=r'[a-zA-Z]{3} +\d{1,2}')
     remove_reference(name='month_day')
+
 
 def test_add_reference_exception():
     with pytest.raises(PatternReferenceError):
@@ -118,3 +138,67 @@ def test_add_reference_exception():
         add_reference(name='month_day', pattern=r'[a-zA-Z]{3} +\d{1,2}')
         remove_reference(name='month_day')
         remove_reference(name='month_day')
+
+
+@pytest.fixture
+def tc_info():
+    class Object:
+        pass
+
+    obj = Object()
+
+    prepared_data = """
+        phrase(var_subject) is digits(var_degree) degrees word(var_unit).
+           IPv4 Address. . . . . . . . . . . : ipv4_address(var_ipv4_addr)(word(var_status))
+    """
+
+    test_data = """
+        today temperature is 75 degrees fahrenheit.
+        the highest temperature ever recorded on Earth is 134 degrees fahrenheit.
+           IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)
+    """
+
+    obj.prepared_data = dedent(prepared_data).strip()
+    obj.test_data = dedent(test_data).strip()
+    obj.author = 'user1'
+    obj.email = 'user1@abcxyz.com'
+    obj.company = 'ABC XYZ LLC'
+
+    dt_str = '{:%Y-%m-%d}'.format(datetime.now())
+
+    base_dir = str(PurePath(Path(__file__).parent, 'data'))
+
+    filename = str(PurePath(base_dir, 'unittest_script.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        obj.expected_unittest_script = script
+
+    filename = str(PurePath(base_dir, 'pytest_script.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        obj.expected_pytest_script = script
+
+    yield obj
+
+
+class TestDynamicGenTestScript:
+    def test_generating_unittest_script(self, tc_info):
+        obj = DynamicGenTestScript(
+            test_info=[tc_info.prepared_data, tc_info.test_data]
+        )
+        test_script = obj.generate_unittest(author=tc_info.author,
+                                            email=tc_info.email,
+                                            company=tc_info.company,)
+        assert test_script == tc_info.expected_unittest_script
+
+
+    def test_generating_pytest_script(self, tc_info):
+        obj = DynamicGenTestScript(
+            test_info=[tc_info.prepared_data, tc_info.test_data]
+        )
+        test_script = obj.generate_pytest(author=tc_info.author,
+                                          email=tc_info.email,
+                                          company=tc_info.company,)
+        assert test_script == tc_info.expected_pytest_script
