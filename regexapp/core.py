@@ -330,9 +330,9 @@ class DynamicGenTestScript:
     generate_custom_docstring(**kwargs) -> str
     generate_docstring(test_framework='unittest', author='', email='', company='', **kwargs) -> str
     generate_data_insertion() -> str
-    generate_unittest(author='', email='', company='', filename='', **kwargs) -> str
-    generate_pytest(author='', email='', company='', filename='', **kwargs) -> str
-    generate_rf_test(author='', email='', company='', filename='', **kwargs) -> str
+    generate_unittest(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
+    generate_pytest(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
+    generate_rf_test(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
     """
     def __init__(self, test_info=None, test_name='',
                  max_words=6, test_cls_name='TestDynamicGenTestScript',
@@ -485,15 +485,23 @@ class DynamicGenTestScript:
             module_docstr = '"""{}\n"""'.format('\n'.join(lst))
             return module_docstr
 
-    def generate_data_insertion(self):
+    def generate_data_insertion(self, is_minimal=True):
         """generate list insertion for unittest script
+
+        Parameters
+        ----------
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
 
         Returns
         -------
         str: a format of list insertion.
         """
         lst = ['arguments = list()']
-        fmt = self.template.get('regexapp_data_insertion_fmt')
+
+        basename = 'regexapp_data_insertion'
+        postfix = 'minimal_fmt' if is_minimal else 'fmt'
+        fmt = self.template.get('{}_{}'.format(basename, postfix))
+
         fmt1 = '    # test case #{:0{}} - {}'
         spacers = len(str(len(self.lst_of_tests)))
         for index, test in enumerate(self.lst_of_tests, 1):
@@ -509,14 +517,15 @@ class DynamicGenTestScript:
         result = '\n'.join(lst)
         return result
 
-    def generate_unittest(self, author='', email='',
-                          company='', filename='', **kwargs):
+    def generate_unittest(self, author='', email='', company='',
+                          is_minimal=True, filename='', **kwargs):
         """dynamically generate Python unittest script
         Parameters
         ----------
         author (str): author name.  Default is empty.
         email (str): author name.  Default is empty.
         company (str): company name.  Default is empty.
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
         filename (str): save a generated test script to file name.
         kwargs (str): custom keyword arguments for
                 Pro Edition or Enterprise Edition.
@@ -532,14 +541,19 @@ class DynamicGenTestScript:
             author=author, email=email, company=company, **kwargs
         )
 
-        fmt1 = self.template.get('unittest_regexapp_template1')
+        basename = 'unittest_regexapp'
+        postfix = 'minimal_template1' if is_minimal else 'template1'
+        fmt1 = self.template.get('{}_{}'.format(basename, postfix))
+
         data = fmt1.format(module_docstring=module_docstring,
                            test_cls_name=self.test_cls_name)
         lst.append(data)
         lst.append('')
 
         # part 2
-        fmt2 = self.template.get('unittest_regexapp_template2')
+        postfix = 'minimal_template2' if is_minimal else 'template2'
+        fmt2 = self.template.get('{}_{}'.format(basename, postfix))
+
         for test in self.lst_of_tests:
             test_name = test[0]
             method_def = fmt2.format(test_name=test_name)
@@ -549,8 +563,10 @@ class DynamicGenTestScript:
                 lst.append('')
 
         # part 3
-        fmt3 = self.template.get('unittest_regexapp_template3')
-        data_insertion = self.generate_data_insertion()
+        postfix = 'minimal_template3' if is_minimal else 'template3'
+        fmt3 = self.template.get('{}_{}'.format(basename, postfix))
+
+        data_insertion = self.generate_data_insertion(is_minimal=is_minimal)
         data = fmt3.format(data_insertion=data_insertion,
                            test_cls_name=self.test_cls_name)
         lst.append('')
@@ -563,14 +579,15 @@ class DynamicGenTestScript:
 
         return test_script
 
-    def generate_pytest(self, author='', email='',
-                        company='', filename='', **kwargs):
+    def generate_pytest(self, author='', email='', company='',
+                          is_minimal=True, filename='', **kwargs):
         """dynamically generate Python pytest script
         Parameters
         ----------
         author (str): author name.  Default is empty.
         email (str): author name.  Default is empty.
         company (str): company name.  Default is empty.
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
         filename (str): save a generated test script to file name.
         kwargs (str): custom keyword arguments for
                 Pro Edition or Enterprise Edition.
@@ -585,7 +602,9 @@ class DynamicGenTestScript:
             author=author, email=email, company=company, **kwargs
         )
 
-        parametrize_item_fmt = self.template.get('regexapp_parametrize_item_fmt')
+        basename = 'regexapp_parametrize_item'
+        postfix = 'minimal_fmt' if is_minimal else 'fmt'
+        parametrize_item_fmt = self.template.get('{}_{}'.format(basename, postfix))
 
         lst = ['']
         for test in self.lst_of_tests:
@@ -598,7 +617,11 @@ class DynamicGenTestScript:
             lst.append(parametrize_item)
 
         parametrize_data = '\n'.join(lst)
-        parametrize_template = self.template.get('pytest_parametrize_regexapp_template')
+
+        basename = 'pytest_parametrize_regexapp'
+        postfix = 'minimal_template' if is_minimal else 'template'
+        parametrize_template = self.template.get('{}_{}'.format(basename, postfix))
+
         ss = parametrize_template.format(parametrize_data=parametrize_data)
         parametrize_invocation = '\n'.join(['', indent(ss, ' ' * 4)])
 
@@ -610,7 +633,11 @@ class DynamicGenTestScript:
                   test_cls_name=self.test_cls_name,
                   test_name=test_name,
                   parametrize_invocation=parametrize_invocation)
-        script_template = self.template.get('pytest_regexapp_template')
+
+        basename = 'pytest_regexapp'
+        postfix = 'minimal_template' if is_minimal else 'template'
+        script_template = self.template.get('{}_{}'.format(basename, postfix))
+
         test_script = script_template.format(**kw)
         test_script = '\n'.join(l.rstrip() for l in test_script.splitlines())
 
@@ -618,14 +645,15 @@ class DynamicGenTestScript:
 
         return test_script
 
-    def generate_rf_test(self, author='', email='',
-                         company='', filename='', **kwargs):
+    def generate_rf_test(self, author='', email='', company='',
+                          is_minimal=True, filename='', **kwargs):
         """dynamically generate Robotframework test script
         Parameters
         ----------
         author (str): author name.  Default is empty.
         email (str): author name.  Default is empty.
         company (str): company name.  Default is empty.
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
         filename (str): save a generated test script to file name.
         kwargs (str): custom keyword arguments for
                 Pro Edition or Enterprise Edition.
