@@ -174,11 +174,23 @@ def tc_info():
         script = script.replace('_datetime_', dt_str)
         obj.expected_unittest_script = script
 
+    filename = str(PurePath(base_dir, 'detail_unittest_script.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        obj.expected_detail_unittest_script = script
+
     filename = str(PurePath(base_dir, 'pytest_script.txt'))
     with open(filename) as stream:
         script = stream.read()
         script = script.replace('_datetime_', dt_str)
         obj.expected_pytest_script = script
+
+    filename = str(PurePath(base_dir, 'detail_pytest_script.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        obj.expected_detail_pytest_script = script
 
     yield obj
 
@@ -190,9 +202,19 @@ class TestDynamicGenTestScript:
         )
         test_script = obj.generate_unittest(author=tc_info.author,
                                             email=tc_info.email,
-                                            company=tc_info.company,)
+                                            company=tc_info.company,
+                                            is_minimal=True,)
         assert test_script == tc_info.expected_unittest_script
 
+    def test_generating_detail_unittest_script(self, tc_info):
+        obj = DynamicGenTestScript(
+            test_info=[tc_info.prepared_data, tc_info.test_data]
+        )
+        test_script = obj.generate_unittest(author=tc_info.author,
+                                            email=tc_info.email,
+                                            company=tc_info.company,
+                                            is_minimal=False)
+        assert test_script == tc_info.expected_detail_unittest_script
 
     def test_generating_pytest_script(self, tc_info):
         obj = DynamicGenTestScript(
@@ -200,5 +222,16 @@ class TestDynamicGenTestScript:
         )
         test_script = obj.generate_pytest(author=tc_info.author,
                                           email=tc_info.email,
-                                          company=tc_info.company,)
+                                          company=tc_info.company,
+                                          is_minimal=True,)
         assert test_script == tc_info.expected_pytest_script
+
+    def test_generating_detail_pytest_script(self, tc_info):
+        obj = DynamicGenTestScript(
+            test_info=[tc_info.prepared_data, tc_info.test_data]
+        )
+        test_script = obj.generate_pytest(author=tc_info.author,
+                                          email=tc_info.email,
+                                          company=tc_info.company,
+                                          is_minimal=False)
+        assert test_script == tc_info.expected_detail_pytest_script
