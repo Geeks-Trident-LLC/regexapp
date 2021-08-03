@@ -161,6 +161,26 @@ class TestRegexBuilder:
                                                 is_minimal=False,)
         assert test_script == tc_info.expected_detail_unittest_script
 
+    def test_generating_pytest_script(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.user_data, test_data=tc_info.test_data
+        )
+        test_script = factory.generate_pytest(author=tc_info.author,
+                                              email=tc_info.email,
+                                              company=tc_info.company,
+                                              is_minimal=True,)
+        assert test_script == tc_info.expected_pytest_script
+
+    def test_generating_detail_pytest_script(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.user_data, test_data=tc_info.test_data
+        )
+        test_script = factory.generate_pytest(author=tc_info.author,
+                                              email=tc_info.email,
+                                              company=tc_info.company,
+                                              is_minimal=False,)
+        assert test_script == tc_info.expected_detail_pytest_script
+
 
 @pytest.mark.skipif(
     is_python_v35_or_older(),
