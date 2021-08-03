@@ -97,6 +97,18 @@ class RegexBuilder:
     RegexBuilder.validate_data(data, name) -> bool
     build() -> None
     test(showed=True) -> bool
+    generate_unittest(test_name='', max_words=6,
+                      test_cls_name='TestDynamicGenTestScript',
+                      author='', email='', company='',
+                      is_minimal=True, filename='', **kwargs) -> str
+    generate_pytest(test_name='', max_words=6,
+                    test_cls_name='TestDynamicGenTestScript',
+                    author='', email='', company='',
+                    is_minimal=True, filename='', **kwargs) -> str
+    generate_rf_test(test_name='', max_words=6,
+                     test_cls_name='TestDynamicGenTestScript',
+                     author='', email='', company='',
+                     is_minimal=True, filename='', **kwargs) -> str
 
     Raises
     ------
@@ -225,6 +237,126 @@ class RegexBuilder:
 
         return test_result
 
+    def generate_unittest(self, test_name='', max_words=6,
+                          test_cls_name='TestDynamicGenTestScript',
+                          author='', email='', company='',
+                          is_minimal=True, filename='', **kwargs):
+        """dynamically generate Python unittest script
+        Parameters
+        ----------
+        test_name (str): a predefined test name.  Default is empty.
+                + unittest will use either predefined test name or
+                    generated test name from test data
+                + pytest will use predefined test name.
+                + robotframework test will depend on test workflow.  It might be
+                    either used predefined test name or generated test name.
+        max_words (int): total number of words for generating test name.
+                Default is 6 words.
+        test_cls_name (str): a test class name for test script.  This test class
+                name only be applicable for unittest or pytest.
+                Default is TestDynamicGenTestScript.
+        author (str): author name.  Default is empty.
+        email (str): author name.  Default is empty.
+        company (str): company name.  Default is empty.
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
+        filename (str): save a generated test script to file name.
+        kwargs (str): custom keyword arguments for
+                Pro Edition or Enterprise Edition.
+
+        Returns
+        -------
+        str: python unittest script
+        """
+        obj = DynamicGenTestScript(
+            self, test_name=test_name, max_words=max_words,
+            test_cls_name=test_cls_name, **kwargs
+        )
+        script = obj.generate_unittest(
+            author=author, email=email, company=company,
+            is_minimal=is_minimal, filename=filename, **kwargs
+        )
+        return script
+
+    def generate_pytest(self, test_name='', max_words=6,
+                        test_cls_name='TestDynamicGenTestScript',
+                        author='', email='', company='',
+                        is_minimal=True, filename='', **kwargs):
+        """dynamically generate Python pytest script
+        Parameters
+        ----------
+        test_name (str): a predefined test name.  Default is empty.
+                + unittest will use either predefined test name or
+                    generated test name from test data
+                + pytest will use predefined test name.
+                + robotframework test will depend on test workflow.  It might be
+                    either used predefined test name or generated test name.
+        max_words (int): total number of words for generating test name.
+                Default is 6 words.
+        test_cls_name (str): a test class name for test script.  This test class
+                name only be applicable for unittest or pytest.
+                Default is TestDynamicGenTestScript.
+        author (str): author name.  Default is empty.
+        email (str): author name.  Default is empty.
+        company (str): company name.  Default is empty.
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
+        filename (str): save a generated test script to file name.
+        kwargs (str): custom keyword arguments for
+                Pro Edition or Enterprise Edition.
+
+        Returns
+        -------
+        str: python pytest script
+        """
+        obj = DynamicGenTestScript(
+            self, test_name=test_name, max_words=max_words,
+            test_cls_name=test_cls_name, **kwargs
+        )
+        script = obj.generate_pytest(
+            author=author, email=email, company=company,
+            is_minimal=is_minimal, filename=filename, **kwargs
+        )
+        return script
+
+    def generate_rf_test(self, test_name='', max_words=6,
+                         test_cls_name='TestDynamicGenTestScript',
+                         author='', email='', company='',
+                         is_minimal=True, filename='', **kwargs):
+        """dynamically generate Python pytest script
+        Parameters
+        ----------
+        test_name (str): a predefined test name.  Default is empty.
+                + unittest will use either predefined test name or
+                    generated test name from test data
+                + pytest will use predefined test name.
+                + robotframework test will depend on test workflow.  It might be
+                    either used predefined test name or generated test name.
+        max_words (int): total number of words for generating test name.
+                Default is 6 words.
+        test_cls_name (str): a test class name for test script.  This test class
+                name only be applicable for unittest or pytest.
+                Default is TestDynamicGenTestScript.
+        author (str): author name.  Default is empty.
+        email (str): author name.  Default is empty.
+        company (str): company name.  Default is empty.
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
+        filename (str): save a generated test script to file name.
+        kwargs (str): custom keyword arguments for
+                Pro Edition or Enterprise Edition.
+
+        Returns
+        -------
+        str: python pytest script
+        """
+        obj = DynamicGenTestScript(
+            self, test_name=test_name, max_words=max_words,
+            test_cls_name=test_cls_name, **kwargs
+        )
+        script = obj.generate_rf_test(
+            author=author, email=email, company=company,
+            is_minimal=is_minimal, filename=filename, **kwargs
+        )
+        return script
+
 
 def add_reference(name='', pattern='', **kwargs):
     """add keyword reference to PatternReference.  This is an inline adding
@@ -318,7 +450,7 @@ class DynamicGenTestScript:
                  used_space, prepended_ws, appended_ws, ignore_case, other keywords
     test_cls_name (str): a test class name for test script.  This test class
             name only be applicable for unittest or pytest.
-            Default is RegexappAutoGeneratedTest.
+            Default is TestDynamicGenTestScript.
     template (dict): a holder for all templates or format to generate test script.
     lst_of_tests (list): a list of test.
 
@@ -580,7 +712,7 @@ class DynamicGenTestScript:
         return test_script
 
     def generate_pytest(self, author='', email='', company='',
-                          is_minimal=True, filename='', **kwargs):
+                        is_minimal=True, filename='', **kwargs):
         """dynamically generate Python pytest script
         Parameters
         ----------
@@ -646,7 +778,7 @@ class DynamicGenTestScript:
         return test_script
 
     def generate_rf_test(self, author='', email='', company='',
-                          is_minimal=True, filename='', **kwargs):
+                         is_minimal=True, filename='', **kwargs):
         """dynamically generate Robotframework test script
         Parameters
         ----------
