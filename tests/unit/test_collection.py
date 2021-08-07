@@ -166,9 +166,9 @@ class TestLinePattern:
         ),
         [
             (
-                ' \t\n\r\f\v',      # test data
+                ' \t\v',      # test data
                 ' ',                # user prepared data
-                '^\\s*$',           # expected pattern
+                '^[ \\t\\v]*$',           # expected pattern
                 True, False, False, True,
                 True
             ),
