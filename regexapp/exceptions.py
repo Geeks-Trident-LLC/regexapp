@@ -25,6 +25,10 @@ class LinePatternError(PatternError):
     """Use to capture error during pattern conversion."""
 
 
+class BlockPatternError(PatternError):
+    """Use to capture error during pattern conversion."""
+
+
 class PatternBuilderError(PatternError):
     """Use to capture error during pattern conversion."""
 
