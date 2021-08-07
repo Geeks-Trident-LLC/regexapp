@@ -21,6 +21,7 @@ def get_template():
         obj = yaml.load(stream, Loader=yaml.SafeLoader)
         return obj
 
+
 template = get_template()
 
 
@@ -31,7 +32,7 @@ def is_pro_edition():
 
 
 def enclose_string(text):
-    """enclose text with either triple double-quote or triple single-quote
+    """enclose text with either double-quote or triple double-quote
 
     Parameters
     ----------
@@ -39,34 +40,12 @@ def enclose_string(text):
 
     Returns
     -------
-    str: a new string with enclosed triple double-quote or triple single-quote
+    str: a new string with enclosed double-quote or triple double-quote
     """
     text = str(text)
-    if len(text) > 0:
-        chk_quote = lambda c: c == "'"
-        chk_double_quote = lambda c: c == '"'
-        fmt_triple_quote = "'''{}'''"
-        fmt_triple_dquote = '"""{}"""'
-        first, last = text[0], text[-1]
-        if first == last:
-            if chk_double_quote(first):
-                new_text = fmt_triple_quote.format(text)
-            else:
-                new_text = fmt_triple_dquote.format(text)
-        else:
-            if chk_double_quote(first) and chk_quote(last):
-                new_text = fmt_triple_quote.format(text[:-1] + "\\'")
-            elif chk_quote(first) and chk_double_quote(last):
-                new_text = fmt_triple_dquote.format(text[:-1] + '\\"')
-            else:
-                if chk_double_quote(first):
-                    new_text = fmt_triple_quote.format(text)
-                else:
-                    new_text = fmt_triple_dquote.format(text)
-
-        return new_text
-    else:
-        return text
+    fmt = '"""{}"""' if len(text.splitlines()) > 1 else '"{}"'
+    enclosed_txt = fmt.format(text.replace('"', r'\"'))
+    return enclosed_txt
 
 
 class RegexBuilder:
