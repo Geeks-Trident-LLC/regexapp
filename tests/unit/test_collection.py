@@ -69,7 +69,7 @@ class TestElementPattern:
             ('mixed_word()', '\\S*[a-zA-Z0-9]\\S*'),
             ('mixed_words()', '\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*'),
             ('phrase()', '\\w+( +\\w+)+'),
-            ('mixed_phrase()', '\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)+'),
+            ('mixed_phrase()', '\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)+'),
             ('digit()', '\\d'),
             ('digits()', '\\d+'),
             ('number()', '(\\d+)?[.]?\\d+'),
