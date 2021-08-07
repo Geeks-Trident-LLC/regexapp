@@ -15,7 +15,7 @@ class TestPatternReference:
 
 class TestTextPattern:
     @pytest.mark.parametrize(
-        "data,used_space,expected_result",
+        ('data', 'used_space', 'expected_result'),
         [
             ('first last', True, 'first +last'),
             ('first last', False, 'first\\s+last'),
@@ -55,7 +55,7 @@ class TestTextPattern:
 
 class TestElementPattern:
     @pytest.mark.parametrize(
-        "data,expected_result",
+        ('data', 'expected_result'),
         [
             ####################################################################
             # predefined keyword test                                          #
@@ -159,7 +159,11 @@ class TestElementPattern:
 
 class TestLinePattern:
     @pytest.mark.parametrize(
-        "test_data,user_prepared_data,expected_pattern,used_space,prepended_ws,appended_ws,ignore_case,is_matched",
+        (
+            'test_data', 'user_prepared_data', 'expected_pattern',
+            'used_space', 'prepended_ws', 'appended_ws',
+            'ignore_case', 'is_matched'
+        ),
         [
             (
                 ' \t\n\r\f\v',      # test data
@@ -453,7 +457,11 @@ class TestLinePattern:
             assert match is None
 
     @pytest.mark.parametrize(
-        "test_data,user_prepared_data,expected_pattern,expected_statement,used_space,prepended_ws,appended_ws,ignore_case",
+        (
+            'test_data', 'user_prepared_data', 'expected_pattern',
+            'expected_statement', 'used_space', 'prepended_ws',
+            'appended_ws', 'ignore_case'
+        ),
         [
             (
                 ['cherry is good for health'],  # test data
@@ -531,7 +539,7 @@ class TestLinePattern:
 
 class TestPatternBuilder:
     @pytest.mark.parametrize(
-        "test_data,expected_pattern,used_space,var_name",
+        ('test_data', 'expected_pattern', 'used_space', 'var_name'),
         [
             (
                 ['Friday, April 9, 2021 8:43:15 PM'],
