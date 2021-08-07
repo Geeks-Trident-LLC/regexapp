@@ -127,7 +127,7 @@ class TestElementPattern:
             ####################################################################
             # start keyword test                                               #
             ####################################################################
-            ('start()', '^\\s*'),
+            ('start()', '^ *'),
             ('start(space)', '^ *'),
             ('start(space_plus)', '^ +'),
             ('start(ws)', '^\\s*'),
@@ -379,14 +379,14 @@ class TestLinePattern:
             (
                 'cherry is delicious.',  # test data
                 'start()cherry is delicious.',  # user prepared data
-                '(?i)^\\s*cherry +is +delicious\\.',  # expected pattern
+                '(?i)^ *cherry +is +delicious\\.',  # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'cherry is delicious.',  # test data
                 'start() cherry is delicious.',  # user prepared data
-                '(?i)^\\s*cherry +is +delicious\\.',  # expected pattern
+                '(?i)^ *cherry +is +delicious\\.',  # expected pattern
                 True, False, False, True,
                 True
             ),
