@@ -7,7 +7,7 @@ ws:
   negative test:
     the whitespace pattern can not match data: "."
 
-notws:
+not_ws:
   group: word
   description: a pattern to match a character which is not a whitespace character.
   pattern: "\\S"
