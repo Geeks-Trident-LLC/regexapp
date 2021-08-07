@@ -91,7 +91,7 @@ mixed_words:
 phrase:
   group: word
   description: a pattern to match a phrase, i.e. at least two words.
-  pattern: "\\w+(\\s+\\w+)+"
+  pattern: "\\w+( +\\w+)+"
   positive test:
     pattern match a pharse: "abc xyz"
   negative test:
