@@ -67,7 +67,7 @@ class TestElementPattern:
             ('word()', '\\w+'),
             ('words()', '\\w+( +\\w+)*'),
             ('mixed_word()', '\\S*[a-zA-Z0-9]\\S*'),
-            ('mixed_words()', '\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*'),
+            ('mixed_words()', '\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*'),
             ('phrase()', '\\w+(\\s+\\w+)+'),
             ('mixed_phrase()', '\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)+'),
             ('digit()', '\\d'),
@@ -424,14 +424,14 @@ class TestLinePattern:
             (
                 'file1.txt',  # test data
                 'mixed_words(var_file_name) data(->, or_empty) mixed_words(var_link_name, or_empty) end()',  # user prepared data
-                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',  # expected pattern
+                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',  # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 "'My Documents' -> /c/Users/test/Documents/",  # test data
                 'mixed_words(var_file_name) data(->, or_empty) mixed_words(var_link_name, or_empty) end()',     # user prepared data
-                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',    # expected pattern
+                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',    # expected pattern
                 True, False, False, True,
                 True
             ),
