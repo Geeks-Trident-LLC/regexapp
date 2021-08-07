@@ -100,7 +100,7 @@ phrase:
 mixed_phrase:
   group: word
   description: a pattern to match a mixed pharse.
-  pattern: "\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)+"
+  pattern: "\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)+"
   positive test:
     pattern match a mixed phrase: "email: abc@xyz.com"
   negative test:
