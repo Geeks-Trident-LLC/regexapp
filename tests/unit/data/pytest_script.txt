@@ -16,16 +16,16 @@ class TestDynamicGenTestScript:
         (
 
             (
-                """today temperature is 75 degrees fahrenheit.""",    # test data
-                r"""(?P<subject>\w+( +\w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."""   # pattern
+                "today temperature is 75 degrees fahrenheit.",    # test data
+                r"(?P<subject>\w+( +\w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."   # pattern
             ),
             (
-                """the highest temperature ever recorded on Earth is 134 degrees fahrenheit.""",    # test data
-                r"""(?P<subject>\w+( +\w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."""   # pattern
+                "the highest temperature ever recorded on Earth is 134 degrees fahrenheit.",    # test data
+                r"(?P<subject>\w+( +\w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."   # pattern
             ),
             (
-                """   IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)""",    # test data
-                r""" +IPv4 +Address\. +\. +\. +\. +\. +\. +\. +\. +\. +\. +\. +: +(?P<ipv4_addr>((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){3})\((?P<status>\w+)\)"""   # pattern
+                "   IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)",    # test data
+                r" +IPv4 +Address\. +\. +\. +\. +\. +\. +\. +\. +\. +\. +\. +: +(?P<ipv4_addr>((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){3})\((?P<status>\w+)\)"   # pattern
             ),
         )
     )
