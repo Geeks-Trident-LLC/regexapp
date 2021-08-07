@@ -47,7 +47,7 @@ def tc_info():
 
         Matched Result:
         --------------
-        pattern: (?P<subject>\\w+(\\s+\\w+)+) +is +(?P<degree>\\d+) +degrees +(?P<unit>\\w+)\\.
+        pattern: (?P<subject>\\w+( +\\w+)+) +is +(?P<degree>\\d+) +degrees +(?P<unit>\\w+)\\.
         matched: [{'subject': 'today temperature', 'degree': '75', 'unit': 'fahrenheit'}, {'subject': 'the highest temperature ever recorded on Earth', 'degree': '134', 'unit': 'fahrenheit'}]
         ----------
         pattern:  +IPv4 +Address\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +: +(?P<ipv4_addr>((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3})\\((?P<status>\\w+)\\)
