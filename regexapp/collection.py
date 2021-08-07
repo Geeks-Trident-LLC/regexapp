@@ -9,6 +9,7 @@ from regexapp.exceptions import PatternReferenceError
 from regexapp.exceptions import TextPatternError
 from regexapp.exceptions import ElementPatternError
 from regexapp.exceptions import LinePatternError
+from regexapp.exceptions import BlockPatternError
 from regexapp.exceptions import PatternBuilderError
 
 import logging
@@ -1239,6 +1240,111 @@ class LinePattern(str):
         if not re.search(pat, lst[-1]):
             ws_pat = r' *' if used_space else r'\s*'
             lst.append('{}$'.format(ws_pat))
+
+
+class BlockPattern(str):
+    """Use to convert multiple lines to regex pattern
+
+    Parameters
+    ----------
+    text (str): a text.
+    ignore_case (bool): prepend (?i) at the beginning of a pattern.
+            Default is False.
+
+    """
+    def __new__(cls, text, ignore_case=False):
+
+        lines = []
+        if isinstance(text, (list, tuple)):
+            for line in text:
+                lines.extend(str(line).splitlines())
+        elif isinstance(text, str):
+            lines = text.splitlines()
+        else:
+            'text argument must be string or list of string'
+            raise BlockPatternError(text)
+
+        if lines:
+            pattern = cls.get_pattern(lines, ignore_case=ignore_case)
+        else:
+            pattern = r'^\s*$'
+        return str.__new__(cls, pattern)
+
+    @classmethod
+    def get_pattern(cls, lines, ignore_case=False):
+        """convert text to regex pattern
+
+        Parameters
+        ----------
+        lines (lines): list of string
+        ignore_case (bool): prepend (?i) at the beginning of a pattern.
+                Default is False.
+
+        Returns
+        -------
+        str: a regex pattern.
+
+        """
+
+        if not lines:
+            return r'^\s*$'
+
+        line_patterns = []
+        for line in lines:
+            line_pat = LinePattern(line, ignore_case=ignore_case)
+            line_patterns.append(line_pat)
+
+        first, last = line_patterns[0], line_patterns[-1]
+        last = line_patterns[-1]
+
+        if len(line_patterns) == 1:
+            return first
+
+        new_line_patterns = [cls.reformat(first, is_first=True)]
+        other_line_pat = r'([^\r\n]*[\r\n]+)*'
+        for line_pat in line_patterns[1:-1]:
+            new_line_patterns.append(other_line_pat)
+            new_line_patterns.append(cls.reformat(line_pat))
+
+        new_line_patterns.append(other_line_pat)
+        new_line_patterns.append(cls.reformat(last, is_last=True))
+
+        new_pattern = ''.join(new_line_patterns)
+        return new_pattern
+
+    @classmethod
+    def reformat(cls, pattern, is_first=False, is_last=False):
+        """reformat pattern to work with re.DOTALL matching
+
+        Parameters
+        ----------
+        pattern (LinePattern, str): a line pattern.
+        is_first (bool): indicator to tell that is a first line.  Default is False.
+        is_last (bool): indicator to tell that is a last line.  Default is False.
+
+        Returns
+        -------
+        str: a new pattern after reformat.
+        """
+        if is_first:
+            if pattern.startswith('(?i)'):
+                new_pattern = pattern.replace('(?i)', '(?is)')
+            else:
+                new_pattern = '(?s){}'.format(pattern)
+        else:
+            new_pattern = pattern.replace('(?i)', '')
+            if new_pattern.startswith('^'):
+                new_pattern = new_pattern[1:]
+            else:
+                new_pattern = '[^\r\n]*{}'.format(new_pattern)
+
+        if not is_last:
+            if new_pattern.endswith('$'):
+                new_pattern = r'{}[\r\n]+'.format(new_pattern[:-1])
+            else:
+                new_pattern = r'{}[^\r\n]*[\r\n]+'.format(new_pattern)
+
+        return new_pattern
 
 
 class PatternBuilder(str):
