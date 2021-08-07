@@ -16,15 +16,6 @@ notws:
   negative test:
     the notwhitespace pattern can not match data: " "
 
-nonews:
-  group: word
-  description: a pattern to match a character which is not a whitespace character.
-  pattern: "\\S"
-  positive test:
-    pattern matches a letter: "a"
-  negative test:
-    the notwhitespace pattern can not match data: " "
-
 whitespace:
   group: word
   description: a pattern to match a word divider such as space, tab, newline, and more.
