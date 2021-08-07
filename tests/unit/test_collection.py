@@ -61,7 +61,7 @@ class TestElementPattern:
             # predefined keyword test                                          #
             ####################################################################
             ('whitespace()', '\\s+'),
-            ('notwhitespace()', '\\S+'),
+            ('not_whitespace()', '\\S+'),
             ('letter()', '[a-zA-Z]'),
             ('letters()', '[a-zA-Z]+'),
             ('word()', '\\w+'),
