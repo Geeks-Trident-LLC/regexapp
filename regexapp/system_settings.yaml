@@ -82,7 +82,7 @@ mixed_word:
 mixed_words:
   group: word
   description: a pattern to match at least one mixed word.
-  pattern: "\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*"
+  pattern: "\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*"
   positive test:
     pattern match mixed words: "email: abc@xyz.com"
   negative test:
