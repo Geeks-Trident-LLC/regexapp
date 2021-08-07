@@ -181,6 +181,7 @@ class PatternReference(dict):
             msg = '{} - {}'.format(type(ex).__name__, ex)
             raise PatternReferenceError(msg)
 
+
 REF = PatternReference()
 
 
@@ -1034,12 +1035,12 @@ class LinePattern(str):
                 appended_ws=appended_ws, ignore_case=ignore_case
             )
         else:
-            pattern = r'^\s*$'
+            pattern = r'^[ \t\v]*$'
         return str.__new__(cls, pattern)
 
     def __init__(self, text, used_space=True,
-                prepended_ws=False, appended_ws=False,
-                ignore_case=False):
+                 prepended_ws=False, appended_ws=False,
+                 ignore_case=False):
         self.variables = self._variables
         self.items = self._items
 
@@ -1106,10 +1107,10 @@ class LinePattern(str):
                     lst.append(TextPattern(after_match, used_space=used_space))
 
         if len(lst) == 1 and lst[0].strip() == '':
-            return r'^\s*$'
+            return r'^[ \t\v]*$'
         elif not lst:
             if line.strip() == '':
-                return r'^\s*$'
+                return r'^[ \t\v]*$'
             lst.append(TextPattern(line, used_space=used_space))
 
         cls.readjust_if_or_empty(lst, used_space=used_space)
