@@ -64,7 +64,7 @@ word:
 words:
   group: word
   description: a pattern to match at least one word.
-  pattern: "\\w+(\\s+\\w+)*"
+  pattern: "\\w+( +\\w+)*"
   positive test:
     pattern match words: "abc xyz"
   negative test:
