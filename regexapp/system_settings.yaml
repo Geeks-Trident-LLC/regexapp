@@ -25,7 +25,7 @@ whitespace:
   negative test:
     the whitespace pattern can not match data: "."
 
-notwhitespace:
+not_whitespace:
   group: word
   description: a pattern to match any character which is not a whitespace character.
   pattern: "\\S+"
