@@ -1,10 +1,13 @@
 import pytest
 import re
+from textwrap import dedent
+
 from regexapp import PatternReference
 from regexapp import TextPattern
 from regexapp import ElementPattern
 from regexapp import LinePattern
 from regexapp import PatternBuilder
+from regexapp import BlockPattern
 
 
 class TestPatternReference:
@@ -573,3 +576,71 @@ class TestPatternBuilder:
         for data in test_data:
             match = re.search(pattern, data)
             assert match is not None
+
+
+@pytest.fixture
+def tc_info():
+    class TestInfo:
+        pass
+
+    test_info = TestInfo()
+
+    ############################################################################
+    # test info
+    ############################################################################
+    prepared_data = """
+        phrase(var_subject) is digits(var_degree) degrees word(var_unit).
+           IPv4 Address. . . . . . . . . . . : ipv4_address(var_ipv4_addr)(word(var_status))
+    """
+
+    test_data = """
+        first line
+        today temperature is 75 degrees fahrenheit.
+        other line
+        another line
+           IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)
+        last line
+    """
+
+    expected_matched_text = """
+        today temperature is 75 degrees fahrenheit.
+        other line
+        another line
+           IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)
+    """
+    expected_matched_vars = dict(
+        subject='today temperature',
+        degree='75',
+        unit='fahrenheit',
+        ipv4_addr='192.168.0.1',
+        status='Preferred'
+    )
+
+    test_info.prepared_data = dedent(prepared_data).strip()
+    test_info.user_data = test_info.prepared_data
+    test_info.test_data = dedent(test_data).strip()
+    test_info.expected_matched_text = dedent(expected_matched_text).strip()
+    test_info.expected_matched_vars = expected_matched_vars
+
+    yield test_info
+
+
+class TestBlockPattern:
+    def test_block_pattern(self, tc_info):
+        block_pat = BlockPattern(tc_info.prepared_data, ignore_case=False)
+
+        match = re.search(block_pat, tc_info.test_data)
+        matched_txt = match.group()
+        matched_vars = match.groupdict()
+
+        assert matched_txt == tc_info.expected_matched_text
+        assert matched_vars == tc_info.expected_matched_vars
+
+        block_pat = BlockPattern(tc_info.prepared_data, ignore_case=True)
+
+        match = re.search(block_pat, tc_info.test_data)
+        matched_txt = match.group()
+        matched_vars = match.groupdict()
+
+        assert matched_txt == tc_info.expected_matched_text
+        assert matched_vars == tc_info.expected_matched_vars
