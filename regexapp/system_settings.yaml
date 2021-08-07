@@ -34,15 +34,6 @@ notwhitespace:
   negative test:
     the notwhitespace pattern can not match data: " "
 
-nonewhitespace:
-  group: word
-  description: a pattern to match any character which is not a whitespace character.
-  pattern: "\\S+"
-  positive test:
-    pattern matches a letter: "a"
-  negative test:
-    the notwhitespace pattern can not match data: " "
-
 letter:
   group: word
   description: a pattern to match a letter.
