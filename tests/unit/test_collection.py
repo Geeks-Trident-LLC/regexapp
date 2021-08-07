@@ -65,7 +65,7 @@ class TestElementPattern:
             ('letter()', '[a-zA-Z]'),
             ('letters()', '[a-zA-Z]+'),
             ('word()', '\\w+'),
-            ('words()', '\\w+(\\s+\\w+)*'),
+            ('words()', '\\w+( +\\w+)*'),
             ('mixed_word()', '\\S*[a-zA-Z0-9]\\S*'),
             ('mixed_words()', '\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*'),
             ('phrase()', '\\w+(\\s+\\w+)+'),
@@ -213,7 +213,7 @@ class TestLinePattern:
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                                                      # test data
                 'mixed_word(var_interface_name) is words(var_interface_status), line protocol is words(var_protocol_status)',                                           # user prepared data
-                '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>\\w+(\\s+\\w+)*), +line +protocol +is +(?P<protocol_status>\\w+(\\s+\\w+)*)',    # expected pattern
+                '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>\\w+( +\\w+)*), +line +protocol +is +(?P<protocol_status>\\w+( +\\w+)*)',    # expected pattern
                 True, False, False, True,
                 True
             ),
@@ -297,21 +297,21 @@ class TestLinePattern:
             (
                 'I live in ABC',                                        # test data
                 'I live in words(var_city, ended)',                     # user prepared data
-                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)$',        # expected pattern
+                '(?i)I +live +in +(?P<city>\\w+( +\\w+)*)$',        # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'I live in ABC',                                        # test data
                 'I live in words(var_city, ended_ws)',                  # user prepared data
-                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*$',    # expected pattern
+                '(?i)I +live +in +(?P<city>\\w+( +\\w+)*)\\s*$',    # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'I live in ABC \r\n',                                   # test data
                 'I live in words(var_city, ended_ws)',                  # user prepared data
-                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*$',    # expected pattern
+                '(?i)I +live +in +(?P<city>\\w+( +\\w+)*)\\s*$',    # expected pattern
                 True, False, False, True,
                 True
             ),
@@ -465,14 +465,14 @@ class TestLinePattern:
             (
                 ['cherry is good for health'],  # test data
                 'word() is words()',  # user prepared data
-                '^ *\\w+ +is +\\w+(\\s+\\w+)*',  # expected pattern
-                '^ *\\w+ +is +\\w+(\\s+\\w+)*',  # expected statement
+                '^ *\\w+ +is +\\w+( +\\w+)*',  # expected pattern
+                '^ *\\w+ +is +\\w+( +\\w+)*',  # expected statement
                 True, True, False, False,
             ),
             (
                 ['cherry is good for health'],  # test data
                 'word(var_fruit) is words(var_desc)',  # user prepared data
-                '^ *(?P<fruit>\\w+) +is +(?P<desc>\\w+(\\s+\\w+)*)',  # expected pattern
+                '^ *(?P<fruit>\\w+) +is +(?P<desc>\\w+( +\\w+)*)',  # expected pattern
                 '^ *${fruit} +is +${desc}',     # expected statement
                 True, True, False, False,
             ),
