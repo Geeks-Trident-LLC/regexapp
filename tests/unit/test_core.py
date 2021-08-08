@@ -134,16 +134,19 @@ class TestRegexBuilder:
     )
     def test_regexbuilder_creation(self, tc_info):
         factory = RegexBuilder(
-            user_data=tc_info.user_data, test_data=tc_info.test_data
+            user_data=tc_info.user_data, test_data=tc_info.test_data,
+            is_line=True
         )
         factory.build()
         factory.test()
+
         assert factory.test_result is True
         assert factory.test_report == tc_info.report
 
     def test_generating_unittest_script(self, tc_info):
         factory = RegexBuilder(
-            user_data=tc_info.user_data, test_data=tc_info.test_data
+            user_data=tc_info.user_data, test_data=tc_info.test_data,
+            is_line=True
         )
         test_script = factory.generate_unittest(author=tc_info.author,
                                                 email=tc_info.email,
@@ -153,7 +156,8 @@ class TestRegexBuilder:
 
     def test_generating_detail_unittest_script(self, tc_info):
         factory = RegexBuilder(
-            user_data=tc_info.user_data, test_data=tc_info.test_data
+            user_data=tc_info.user_data, test_data=tc_info.test_data,
+            is_line=True
         )
         test_script = factory.generate_unittest(author=tc_info.author,
                                                 email=tc_info.email,
@@ -163,7 +167,8 @@ class TestRegexBuilder:
 
     def test_generating_pytest_script(self, tc_info):
         factory = RegexBuilder(
-            user_data=tc_info.user_data, test_data=tc_info.test_data
+            user_data=tc_info.user_data, test_data=tc_info.test_data,
+            is_line=True
         )
         test_script = factory.generate_pytest(author=tc_info.author,
                                               email=tc_info.email,
@@ -173,7 +178,8 @@ class TestRegexBuilder:
 
     def test_generating_detail_pytest_script(self, tc_info):
         factory = RegexBuilder(
-            user_data=tc_info.user_data, test_data=tc_info.test_data
+            user_data=tc_info.user_data, test_data=tc_info.test_data,
+            is_line=True
         )
         test_script = factory.generate_pytest(author=tc_info.author,
                                               email=tc_info.email,
@@ -193,17 +199,13 @@ def test_add_reference(tc_info):
     add_reference(name='hour_minute', pattern=r'\d+:\d+')
 
     factory = RegexBuilder(
-        user_data=tc_info.other_user_data, test_data=tc_info.other_test_data
+        user_data=tc_info.other_user_data, test_data=tc_info.other_test_data,
+        is_line=True
     )
     factory.build()
     factory.test()
     assert factory.test_result is True
     assert factory.test_report == tc_info.other_report
-
-
-def test_add_reference_exception():
-    with pytest.raises(PatternReferenceError):
-        add_reference(name='word', pattern='\\w+')
 
 
 def test_remove_reference():
@@ -224,7 +226,8 @@ def test_add_reference_exception():
 class TestDynamicGenTestScript:
     def test_generating_unittest_script(self, tc_info):
         factory = DynamicGenTestScript(
-            test_info=[tc_info.prepared_data, tc_info.test_data]
+            test_info=[tc_info.prepared_data, tc_info.test_data],
+            is_line=True
         )
         test_script = factory.generate_unittest(author=tc_info.author,
                                                 email=tc_info.email,
@@ -234,7 +237,8 @@ class TestDynamicGenTestScript:
 
     def test_generating_detail_unittest_script(self, tc_info):
         factory = DynamicGenTestScript(
-            test_info=[tc_info.prepared_data, tc_info.test_data]
+            test_info=[tc_info.prepared_data, tc_info.test_data],
+            is_line=True
         )
         test_script = factory.generate_unittest(author=tc_info.author,
                                                 email=tc_info.email,
@@ -244,7 +248,8 @@ class TestDynamicGenTestScript:
 
     def test_generating_pytest_script(self, tc_info):
         factory = DynamicGenTestScript(
-            test_info=[tc_info.prepared_data, tc_info.test_data]
+            test_info=[tc_info.prepared_data, tc_info.test_data],
+            is_line=True
         )
         test_script = factory.generate_pytest(author=tc_info.author,
                                               email=tc_info.email,
@@ -254,7 +259,8 @@ class TestDynamicGenTestScript:
 
     def test_generating_detail_pytest_script(self, tc_info):
         factory = DynamicGenTestScript(
-            test_info=[tc_info.prepared_data, tc_info.test_data]
+            test_info=[tc_info.prepared_data, tc_info.test_data],
+            is_line=True
         )
         test_script = factory.generate_pytest(author=tc_info.author,
                                               email=tc_info.email,
