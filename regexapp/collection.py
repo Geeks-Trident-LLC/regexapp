@@ -1336,7 +1336,7 @@ class BlockPattern(str):
             if new_pattern.startswith('^'):
                 new_pattern = new_pattern[1:]
             else:
-                new_pattern = '[^\r\n]*{}'.format(new_pattern)
+                new_pattern = r'[^\r\n]*{}'.format(new_pattern)
 
         if not is_last:
             if new_pattern.endswith('$'):
