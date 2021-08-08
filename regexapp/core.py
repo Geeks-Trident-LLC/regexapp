@@ -63,13 +63,13 @@ class RegexBuilder:
             Default is False.
     ignore_case (bool): prepend (?i) at the beginning of a pattern.
             Default is False.
-    line_patterns (list): a list of patterns.
+    patterns (list): a list of patterns.
     test_report (str): a test report.
     test_result (bool): a test result.
-    line_pattern_table (OrderedDict): a variable holds (line, pattern) pair.
-    pattern_line_table (OrderedDict): a variable holds (pattern, line) pair.
-    data_pattern_table (OrderedDict): a variable holds (data, pattern) pair.
-    pattern_data_table (OrderedDict): a variable holds (pattern, data) pair.
+    user_data_pattern_table (OrderedDict): a variable holds (user_data, pattern) pair.
+    pattern_user_data_table (OrderedDict): a variable holds (pattern, user_data) pair.
+    test_data_pattern_table (OrderedDict): a variable holds (test_data, pattern) pair.
+    pattern_test_data_table (OrderedDict): a variable holds (pattern, test_data) pair.
 
     Methods
     -------
@@ -102,13 +102,13 @@ class RegexBuilder:
         self.prepended_ws = prepended_ws
         self.appended_ws = appended_ws
         self.ignore_case = ignore_case
-        self.line_patterns = []
+        self.patterns = []
         self.test_report = ''
         self.test_result = False
-        self.line_pattern_table = OrderedDict()
-        self.pattern_line_table = OrderedDict()
-        self.data_pattern_table = OrderedDict()
-        self.pattern_data_table = OrderedDict()
+        self.user_data_pattern_table = OrderedDict()    # user data via pattern
+        self.pattern_user_data_table = OrderedDict()    # pattern via user data
+        self.test_data_pattern_table = OrderedDict()    # test data via pattern
+        self.pattern_test_data_table = OrderedDict()    # pattern via test data
 
     @classmethod
     def validate_data(cls, **kwargs):
@@ -164,9 +164,9 @@ class RegexBuilder:
                 appended_ws=self.appended_ws,
                 ignore_case=self.ignore_case
             )
-            line not in self.line_patterns and self.line_patterns.append(line_pat)
-            self.line_pattern_table[line] = line_pat
-            self.pattern_line_table[line_pat] = line
+            line not in self.patterns and self.patterns.append(line_pat)
+            self.user_data_pattern_table[line] = line_pat
+            self.pattern_user_data_table[line_pat] = line
 
     def test(self, showed=False):
         """test regex pattern via test data.
@@ -193,7 +193,7 @@ class RegexBuilder:
         result += ['Matched Result:', '-' * 14]
 
         test_result = True
-        for pat in self.line_patterns:
+        for pat in self.patterns:
             is_matched = False
             lst = []
             for line in lines:
@@ -201,8 +201,8 @@ class RegexBuilder:
                 if match:
                     is_matched = True
                     match.groupdict() and lst.append(match.groupdict())
-                    self.data_pattern_table[line] = pat
-                    self.pattern_data_table[pat] = line
+                    self.test_data_pattern_table[line] = pat
+                    self.pattern_test_data_table[pat] = line
 
             test_result &= is_matched
             tr = 'NO' if not is_matched else lst if lst else 'YES'
@@ -483,16 +483,16 @@ class DynamicGenTestScript:
         testable.build()
         testable.test()
 
-        line_pattern_table = testable.line_pattern_table
-        pattern_line_table = testable.pattern_line_table
-        data_pattern_table = testable.data_pattern_table
+        user_data_pattern_table = testable.user_data_pattern_table
+        pattern_user_data_table = testable.pattern_user_data_table
+        test_data_pattern_table = testable.test_data_pattern_table
 
-        if not data_pattern_table and not line_pattern_table:
+        if not test_data_pattern_table and not user_data_pattern_table:
             raise Exception()
 
-        for test_data, pattern in data_pattern_table.items():
+        for test_data, pattern in test_data_pattern_table.items():
             test_name = self.generate_test_name(test_data=test_data)
-            prepared_data = pattern_line_table.get(pattern)
+            prepared_data = pattern_user_data_table.get(pattern)
             self.lst_of_tests.append([test_name, test_data, prepared_data, pattern])
 
     def save_file(self, filename, content):
