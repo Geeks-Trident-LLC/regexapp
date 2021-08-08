@@ -3,6 +3,7 @@ import yaml
 from pathlib import Path, PurePath
 from datetime import datetime
 from regexapp import LinePattern
+from regexapp import BlockPattern
 from regexapp.exceptions import RegexBuilderError
 from regexapp.exceptions import PatternReferenceError
 from regexapp.collection import REF
@@ -55,6 +56,7 @@ class RegexBuilder:
     ----------
     user_data (str, list): a user data can be either string or list of string.
     test_data (str, list): a test data can be either string or list of string.
+    is_line (bool): a flag to use LinePattern.  Default is False.
     used_space (bool): use space character instead of whitespace regex.
             Default is True.
     prepended_ws (bool): prepend a whitespace at the beginning of a pattern.
@@ -93,11 +95,12 @@ class RegexBuilder:
     ------
     RegexBuilderError: if user_data or test_data is invalid format.
     """
-    def __init__(self, user_data='', test_data='',
+    def __init__(self, user_data='', test_data='', is_line=False,
                  used_space=True, prepended_ws=False,
                  appended_ws=False, ignore_case=False):
         self.user_data = user_data
         self.test_data = test_data
+        self.is_line = is_line
         self.used_space = used_space
         self.prepended_ws = prepended_ws
         self.appended_ws = appended_ws
@@ -155,18 +158,33 @@ class RegexBuilder:
             print(self.test_report)
             return
 
-        lines = data[:] if isinstance(data, list) else data.splitlines()
+        if self.is_line:
+            lst_of_user_data = data[:] if isinstance(data, (list, tuple)) else data.splitlines()
+        else:
+            if isinstance(data, str):
+                lst_of_user_data = [data]
+            else:
+                lst_of_user_data = []
+                for item in data:
+                    if isinstance(item, (list, tuple)):
+                        lst_of_user_data.append('\n'.join(map(str, item)))
+                    else:
+                        lst_of_user_data.append(str(item))
 
-        for line in lines:
-            line_pat = LinePattern(
-                line, used_space=self.used_space,
-                prepended_ws=self.prepended_ws,
-                appended_ws=self.appended_ws,
-                ignore_case=self.ignore_case
-            )
-            line not in self.patterns and self.patterns.append(line_pat)
-            self.user_data_pattern_table[line] = line_pat
-            self.pattern_user_data_table[line_pat] = line
+        for user_data in lst_of_user_data:
+            if self.is_line:
+                pattern = LinePattern(
+                    user_data, used_space=self.used_space,
+                    prepended_ws=self.prepended_ws,
+                    appended_ws=self.appended_ws,
+                    ignore_case=self.ignore_case
+                )
+            else:
+                pattern = BlockPattern(user_data, ignore_case=self.ignore_case)
+
+            pattern not in self.patterns and self.patterns.append(pattern)
+            self.user_data_pattern_table[user_data] = pattern
+            self.pattern_user_data_table[pattern] = user_data
 
     def test(self, showed=False):
         """test regex pattern via test data.
@@ -187,22 +205,33 @@ class RegexBuilder:
             showed and print(self.test_report)
             return False
 
-        lines = data[:] if isinstance(data, list) else data.splitlines()
+        if self.is_line:
+            lst_of_test_data = data[:] if isinstance(data, (list, tuple)) else data.splitlines()
+        else:
+            if isinstance(data, str):
+                lst_of_test_data = [data]
+            else:
+                lst_of_test_data = []
+                for item in data:
+                    if isinstance(item, (list, tuple)):
+                        lst_of_test_data.append('\n'.join(map(str, item)))
+                    else:
+                        lst_of_test_data.append(str(item))
 
-        result = ['Test Data:', '-' * 9, '\n'.join(lines), '']
+        result = ['Test Data:', '-' * 9, '\n'.join(lst_of_test_data), '']
         result += ['Matched Result:', '-' * 14]
 
         test_result = True
         for pat in self.patterns:
             is_matched = False
             lst = []
-            for line in lines:
-                match = re.search(pat, line)
+            for test_data in lst_of_test_data:
+                match = re.search(pat, test_data)
                 if match:
                     is_matched = True
                     match.groupdict() and lst.append(match.groupdict())
-                    self.test_data_pattern_table[line] = pat
-                    self.pattern_test_data_table[pat] = line
+                    self.test_data_pattern_table[test_data] = pat
+                    self.pattern_test_data_table[pat] = test_data
 
             test_result &= is_matched
             tr = 'NO' if not is_matched else lst if lst else 'YES'
@@ -420,6 +449,7 @@ class DynamicGenTestScript:
             + pytest will use predefined test name.
             + robotframework test will depend on test workflow.  It might be
                 either used predefined test name or generated test name.
+    is_line (bool): a flag to use LinePattern.  Default is False.
     max_words (int): total number of words for generating test name.
             Default is 6 words.
     kwargs (dict): an optional keyword arguments.
@@ -445,11 +475,12 @@ class DynamicGenTestScript:
     generate_pytest(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
     generate_rf_test(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
     """
-    def __init__(self, test_info=None, test_name='',
+    def __init__(self, test_info=None, test_name='', is_line=False,
                  max_words=6, test_cls_name='TestDynamicGenTestScript',
                  **kwargs):
         self.test_info = test_info
         self.test_name = test_name
+        self.is_line = is_line
         self.max_words = max_words
         self.test_cls_name = str(test_cls_name)
         self.kwargs = kwargs
@@ -467,7 +498,7 @@ class DynamicGenTestScript:
         else:
             chk = isinstance(test_info, list) and len(test_info) == 2
             if not chk:
-                raise Exception()
+                raise RegexBuilderError('Invalid test_info format')
 
             user_data, test_data = self.test_info
             used_space = self.kwargs.get('used_space', True)
@@ -477,6 +508,7 @@ class DynamicGenTestScript:
 
             testable = RegexBuilder(
                 user_data=user_data, test_data=test_data,
+                is_line=self.is_line,
                 used_space=used_space, prepended_ws=prepended_ws,
                 appended_ws=appended_ws, ignore_case=ignore_case
             )
@@ -488,7 +520,7 @@ class DynamicGenTestScript:
         test_data_pattern_table = testable.test_data_pattern_table
 
         if not test_data_pattern_table and not user_data_pattern_table:
-            raise Exception()
+            raise RegexBuilderError('No prepared_data to build test script')
 
         for test_data, pattern in test_data_pattern_table.items():
             test_name = self.generate_test_name(test_data=test_data)
