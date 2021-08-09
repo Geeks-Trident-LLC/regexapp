@@ -82,6 +82,26 @@ def tc_info():
         ----------
     """
 
+    ############################################################################
+    # another test info
+    ############################################################################
+    multiline_prepared_data = """
+        I have words(var_v1).
+        My friend has words(var_v2).
+        I don't have words(var_v3).
+    """
+
+    multiline_test_data = """
+        First line
+        I have computer.
+        Other line
+        My friend has game console.
+        Another line ....
+        I don't have digital camera.
+        ...
+        last line
+    """
+
     test_info.prepared_data = dedent(prepared_data).strip()
     test_info.user_data = test_info.prepared_data
     test_info.test_data = dedent(test_data).strip()
@@ -91,6 +111,10 @@ def tc_info():
     test_info.other_user_data = test_info.other_prepared_data
     test_info.other_test_data = dedent(other_test_data).strip()
     test_info.other_report = dedent(other_test_report).strip()
+
+    test_info.multiline_prepared_data = dedent(multiline_prepared_data).strip()
+    test_info.multiline_user_data = test_info.multiline_prepared_data
+    test_info.multiline_test_data = dedent(multiline_test_data).strip()
 
     test_info.author = 'user1'
     test_info.email = 'user1@abcxyz.com'
@@ -123,6 +147,31 @@ def tc_info():
         script = stream.read()
         script = script.replace('_datetime_', dt_str)
         test_info.expected_detail_pytest_script = script
+
+    # multiline
+    filename = str(PurePath(base_dir, 'unittest_script_for_multiline.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        test_info.expected_unittest_script_for_multiline = script
+
+    filename = str(PurePath(base_dir, 'detail_unittest_script_for_multiline.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        test_info.expected_detail_unittest_script_for_multiline = script
+
+    filename = str(PurePath(base_dir, 'pytest_script_for_multiline.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        test_info.expected_pytest_script_for_multiline = script
+
+    filename = str(PurePath(base_dir, 'detail_pytest_script_for_multiline.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        test_info.expected_detail_pytest_script_for_multiline = script
 
     yield test_info
 
@@ -186,6 +235,54 @@ class TestRegexBuilder:
                                               company=tc_info.company,
                                               is_minimal=False,)
         assert test_script == tc_info.expected_detail_pytest_script
+
+    def test_generating_unittest_script_for_multiline(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.multiline_user_data,
+            test_data=tc_info.multiline_test_data,
+            is_line=False
+        )
+        test_script = factory.generate_unittest(author=tc_info.author,
+                                                email=tc_info.email,
+                                                company=tc_info.company,
+                                                is_minimal=True,)
+        assert test_script == tc_info.expected_unittest_script_for_multiline
+
+    def test_generating_detail_unittest_script_for_multiline(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.multiline_user_data,
+            test_data=tc_info.multiline_test_data,
+            is_line=False
+        )
+        test_script = factory.generate_unittest(author=tc_info.author,
+                                                email=tc_info.email,
+                                                company=tc_info.company,
+                                                is_minimal=False,)
+        assert test_script == tc_info.expected_detail_unittest_script_for_multiline
+
+    def test_generating_pytest_script_for_multiline(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.multiline_user_data,
+            test_data=tc_info.multiline_test_data,
+            is_line=False
+        )
+        test_script = factory.generate_pytest(author=tc_info.author,
+                                              email=tc_info.email,
+                                              company=tc_info.company,
+                                              is_minimal=True,)
+        assert test_script == tc_info.expected_pytest_script_for_multiline
+
+    def test_generating_detail_pytest_script_for_multiline(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.multiline_user_data,
+            test_data=tc_info.multiline_test_data,
+            is_line=False
+        )
+        test_script = factory.generate_pytest(author=tc_info.author,
+                                              email=tc_info.email,
+                                              company=tc_info.company,
+                                              is_minimal=False,)
+        assert test_script == tc_info.expected_detail_pytest_script_for_multiline
 
 
 @pytest.mark.skipif(
@@ -267,3 +364,60 @@ class TestDynamicGenTestScript:
                                               company=tc_info.company,
                                               is_minimal=False)
         assert test_script == tc_info.expected_detail_pytest_script
+
+    # multi-lines tests
+    def test_generating_unittest_script_for_multiline(self, tc_info):
+        factory = DynamicGenTestScript(
+            test_info=[
+                tc_info.multiline_prepared_data,
+                tc_info.multiline_test_data
+            ],
+            is_line=False
+        )
+        test_script = factory.generate_unittest(author=tc_info.author,
+                                                email=tc_info.email,
+                                                company=tc_info.company,
+                                                is_minimal=True)
+        assert test_script == tc_info.expected_unittest_script_for_multiline
+
+    def test_generating_detail_unittest_script_for_multiline(self, tc_info):
+        factory = DynamicGenTestScript(
+            test_info=[
+                tc_info.multiline_prepared_data,
+                tc_info.multiline_test_data
+            ],
+            is_line=False
+        )
+        test_script = factory.generate_unittest(author=tc_info.author,
+                                                email=tc_info.email,
+                                                company=tc_info.company,
+                                                is_minimal=False)
+        assert test_script == tc_info.expected_detail_unittest_script_for_multiline
+
+    def test_generating_pytest_script_for_multiline(self, tc_info):
+        factory = DynamicGenTestScript(
+            test_info=[
+                tc_info.multiline_prepared_data,
+                tc_info.multiline_test_data
+            ],
+            is_line=False
+        )
+        test_script = factory.generate_pytest(author=tc_info.author,
+                                              email=tc_info.email,
+                                              company=tc_info.company,
+                                              is_minimal=True)
+        assert test_script == tc_info.expected_pytest_script_for_multiline
+
+    def test_generating_detail_pytest_script_for_multiline(self, tc_info):
+        factory = DynamicGenTestScript(
+            test_info=[
+                tc_info.multiline_prepared_data,
+                tc_info.multiline_test_data
+            ],
+            is_line=False
+        )
+        test_script = factory.generate_pytest(author=tc_info.author,
+                                              email=tc_info.email,
+                                              company=tc_info.company,
+                                              is_minimal=False)
+        assert test_script == tc_info.expected_detail_pytest_script_for_multiline
