@@ -7,16 +7,7 @@ ws:
   negative test:
     the whitespace pattern can not match data: "."
 
-notws:
-  group: word
-  description: a pattern to match a character which is not a whitespace character.
-  pattern: "\\S"
-  positive test:
-    pattern matches a letter: "a"
-  negative test:
-    the notwhitespace pattern can not match data: " "
-
-nonews:
+not_ws:
   group: word
   description: a pattern to match a character which is not a whitespace character.
   pattern: "\\S"
@@ -34,16 +25,7 @@ whitespace:
   negative test:
     the whitespace pattern can not match data: "."
 
-notwhitespace:
-  group: word
-  description: a pattern to match any character which is not a whitespace character.
-  pattern: "\\S+"
-  positive test:
-    pattern matches a letter: "a"
-  negative test:
-    the notwhitespace pattern can not match data: " "
-
-nonewhitespace:
+not_whitespace:
   group: word
   description: a pattern to match any character which is not a whitespace character.
   pattern: "\\S+"
@@ -82,7 +64,7 @@ word:
 words:
   group: word
   description: a pattern to match at least one word.
-  pattern: "\\w+(\\s+\\w+)*"
+  pattern: "\\w+( +\\w+)*"
   positive test:
     pattern match words: "abc xyz"
   negative test:
@@ -100,7 +82,7 @@ mixed_word:
 mixed_words:
   group: word
   description: a pattern to match at least one mixed word.
-  pattern: "\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*"
+  pattern: "\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*"
   positive test:
     pattern match mixed words: "email: abc@xyz.com"
   negative test:
@@ -109,7 +91,7 @@ mixed_words:
 phrase:
   group: word
   description: a pattern to match a phrase, i.e. at least two words.
-  pattern: "\\w+(\\s+\\w+)+"
+  pattern: "\\w+( +\\w+)+"
   positive test:
     pattern match a pharse: "abc xyz"
   negative test:
@@ -118,7 +100,7 @@ phrase:
 mixed_phrase:
   group: word
   description: a pattern to match a mixed pharse.
-  pattern: "\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)+"
+  pattern: "\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)+"
   positive test:
     pattern match a mixed phrase: "email: abc@xyz.com"
   negative test:

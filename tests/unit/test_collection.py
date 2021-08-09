@@ -1,10 +1,13 @@
 import pytest
 import re
+from textwrap import dedent
+
 from regexapp import PatternReference
 from regexapp import TextPattern
 from regexapp import ElementPattern
 from regexapp import LinePattern
 from regexapp import PatternBuilder
+from regexapp import BlockPattern
 
 
 class TestPatternReference:
@@ -15,7 +18,7 @@ class TestPatternReference:
 
 class TestTextPattern:
     @pytest.mark.parametrize(
-        "data,used_space,expected_result",
+        ('data', 'used_space', 'expected_result'),
         [
             ('first last', True, 'first +last'),
             ('first last', False, 'first\\s+last'),
@@ -55,21 +58,21 @@ class TestTextPattern:
 
 class TestElementPattern:
     @pytest.mark.parametrize(
-        "data,expected_result",
+        ('data', 'expected_result'),
         [
             ####################################################################
             # predefined keyword test                                          #
             ####################################################################
             ('whitespace()', '\\s+'),
-            ('notwhitespace()', '\\S+'),
+            ('not_whitespace()', '\\S+'),
             ('letter()', '[a-zA-Z]'),
             ('letters()', '[a-zA-Z]+'),
             ('word()', '\\w+'),
-            ('words()', '\\w+(\\s+\\w+)*'),
+            ('words()', '\\w+( +\\w+)*'),
             ('mixed_word()', '\\S*[a-zA-Z0-9]\\S*'),
-            ('mixed_words()', '\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*'),
-            ('phrase()', '\\w+(\\s+\\w+)+'),
-            ('mixed_phrase()', '\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)+'),
+            ('mixed_words()', '\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*'),
+            ('phrase()', '\\w+( +\\w+)+'),
+            ('mixed_phrase()', '\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)+'),
             ('digit()', '\\d'),
             ('digits()', '\\d+'),
             ('number()', '(\\d+)?[.]?\\d+'),
@@ -127,7 +130,7 @@ class TestElementPattern:
             ####################################################################
             # start keyword test                                               #
             ####################################################################
-            ('start()', '^\\s*'),
+            ('start()', '^ *'),
             ('start(space)', '^ *'),
             ('start(space_plus)', '^ +'),
             ('start(ws)', '^\\s*'),
@@ -135,7 +138,7 @@ class TestElementPattern:
             ####################################################################
             # end keyword test                                               #
             ####################################################################
-            ('end()', '\\s*$'),
+            ('end()', ' *$'),
             ('end(space)', ' *$'),
             ('end(space_plus)', ' +$'),
             ('end(ws)', '\\s*$'),
@@ -159,12 +162,16 @@ class TestElementPattern:
 
 class TestLinePattern:
     @pytest.mark.parametrize(
-        "test_data,user_prepared_data,expected_pattern,used_space,prepended_ws,appended_ws,ignore_case,is_matched",
+        (
+            'test_data', 'user_prepared_data', 'expected_pattern',
+            'used_space', 'prepended_ws', 'appended_ws',
+            'ignore_case', 'is_matched'
+        ),
         [
             (
-                ' \t\n\r\f\v',      # test data
+                ' \t\v',      # test data
                 ' ',                # user prepared data
-                '^\\s*$',           # expected pattern
+                '^[ \\t\\v]*$',           # expected pattern
                 True, False, False, True,
                 True
             ),
@@ -213,7 +220,7 @@ class TestLinePattern:
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                                                      # test data
                 'mixed_word(var_interface_name) is words(var_interface_status), line protocol is words(var_protocol_status)',                                           # user prepared data
-                '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>\\w+(\\s+\\w+)*), +line +protocol +is +(?P<protocol_status>\\w+(\\s+\\w+)*)',    # expected pattern
+                '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) +is +(?P<interface_status>\\w+( +\\w+)*), +line +protocol +is +(?P<protocol_status>\\w+( +\\w+)*)',    # expected pattern
                 True, False, False, True,
                 True
             ),
@@ -297,21 +304,21 @@ class TestLinePattern:
             (
                 'I live in ABC',                                        # test data
                 'I live in words(var_city, ended)',                     # user prepared data
-                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)$',        # expected pattern
+                '(?i)I +live +in +(?P<city>\\w+( +\\w+)*)$',        # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'I live in ABC',                                        # test data
                 'I live in words(var_city, ended_ws)',                  # user prepared data
-                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*$',    # expected pattern
+                '(?i)I +live +in +(?P<city>\\w+( +\\w+)*)\\s*$',    # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'I live in ABC \r\n',                                   # test data
                 'I live in words(var_city, ended_ws)',                  # user prepared data
-                '(?i)I +live +in +(?P<city>\\w+(\\s+\\w+)*)\\s*$',    # expected pattern
+                '(?i)I +live +in +(?P<city>\\w+( +\\w+)*)\\s*$',    # expected pattern
                 True, False, False, True,
                 True
             ),
@@ -375,14 +382,14 @@ class TestLinePattern:
             (
                 'cherry is delicious.',  # test data
                 'start()cherry is delicious.',  # user prepared data
-                '(?i)^\\s*cherry +is +delicious\\.',  # expected pattern
+                '(?i)^ *cherry +is +delicious\\.',  # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'cherry is delicious.',  # test data
                 'start() cherry is delicious.',  # user prepared data
-                '(?i)^\\s*cherry +is +delicious\\.',  # expected pattern
+                '(?i)^ *cherry +is +delicious\\.',  # expected pattern
                 True, False, False, True,
                 True
             ),
@@ -403,35 +410,35 @@ class TestLinePattern:
             (
                 'this box is green',  # test data
                 'this box is green end()',  # user prepared data
-                '(?i)this +box +is +green\\s*$',  # expected pattern
+                '(?i)this +box +is +green *$',  # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'this box is green',  # test data
                 'this box is word(var_color)end()',  # user prepared data
-                '(?i)this +box +is +(?P<color>\\w+)\\s*$',  # expected pattern
+                '(?i)this +box +is +(?P<color>\\w+) *$',  # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'this box is green',  # test data
                 'this box is word(var_color) end()',  # user prepared data
-                '(?i)this +box +is +(?P<color>\\w+)\\s*$',  # expected pattern
+                '(?i)this +box +is +(?P<color>\\w+) *$',  # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 'file1.txt',  # test data
                 'mixed_words(var_file_name) data(->, or_empty) mixed_words(var_link_name, or_empty) end()',  # user prepared data
-                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',  # expected pattern
+                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*)|) *$',  # expected pattern
                 True, False, False, True,
                 True
             ),
             (
                 "'My Documents' -> /c/Users/test/Documents/",  # test data
                 'mixed_words(var_file_name) data(->, or_empty) mixed_words(var_link_name, or_empty) end()',     # user prepared data
-                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*(\\s+\\S*[a-zA-Z0-9]\\S*)*)|)\\s*$',    # expected pattern
+                '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*) *(->|) *(?P<link_name>(\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*)|) *$',    # expected pattern
                 True, False, False, True,
                 True
             ),
@@ -453,7 +460,11 @@ class TestLinePattern:
             assert match is None
 
     @pytest.mark.parametrize(
-        "test_data,user_prepared_data,expected_pattern,expected_statement,used_space,prepended_ws,appended_ws,ignore_case",
+        (
+            'test_data', 'user_prepared_data', 'expected_pattern',
+            'expected_statement', 'used_space', 'prepended_ws',
+            'appended_ws', 'ignore_case'
+        ),
         [
             (
                 ['cherry is good for health'],  # test data
@@ -465,14 +476,14 @@ class TestLinePattern:
             (
                 ['cherry is good for health'],  # test data
                 'word() is words()',  # user prepared data
-                '^ *\\w+ +is +\\w+(\\s+\\w+)*',  # expected pattern
-                '^ *\\w+ +is +\\w+(\\s+\\w+)*',  # expected statement
+                '^ *\\w+ +is +\\w+( +\\w+)*',  # expected pattern
+                '^ *\\w+ +is +\\w+( +\\w+)*',  # expected statement
                 True, True, False, False,
             ),
             (
                 ['cherry is good for health'],  # test data
                 'word(var_fruit) is words(var_desc)',  # user prepared data
-                '^ *(?P<fruit>\\w+) +is +(?P<desc>\\w+(\\s+\\w+)*)',  # expected pattern
+                '^ *(?P<fruit>\\w+) +is +(?P<desc>\\w+( +\\w+)*)',  # expected pattern
                 '^ *${fruit} +is +${desc}',     # expected statement
                 True, True, False, False,
             ),
@@ -531,7 +542,7 @@ class TestLinePattern:
 
 class TestPatternBuilder:
     @pytest.mark.parametrize(
-        "test_data,expected_pattern,used_space,var_name",
+        ('test_data', 'expected_pattern', 'used_space', 'var_name'),
         [
             (
                 ['Friday, April 9, 2021 8:43:15 PM'],
@@ -565,3 +576,71 @@ class TestPatternBuilder:
         for data in test_data:
             match = re.search(pattern, data)
             assert match is not None
+
+
+@pytest.fixture
+def tc_info():
+    class TestInfo:
+        pass
+
+    test_info = TestInfo()
+
+    ############################################################################
+    # test info
+    ############################################################################
+    prepared_data = """
+        phrase(var_subject) is digits(var_degree) degrees word(var_unit).
+           IPv4 Address. . . . . . . . . . . : ipv4_address(var_ipv4_addr)(word(var_status))
+    """
+
+    test_data = """
+        first line
+        today temperature is 75 degrees fahrenheit.
+        other line
+        another line
+           IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)
+        last line
+    """
+
+    expected_matched_text = """
+        today temperature is 75 degrees fahrenheit.
+        other line
+        another line
+           IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)
+    """
+    expected_matched_vars = dict(
+        subject='today temperature',
+        degree='75',
+        unit='fahrenheit',
+        ipv4_addr='192.168.0.1',
+        status='Preferred'
+    )
+
+    test_info.prepared_data = dedent(prepared_data).strip()
+    test_info.user_data = test_info.prepared_data
+    test_info.test_data = dedent(test_data).strip()
+    test_info.expected_matched_text = dedent(expected_matched_text).strip()
+    test_info.expected_matched_vars = expected_matched_vars
+
+    yield test_info
+
+
+class TestBlockPattern:
+    def test_block_pattern(self, tc_info):
+        block_pat = BlockPattern(tc_info.prepared_data, ignore_case=False)
+
+        match = re.search(block_pat, tc_info.test_data)
+        matched_txt = match.group()
+        matched_vars = match.groupdict()
+
+        assert matched_txt == tc_info.expected_matched_text
+        assert matched_vars == tc_info.expected_matched_vars
+
+        block_pat = BlockPattern(tc_info.prepared_data, ignore_case=True)
+
+        match = re.search(block_pat, tc_info.test_data)
+        matched_txt = match.group()
+        matched_vars = match.groupdict()
+
+        assert matched_txt == tc_info.expected_matched_text
+        assert matched_vars == tc_info.expected_matched_vars
