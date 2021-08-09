@@ -649,13 +649,18 @@ class DynamicGenTestScript:
         spacers = len(str(len(self.lst_of_tests)))
         for index, test in enumerate(self.lst_of_tests, 1):
             test_name, test_data, prepared_data, pattern = test
+            test_data = enclose_string(test_data)
+            prepared_data = enclose_string(prepared_data)
             data = fmt.format(test_name=enclose_string(test_name),
-                              test_data=enclose_string(test_data),
-                              prepared_data=enclose_string(prepared_data),
+                              test_data='__test_data_placeholder__',
+                              prepared_data='__prepared_data_placeholder__',
                               pattern=enclose_string(pattern))
             lst.append('')
             lst.append(fmt1.format(index, spacers, test_name))
-            lst.append(indent(data, ' ' * 4))
+            new_data = indent(data, ' ' * 4)
+            new_data = new_data.replace('__test_data_placeholder__', test_data)
+            new_data = new_data.replace('__prepared_data_placeholder__', prepared_data)
+            lst.append(new_data)
 
         result = '\n'.join(lst)
         return result
@@ -750,10 +755,18 @@ class DynamicGenTestScript:
         parametrize_item_fmt = self.template.get('{}_{}'.format(basename, postfix))
 
         lst = ['']
-        for test in self.lst_of_tests:
+        placeholder_table = dict()
+        for index, test in enumerate(self.lst_of_tests):
             _, test_data, prepared_data, pattern = test
-            kw = dict(test_data=enclose_string(test_data),
-                      prepared_data=enclose_string(prepared_data),
+            test_data = enclose_string(test_data)
+            prepared_data = enclose_string(prepared_data)
+            key1 = '__test_data_placeholder_{}__'.format(index)
+            key2 = '__prepared_data_placeholder_{}__'.format(index)
+            placeholder_table[key1] = test_data
+            placeholder_table[key2] = prepared_data
+
+            kw = dict(test_data=key1,
+                      prepared_data=key2,
                       pattern=enclose_string(pattern))
             parametrize_item = parametrize_item_fmt.format(**kw)
             parametrize_item = indent(parametrize_item, ' ' * 8)
@@ -767,6 +780,9 @@ class DynamicGenTestScript:
 
         ss = parametrize_template.format(parametrize_data=parametrize_data)
         parametrize_invocation = '\n'.join(['', indent(ss, ' ' * 4)])
+
+        for key, value in placeholder_table.items():
+            parametrize_invocation = parametrize_invocation.replace(key, value)
 
         test_name = self.test_name or 'test_generating_script'
         if not test_name.startswith('test_'):
