@@ -403,6 +403,7 @@ class Application:
             window.update()
 
         sys_ref = tk.Toplevel(self.root)
+        sys_ref.bind("<FocusOut>", lambda event: sys_ref.destroy())
         self.set_title(node=sys_ref, title='System References')
         width, height = 600, 500
         x, y = get_relative_center_location(self.root, width, height)
