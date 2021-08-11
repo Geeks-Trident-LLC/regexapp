@@ -397,11 +397,6 @@ class Application:
 
     def callback_preferences_system_reference(self):
         """Callback for Menu Preferences > System References"""
-
-        def close(window):
-            window.destroy()
-            window.update()
-
         sys_ref = tk.Toplevel(self.root)
         sys_ref.bind("<FocusOut>", lambda event: sys_ref.destroy())
         self.set_title(node=sys_ref, title='System References')
@@ -440,7 +435,7 @@ class Application:
         )
 
         ttk.Button(sys_ref, text='OK',
-                   command=lambda: close(sys_ref),
+                   command=lambda: sys_ref.destroy(),
                    width=8).pack(side=tk.RIGHT)
 
     def build_menu(self):
