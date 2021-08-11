@@ -1,8 +1,8 @@
 """Top-level module for regexapp.
 
 - support TextPattern, ElementPattern, LinePattern, BlockPattern, and PatternBuilder
-- support predefine pattern reference on system_setting.yaml
-- allow end-user to customize pattern on /home/.regexapp/user_settings.yaml
+- support predefine pattern reference on system_references.yaml
+- allow end-user to customize pattern on /home/.regexapp/user_references.yaml
 - allow end-user to generate on GUI application and verify it.
 - dynamically generate Python unittest script
 - dynamically generate Python pytest script

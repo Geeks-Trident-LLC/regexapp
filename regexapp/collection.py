@@ -105,13 +105,13 @@ class VarCls:
 
 
 class PatternReference(dict):
-    """Use to load regular expression pattern from system_settings.yaml
-    or/and user_settings.yaml
+    """Use to load regular expression pattern from system_references.yaml
+    or/and user_references.yaml
 
     Attribute
     ---------
-    sys_ref_loc (str): a system settings file name.
-    user_ref_loc (str): a user settings file name.
+    sys_ref_loc (str): a system references file name.
+    user_ref_loc (str): a user references file name.
 
     Methods
     -------
@@ -123,17 +123,17 @@ class PatternReference(dict):
             an invalid format
     """
 
-    # regexp pattern - from system settings
-    sys_ref_loc = str(PurePath(Path(__file__).parent, 'system_settings.yaml'))
-    # regex patterns - from user settings
-    user_ref_loc = str(PurePath(Path.home(), '.regexapp', 'user_settings.yaml'))
+    # regexp pattern - from system references
+    sys_ref_loc = str(PurePath(Path(__file__).parent, 'system_references.yaml'))
+    # regex patterns - from user references
+    user_ref_loc = str(PurePath(Path.home(), '.regexapp', 'user_references.yaml'))
 
     def __init__(self):
         self.load_reference(self.sys_ref_loc)
         self.load_reference(self.user_ref_loc)
 
     def load_reference(self, filename):
-        """Load reference from YAML settings file.
+        """Load reference from YAML references file.
         Parameters
         ----------
         filename (str): a file name.
