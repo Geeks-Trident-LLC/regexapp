@@ -133,6 +133,22 @@ class Application:
         self.result_frame = None
 
         self.radio_btn_var = tk.StringVar()
+        self.used_space_var = tk.BooleanVar()
+        self.used_space_var.set(True)
+        self.prepended_ws_var = tk.BooleanVar()
+        self.appended_ws_var = tk.BooleanVar()
+        self.ignore_case_var = tk.BooleanVar()
+        self.test_name_var = tk.StringVar()
+        self.test_cls_name_var = tk.StringVar()
+        self.test_cls_name_var.set('TestDynamicGenTestScript')
+        self.is_minimal_var = tk.BooleanVar()
+        self.is_minimal_var.set(True)
+        self.max_words_var = tk.IntVar()
+        self.max_words_var.set(6)
+        self.filename_var = tk.StringVar()
+        self.author_var = tk.StringVar()
+        self.email_var = tk.StringVar()
+        self.company_var = tk.StringVar()
         self.result = None
 
         self.textarea = None
@@ -273,6 +289,73 @@ class Application:
         footer = tk.Label(about, text=Data.copyright_text)
         footer.place(x=10, y=360)
 
+    def callback_preferences_settings(self):
+        """Callback for Menu Preferences > Settings"""
+
+        settings = tk.Toplevel(self.root)
+        self.set_title(node=settings, title='Settings')
+        width, height = 400, 400
+        x, y = get_relative_center_location(self.root, width, height)
+        settings.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+        settings.resizable(False, False)
+
+        # Settings - Pattern Arguments
+        lframe_pattern_args = ttk.LabelFrame(
+            settings, height=80, width=380,
+            text='Pattern Arguments'
+        )
+        lframe_pattern_args.place(x=10, y=10)
+
+        # arguments checkboxes
+        lst = [
+            ['used_space', self.used_space_var, 5, 5],
+            ['ignore_case', self.ignore_case_var, 120, 5],
+            ['prepended_ws', self.prepended_ws_var, 5, 30],
+            ['appended_ws', self.appended_ws_var, 120, 30]
+        ]
+        for text, variable, x, y in lst:
+            ttk.Checkbutton(lframe_pattern_args, text=text, variable=variable,
+                            onvalue=True, offvalue=False).place(x=x, y=y)
+
+        # Settings - Regexapp Arguments
+        lframe_regexapp_args = ttk.LabelFrame(
+            settings, height=210, width=380,
+            text='Regexapp Arguments'
+        )
+        lframe_regexapp_args.place(x=10, y=95)
+
+        ttk.Label(lframe_regexapp_args, text='max_words').place(x=5, y=5)
+        ttk.Entry(lframe_regexapp_args, width=5,
+                  textvariable=self.max_words_var).place(x=88, y=5)
+
+        ttk.Checkbutton(lframe_regexapp_args, text='is_minimal',
+                        variable=self.is_minimal_var,
+                        onvalue=True, offvalue=False).place(x=200, y=5)
+
+        ttk.Label(lframe_regexapp_args, text='test_name').place(x=5, y=30)
+        ttk.Entry(lframe_regexapp_args, width=45,
+                  textvariable=self.test_name_var).place(x=88, y=30)
+
+        ttk.Label(lframe_regexapp_args, text='test_cls_name').place(x=5, y=55)
+        ttk.Entry(lframe_regexapp_args, width=45,
+                  textvariable=self.test_cls_name_var).place(x=88, y=55)
+
+        ttk.Label(lframe_regexapp_args, text='filename').place(x=5, y=80)
+        ttk.Entry(lframe_regexapp_args, width=45,
+                  textvariable=self.filename_var).place(x=88, y=80)
+
+        ttk.Label(lframe_regexapp_args, text='author').place(x=5, y=105)
+        ttk.Entry(lframe_regexapp_args, width=45,
+                  textvariable=self.author_var).place(x=88, y=105)
+
+        ttk.Label(lframe_regexapp_args, text='email').place(x=5, y=130)
+        ttk.Entry(lframe_regexapp_args, width=45,
+                  textvariable=self.email_var).place(x=88, y=130)
+
+        ttk.Label(lframe_regexapp_args, text='company').place(x=5, y=155)
+        ttk.Entry(lframe_regexapp_args, width=45,
+                  textvariable=self.company_var).place(x=88, y=155)
+
     def build_menu(self):
         """Build menubar for Regex GUI."""
         menu_bar = tk.Menu(self.root)
@@ -291,10 +374,7 @@ class Application:
 
         preferences.add_command(
             label='Settings',
-            command=lambda: create_msgbox(
-                title='TODO item',
-                info='TODO - Need to implement Settings Window'
-            )
+            command=lambda: self.callback_preferences_settings()
         )
         preferences.add_separator()
         preferences.add_command(
