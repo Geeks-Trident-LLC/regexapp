@@ -287,6 +287,7 @@ class Application:
             self.browser.open_new_tab(url_lbl.link)
 
         about = tk.Toplevel(self.root)
+        about.bind("<FocusOut>", lambda event: about.destroy())
         self.set_title(node=about, title='About')
         width, height = 400, 400
         x, y = get_relative_center_location(self.root, width, height)
