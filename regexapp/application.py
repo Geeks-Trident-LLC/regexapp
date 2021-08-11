@@ -8,6 +8,7 @@ from os import path
 import webbrowser
 from textwrap import dedent
 from regexapp import RegexBuilder
+from regexapp.collection import REF
 
 
 __version__ = '0.0.1'
@@ -356,6 +357,53 @@ class Application:
         ttk.Entry(lframe_regexapp_args, width=45,
                   textvariable=self.company_var).place(x=88, y=155)
 
+    def callback_preferences_system_reference(self):
+        """Callback for Menu Preferences > System References"""
+
+        def close(window):
+            window.destroy()
+            window.update()
+
+        sys_ref = tk.Toplevel(self.root)
+        self.set_title(node=sys_ref, title='System References')
+        width, height = 600, 500
+        x, y = get_relative_center_location(self.root, width, height)
+        sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+
+        panedwindow = ttk.Panedwindow(sys_ref, orient=tk.VERTICAL)
+        panedwindow.pack(fill=tk.BOTH, expand=True)
+
+        text_frame = ttk.Frame(
+            panedwindow, width=500, height=300, relief=tk.RIDGE
+        )
+        panedwindow.add(text_frame, weight=9)
+
+        text_frame.rowconfigure(0, weight=1)
+        text_frame.columnconfigure(0, weight=1)
+
+        textarea = tk.Text(text_frame, width=20, height=5, wrap='none')
+        with open(REF.sys_ref_loc) as stream:
+            content = stream.read()
+            self.set_textarea(textarea, content)
+
+        textarea.grid(row=0, column=0, sticky='nswe')
+        vscrollbar = ttk.Scrollbar(
+            text_frame, orient=tk.VERTICAL, command=textarea.yview
+        )
+        vscrollbar.grid(row=0, column=1, sticky='ns')
+        hscrollbar = ttk.Scrollbar(
+            text_frame, orient=tk.HORIZONTAL, command=textarea.xview
+        )
+        hscrollbar.grid(row=1, column=0, sticky='ew')
+        textarea.config(
+            yscrollcommand=vscrollbar.set, xscrollcommand=hscrollbar.set,
+            state=tk.DISABLED
+        )
+
+        ttk.Button(sys_ref, text='OK',
+                   command=lambda: close(sys_ref),
+                   width=8).pack(side=tk.RIGHT)
+
     def build_menu(self):
         """Build menubar for Regex GUI."""
         menu_bar = tk.Menu(self.root)
@@ -379,10 +427,7 @@ class Application:
         preferences.add_separator()
         preferences.add_command(
             label='System References',
-            command=lambda: create_msgbox(
-                title='TODO item',
-                info='TODO - Need to implement System References Window'
-            )
+            command=lambda: self.callback_preferences_system_reference()
         )
         preferences.add_separator()
         preferences.add_command(
