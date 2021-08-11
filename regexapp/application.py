@@ -330,8 +330,8 @@ class Application:
 
     def callback_preferences_settings(self):
         """Callback for Menu Preferences > Settings"""
-
         settings = tk.Toplevel(self.root)
+        settings.bind("<FocusOut>", lambda event: settings.destroy())
         self.set_title(node=settings, title='Settings')
         width, height = 400, 400
         x, y = get_relative_center_location(self.root, width, height)
