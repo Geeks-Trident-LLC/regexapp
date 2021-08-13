@@ -740,7 +740,12 @@ class Application:
                 return
 
             title = '<<PASTE - Clipboard>>'
-            self.set_textarea(self.textarea, data, title=title)
+            if not self.is_created_test_data:
+                self.set_textarea(self.textarea, data, title=title)
+            else:
+                separator = '\n# below is a test data for a generated test script\n'
+                new_content = '\n'.join([data, separator, data])
+                self.set_textarea(self.textarea, new_content, title=title)
 
         def callback_snippet_btn():
             create_msgbox(
