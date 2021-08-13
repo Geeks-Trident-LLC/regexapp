@@ -13,6 +13,7 @@ from regexapp.collection import REF
 from regexapp.collection import PatternReference
 from regexapp import version
 from regexapp import edition
+from regexapp.core import enclose_string
 
 import yaml
 import re
@@ -205,6 +206,7 @@ class Application:
         self.author_var = tk.StringVar()
         self.email_var = tk.StringVar()
         self.company_var = tk.StringVar()
+        self.created_test_data_var = tk.BooleanVar()
 
         self.new_pattern_name_var = tk.StringVar()
         self.result = None
@@ -220,6 +222,47 @@ class Application:
         self.build_textarea()
         self.build_entry()
         self.build_result()
+
+    @property
+    def is_created_test_data(self):
+        """check if a script needs to create test data"""
+        return self.created_test_data_var.get()
+
+    @property
+    def is_line(self):
+        return self.radio_btn_var.get() == 'line'
+
+    @property
+    def used_space(self):
+        return self.used_space_var.get()
+
+    @property
+    def ignore_case(self):
+        return self.ignore_case_var.get()
+
+    @property
+    def prepended_ws(self):
+        return self.prepended_ws_var.get()
+
+    @property
+    def appended_ws(self):
+        return self.appended_ws_var.get()
+
+    def set_default_setting(self):
+        """reset to default setting"""
+        self.used_space_var.set(True)
+        self.prepended_ws_var.set(False)
+        self.appended_ws_var.set(False)
+        self.ignore_case_var.set(False)
+        self.test_name_var.set('')
+        self.test_cls_name_var.set('TestDynamicGenTestScript')
+        self.is_minimal_var.set(True)
+        self.max_words_var.set(6)
+        self.filename_var.set('')
+        self.author_var.set('')
+        self.email_var.set('')
+        self.company_var.set('')
+        self.created_test_data_var.set(False)
 
     @classmethod
     def get_textarea(cls, node):
@@ -283,7 +326,12 @@ class Application:
         if filename:
             with open(filename) as stream:
                 content = stream.read()
-                self.set_textarea(self.textarea, content, title=filename)
+                if not self.is_created_test_data:
+                    self.set_textarea(self.textarea, content, title=filename)
+                else:
+                    separator = '\n# below is a test data for a generated test script\n'
+                    new_content = '\n'.join([content, separator, content])
+                    self.set_textarea(self.textarea, new_content, title=filename)
 
     def callback_help_documentation(self):
         """Callback for Menu Help > Getting Started."""
@@ -355,7 +403,7 @@ class Application:
 
         settings = tk.Toplevel(self.root)
         self.set_title(node=settings, title='Settings')
-        width, height = 400, 400
+        width, height = 400, 430
         x, y = get_relative_center_location(self.root, width, height)
         settings.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         settings.resizable(False, False)
@@ -378,44 +426,65 @@ class Application:
             ttk.Checkbutton(lframe_pattern_args, text=text, variable=variable,
                             onvalue=True, offvalue=False).place(x=x, y=y)
 
-        # Settings - Regexapp Arguments
-        lframe_regexapp_args = ttk.LabelFrame(
+        # Settings - Builder Arguments
+        lframe_builder_args = ttk.LabelFrame(
             settings, height=210, width=380,
-            text='Regexapp Arguments'
+            text='Builder Arguments'
         )
-        lframe_regexapp_args.place(x=10, y=95)
+        lframe_builder_args.place(x=10, y=95)
 
-        ttk.Label(lframe_regexapp_args, text='max_words').place(x=5, y=5)
-        ttk.Entry(lframe_regexapp_args, width=5,
+        ttk.Label(lframe_builder_args, text='max_words').place(x=5, y=5)
+        ttk.Entry(lframe_builder_args, width=5,
                   textvariable=self.max_words_var).place(x=88, y=5)
 
-        ttk.Checkbutton(lframe_regexapp_args, text='is_minimal',
+        ttk.Checkbutton(lframe_builder_args, text='is_minimal',
                         variable=self.is_minimal_var,
                         onvalue=True, offvalue=False).place(x=200, y=5)
 
-        ttk.Label(lframe_regexapp_args, text='test_name').place(x=5, y=30)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='test_name').place(x=5, y=30)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.test_name_var).place(x=88, y=30)
 
-        ttk.Label(lframe_regexapp_args, text='test_cls_name').place(x=5, y=55)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='test_cls_name').place(x=5, y=55)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.test_cls_name_var).place(x=88, y=55)
 
-        ttk.Label(lframe_regexapp_args, text='filename').place(x=5, y=80)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='filename').place(x=5, y=80)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.filename_var).place(x=88, y=80)
 
-        ttk.Label(lframe_regexapp_args, text='author').place(x=5, y=105)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='author').place(x=5, y=105)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.author_var).place(x=88, y=105)
 
-        ttk.Label(lframe_regexapp_args, text='email').place(x=5, y=130)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='email').place(x=5, y=130)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.email_var).place(x=88, y=130)
 
-        ttk.Label(lframe_regexapp_args, text='company').place(x=5, y=155)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='company').place(x=5, y=155)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.company_var).place(x=88, y=155)
+
+        # Settings - App Setting
+        lframe_setting_for_app = ttk.LabelFrame(
+            settings, height=80, width=380,
+            text='Setting for App'
+        )
+        lframe_setting_for_app.place(x=10, y=310)
+
+        ttk.Checkbutton(
+            lframe_setting_for_app, text='create test data',
+            variable=self.created_test_data_var,
+            onvalue=True, offvalue=False
+        ).place(x=5, y=5)
+
+        ttk.Button(settings, text='Default',
+                   command=lambda: self.set_default_setting(),
+                   width=8).place(x=270, y=395)
+
+        ttk.Button(settings, text='OK',
+                   command=lambda: settings.destroy(),
+                   width=8).place(x=332, y=395)
 
         set_modal_dialog(settings)
 
@@ -659,26 +728,41 @@ class Application:
     def build_entry(self):
         """Build input entry for regex GUI."""
         def callback_run_btn():
-            user_data = self.__class__.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
-                    error="Can not build regex pattern without data."
+                    error="Can NOT build regex pattern without data."
                 )
                 return
 
-            is_line = self.radio_btn_var.get() == 'line'
-            factory = RegexBuilder(user_data=user_data, is_line=is_line)
-            factory.build()
+            try:
+                factory = RegexBuilder(
+                    user_data=user_data, is_line=self.is_line,
+                    used_space=self.used_space, prepended_ws=self.prepended_ws,
+                    appended_ws=self.appended_ws, ignore_case=self.ignore_case
 
-            lst = []
-            for user_data, pattern in factory.user_data_pattern_table.items():
-                lst.append('# {}'.format('-' * 10))
-                lst.append('# user data      : {}'.format(user_data))
-                lst.append('# created pattern: {}'.format(pattern))
+                )
+                factory.build()
 
-            result = '\n'.join(lst)
-            self.set_textarea(self.result_textarea, result)
+                patterns = factory.patterns
+                total = len(patterns)
+                if total >= 1:
+                    if total == 1:
+                        result = 'pattern = r{}'.format(enclose_string(patterns[0]))
+                    else:
+                        lst = []
+                        fmt = 'pattern{} = r{}'
+                        for index, pattern in enumerate(patterns, 1):
+                            lst.append(fmt.format(index, enclose_string(pattern)))
+                        result = '\n'.join(lst)
+                    self.set_textarea(self.result_textarea, result)
+                else:
+                    error = 'Something wrong with RegexBuilder.  Please report bug.'
+                    create_msgbox(title='RegexBuilder Error', error=error)
+            except Exception as ex:
+                error = '{}: {}'.format(type(ex).__name__, ex)
+                create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_clear_text_btn():
             self.textarea.delete("1.0", "end")
@@ -692,7 +776,12 @@ class Application:
                 return
 
             title = '<<PASTE - Clipboard>>'
-            self.set_textarea(self.textarea, data, title=title)
+            if not self.is_created_test_data:
+                self.set_textarea(self.textarea, data, title=title)
+            else:
+                separator = '\n# below is a test data for a generated test script\n'
+                new_content = '\n'.join([data, separator, data])
+                self.set_textarea(self.textarea, new_content, title=title)
 
         def callback_snippet_btn():
             create_msgbox(
