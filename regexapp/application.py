@@ -221,6 +221,22 @@ class Application:
         self.build_entry()
         self.build_result()
 
+    def set_default_setting(self):
+        """reset to default setting"""
+        self.used_space_var.set(True)
+        self.prepended_ws_var.set(False)
+        self.appended_ws_var.set(False)
+        self.ignore_case_var.set(False)
+        self.test_name_var.set('')
+        self.test_cls_name_var.set('TestDynamicGenTestScript')
+        self.is_minimal_var.set(True)
+        self.max_words_var.set(6)
+        self.filename_var.set('')
+        self.author_var.set('')
+        self.email_var.set('')
+        self.company_var.set('')
+        self.created_test_data_var.set(False)
+
     @classmethod
     def get_textarea(cls, node):
         """Get data from TextArea component
@@ -355,7 +371,7 @@ class Application:
 
         settings = tk.Toplevel(self.root)
         self.set_title(node=settings, title='Settings')
-        width, height = 400, 400
+        width, height = 400, 430
         x, y = get_relative_center_location(self.root, width, height)
         settings.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         settings.resizable(False, False)
@@ -416,6 +432,27 @@ class Application:
         ttk.Label(lframe_builder_args, text='company').place(x=5, y=155)
         ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.company_var).place(x=88, y=155)
+
+        # Settings - App Setting
+        lframe_setting_for_app = ttk.LabelFrame(
+            settings, height=80, width=380,
+            text='Setting for App'
+        )
+        lframe_setting_for_app.place(x=10, y=310)
+
+        ttk.Checkbutton(
+            lframe_setting_for_app, text='create test data',
+            variable=self.created_test_data_var,
+            onvalue=True, offvalue=False
+        ).place(x=5, y=5)
+
+        ttk.Button(settings, text='Default',
+                   command=lambda: self.set_default_setting(),
+                   width=8).place(x=270, y=395)
+
+        ttk.Button(settings, text='OK',
+                   command=lambda: settings.destroy(),
+                   width=8).place(x=332, y=395)
 
         set_modal_dialog(settings)
 
