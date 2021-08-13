@@ -3,6 +3,7 @@
 import re
 import yaml
 import string
+from textwrap import dedent
 from pathlib import Path, PurePath
 from regexapp.exceptions import EscapePatternError
 from regexapp.exceptions import PatternReferenceError
@@ -116,6 +117,10 @@ class PatternReference(dict):
     Methods
     -------
     load_reference(filename) -> None
+    PatternReference.get_pattern_layout(name) -> str
+    is_valid_format(name, value) -> bool
+    is_violated(dict_obj) -> bool
+    test(self, content) -> bool
 
     Raises
     ------
@@ -131,6 +136,8 @@ class PatternReference(dict):
     def __init__(self):
         self.load_reference(self.sys_ref_loc)
         self.load_reference(self.user_ref_loc)
+        self.test_result = ''
+        self.violated_format = ''
 
     def load_reference(self, filename):
         """Load reference from YAML references file.
@@ -181,6 +188,157 @@ class PatternReference(dict):
         except Exception as ex:
             msg = '{} - {}'.format(type(ex).__name__, ex)
             raise PatternReferenceError(msg)
+
+    @classmethod
+    def get_pattern_layout(cls, name):
+        layout1 = """
+            # double back flash must be used in a value of pattern if needed 
+            # positive test and/or negative test is/are optional
+            name_placeholder: 
+              group: "replace_me"
+              description: "replace_me"
+              pattern: "replace_me"
+              # positive test:
+              #   change this positive test name: "replace_me -> (string or list of string)"
+              # negative test:
+              #   change this negative test name: "replace_me -> (string or list of string)"
+        """
+        layout2 = """
+            # double back flash must be used in a value of format if needed
+            # positive test and/or negative test is/are optional
+            name_placeholder: 
+              group: "replace_me"
+              description: "replace_me"
+              format: "replace_me"
+              # format1: "replace_me"
+              # format2: "replace_me"
+              # formatn: "replace_me"
+              # positive test:
+              #   change this positive test name: "replace_me -> (string or list of string)"
+              # negative test:
+              #   change this negative test name: "replace_me -> (string or list of string)"
+        """
+        layout1, layout2 = dedent(layout1).strip(), dedent(layout2).strip()
+        return layout2 if 'datetime' in name else layout1
+
+    def is_valid_format(self, name, value):
+        """Check if name and value are valid
+
+        Parameters
+        ----------
+        name (str): a name of reference
+        value (dict): a value of reference
+
+        Returns
+        -------
+        bool: True if a reference is valid.
+        """
+        fmt1 = 'value of "{}" MUST be a dictionary'
+        fmt2 = 'value of "{}" MUST have "group" key'
+        fmt3 = 'value of "{}" MUST have "description" key'
+        fmt4 = 'value of "positive test" of "{}" MUST be a dictionary'
+        fmt5 = 'value of "negative test" of "{}" MUST be a dictionary'
+        fmt6 = ('value of "{}" (i.e datetime reference) '
+                'MUST have "format" or "format#" key')
+        fmt7 = 'value of "{}" MUST have "pattern" key'
+
+        if not isinstance(value, dict):
+            self.violated_format = fmt1.format(name)
+            return False
+
+        if 'group' not in value:
+            self.violated_format = fmt2.format(name)
+            return False
+
+        if 'description' not in value:
+            self.violated_format = fmt3.format(name)
+            return False
+
+        if 'positive test' in value:
+            pos_test_value = value.get('positive test')
+            if not isinstance(pos_test_value, dict):
+                self.violated_format = fmt4.format(name)
+                return False
+
+        if 'negative test' in value:
+            neg_test_value = value.get('positive test')
+            if not isinstance(neg_test_value, dict):
+                self.violated_format = fmt5.format(name)
+                return False
+
+        if 'datetime' in name:
+            for key in value:
+                if 'format' in key:
+                    return True
+            self.violated_format = fmt6.format(name)
+            return False
+        else:
+            if 'pattern' in value:
+                return True
+            else:
+                self.violated_format = fmt7.format(name)
+                return False
+
+    def is_violated(self, dict_obj):
+        """Check if new pattern reference doesnt violate with system reference
+
+        Parameters
+        ----------
+        dict_obj (dict): a dict object.
+
+        Returns
+        -------
+        bool: True there is a violation.
+        """
+        sys_ref = yaml.load(open(self.sys_ref_loc), Loader=yaml.SafeLoader)
+        fmt = '{} is ALREADY existed in system_references.yaml'
+        for name in dict_obj:
+            if 'datetime' not in name:
+                if name in sys_ref:
+                    self.violated_format = fmt.format(name)
+                    return True
+        return False
+
+    def test(self, content):
+        """test pattern reference.
+        Parameters
+        ----------
+        content (str): a content of YAML format.
+
+        Returns
+        -------
+        bool: True if content is a valid format
+
+        Raises
+        ------
+        PatternReferenceError: raise exception if a content is
+                an invalid format or violate system_references.yaml
+        """
+
+        try:
+            yaml_obj = yaml.load(content, Loader=yaml.SafeLoader)
+        except Exception as ex:
+            msg = '{} - {}'.format(type(ex).__name__, ex)
+            raise PatternReferenceError(msg)
+
+        if not yaml_obj:
+            logger.warning('CANT test an empty content')
+            self.test_result = 'not_tested'
+            return True
+
+        if not isinstance(yaml_obj, dict):
+            msg = 'content must be structure of dictionary.'
+            raise PatternReferenceError(msg)
+
+        for name, value in yaml_obj.items():
+            if not self.is_valid_format(name, value):
+                raise PatternReferenceError(self.violated_format)
+
+        if self.is_violated(yaml_obj):
+            raise PatternReferenceError(self.violated_format)
+
+        self.test_result = 'tested'
+        return True
 
 
 REF = PatternReference()
