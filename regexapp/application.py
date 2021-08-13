@@ -13,6 +13,7 @@ from regexapp.collection import REF
 from regexapp.collection import PatternReference
 from regexapp import version
 from regexapp import edition
+from regexapp.core import enclose_string
 
 import yaml
 import re
@@ -226,6 +227,26 @@ class Application:
     def is_created_test_data(self):
         """check if a script needs to create test data"""
         return self.created_test_data_var.get()
+
+    @property
+    def is_line(self):
+        return self.radio_btn_var.get() == 'line'
+
+    @property
+    def used_space(self):
+        return self.used_space_var.get()
+
+    @property
+    def ignore_case(self):
+        return self.ignore_case_var.get()
+
+    @property
+    def prepended_ws(self):
+        return self.prepended_ws_var.get()
+
+    @property
+    def appended_ws(self):
+        return self.appended_ws_var.get()
 
     def set_default_setting(self):
         """reset to default setting"""
@@ -707,26 +728,41 @@ class Application:
     def build_entry(self):
         """Build input entry for regex GUI."""
         def callback_run_btn():
-            user_data = self.__class__.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
-                    error="Can not build regex pattern without data."
+                    error="Can NOT build regex pattern without data."
                 )
                 return
 
-            is_line = self.radio_btn_var.get() == 'line'
-            factory = RegexBuilder(user_data=user_data, is_line=is_line)
-            factory.build()
+            try:
+                factory = RegexBuilder(
+                    user_data=user_data, is_line=self.is_line,
+                    used_space=self.used_space, prepended_ws=self.prepended_ws,
+                    appended_ws=self.appended_ws, ignore_case=self.ignore_case
 
-            lst = []
-            for user_data, pattern in factory.user_data_pattern_table.items():
-                lst.append('# {}'.format('-' * 10))
-                lst.append('# user data      : {}'.format(user_data))
-                lst.append('# created pattern: {}'.format(pattern))
+                )
+                factory.build()
 
-            result = '\n'.join(lst)
-            self.set_textarea(self.result_textarea, result)
+                patterns = factory.patterns
+                total = len(patterns)
+                if total >= 1:
+                    if total == 1:
+                        result = 'pattern = r{}'.format(enclose_string(patterns[0]))
+                    else:
+                        lst = []
+                        fmt = 'pattern{} = r{}'
+                        for index, pattern in enumerate(patterns, 1):
+                            lst.append(fmt.format(index, enclose_string(pattern)))
+                        result = '\n'.join(lst)
+                    self.set_textarea(self.result_textarea, result)
+                else:
+                    error = 'Something wrong with RegexBuilder.  Please report bug.'
+                    create_msgbox(title='RegexBuilder Error', error=error)
+            except Exception as ex:
+                error = '{}: {}'.format(type(ex).__name__, ex)
+                create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_clear_text_btn():
             self.textarea.delete("1.0", "end")
