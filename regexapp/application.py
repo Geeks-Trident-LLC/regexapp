@@ -349,6 +349,8 @@ class Application:
         footer = tk.Label(about, text=Data.copyright_text)
         footer.place(x=10, y=360)
 
+        set_modal_dialog(about)
+
     def callback_preferences_settings(self):
         """Callback for Menu Preferences > Settings"""
 
