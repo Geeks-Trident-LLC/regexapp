@@ -462,6 +462,8 @@ class Application:
                    command=lambda: sys_ref.destroy(),
                    width=8).pack(side=tk.RIGHT)
 
+        set_modal_dialog(sys_ref)
+
     def callback_preferences_user_reference(self):
         """Callback for Menu Preferences > User References"""
         def save(node):
