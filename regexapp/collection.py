@@ -192,9 +192,11 @@ class PatternReference(dict):
     @classmethod
     def get_pattern_layout(cls, name):
         layout1 = """
-            # double back flash must be used in a value of pattern if needed 
-            # positive test and/or negative test is/are optional
-            name_placeholder: 
+            name_placeholder:
+              ##################################################################
+              # double back flash must be used in a value of format if needed
+              # positive test and/or negative test is/are optional
+              ##################################################################
               group: "replace_me"
               description: "replace_me"
               pattern: "replace_me"
@@ -204,9 +206,11 @@ class PatternReference(dict):
               #   change this negative test name: "replace_me -> (string or list of string)"
         """
         layout2 = """
-            # double back flash must be used in a value of format if needed
-            # positive test and/or negative test is/are optional
-            name_placeholder: 
+            name_placeholder:
+              ##################################################################
+              # double back flash must be used in a value of format if needed
+              # positive test and/or negative test is/are optional
+              ##################################################################
               group: "replace_me"
               description: "replace_me"
               format: "replace_me"
