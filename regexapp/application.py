@@ -378,43 +378,43 @@ class Application:
             ttk.Checkbutton(lframe_pattern_args, text=text, variable=variable,
                             onvalue=True, offvalue=False).place(x=x, y=y)
 
-        # Settings - Regexapp Arguments
-        lframe_regexapp_args = ttk.LabelFrame(
+        # Settings - Builder Arguments
+        lframe_builder_args = ttk.LabelFrame(
             settings, height=210, width=380,
-            text='Regexapp Arguments'
+            text='Builder Arguments'
         )
-        lframe_regexapp_args.place(x=10, y=95)
+        lframe_builder_args.place(x=10, y=95)
 
-        ttk.Label(lframe_regexapp_args, text='max_words').place(x=5, y=5)
-        ttk.Entry(lframe_regexapp_args, width=5,
+        ttk.Label(lframe_builder_args, text='max_words').place(x=5, y=5)
+        ttk.Entry(lframe_builder_args, width=5,
                   textvariable=self.max_words_var).place(x=88, y=5)
 
-        ttk.Checkbutton(lframe_regexapp_args, text='is_minimal',
+        ttk.Checkbutton(lframe_builder_args, text='is_minimal',
                         variable=self.is_minimal_var,
                         onvalue=True, offvalue=False).place(x=200, y=5)
 
-        ttk.Label(lframe_regexapp_args, text='test_name').place(x=5, y=30)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='test_name').place(x=5, y=30)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.test_name_var).place(x=88, y=30)
 
-        ttk.Label(lframe_regexapp_args, text='test_cls_name').place(x=5, y=55)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='test_cls_name').place(x=5, y=55)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.test_cls_name_var).place(x=88, y=55)
 
-        ttk.Label(lframe_regexapp_args, text='filename').place(x=5, y=80)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='filename').place(x=5, y=80)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.filename_var).place(x=88, y=80)
 
-        ttk.Label(lframe_regexapp_args, text='author').place(x=5, y=105)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='author').place(x=5, y=105)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.author_var).place(x=88, y=105)
 
-        ttk.Label(lframe_regexapp_args, text='email').place(x=5, y=130)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='email').place(x=5, y=130)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.email_var).place(x=88, y=130)
 
-        ttk.Label(lframe_regexapp_args, text='company').place(x=5, y=155)
-        ttk.Entry(lframe_regexapp_args, width=45,
+        ttk.Label(lframe_builder_args, text='company').place(x=5, y=155)
+        ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.company_var).place(x=88, y=155)
 
         set_modal_dialog(settings)
