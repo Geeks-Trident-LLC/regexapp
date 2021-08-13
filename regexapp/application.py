@@ -418,6 +418,8 @@ class Application:
         ttk.Entry(lframe_regexapp_args, width=45,
                   textvariable=self.company_var).place(x=88, y=155)
 
+        set_modal_dialog(settings)
+
     def callback_preferences_system_reference(self):
         """Callback for Menu Preferences > System References"""
         sys_ref = tk.Toplevel(self.root)
