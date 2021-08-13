@@ -205,6 +205,7 @@ class Application:
         self.author_var = tk.StringVar()
         self.email_var = tk.StringVar()
         self.company_var = tk.StringVar()
+        self.created_test_data_var = tk.BooleanVar()
 
         self.new_pattern_name_var = tk.StringVar()
         self.result = None
@@ -220,6 +221,11 @@ class Application:
         self.build_textarea()
         self.build_entry()
         self.build_result()
+
+    @property
+    def is_created_test_data(self):
+        """check if a script needs to create test data"""
+        return self.created_test_data_var.get()
 
     def set_default_setting(self):
         """reset to default setting"""
@@ -299,7 +305,12 @@ class Application:
         if filename:
             with open(filename) as stream:
                 content = stream.read()
-                self.set_textarea(self.textarea, content, title=filename)
+                if not self.is_created_test_data:
+                    self.set_textarea(self.textarea, content, title=filename)
+                else:
+                    separator = '\n# below is a test data for a generated test script\n'
+                    new_content = '\n'.join([content, separator, content])
+                    self.set_textarea(self.textarea, new_content, title=filename)
 
     def callback_help_documentation(self):
         """Callback for Menu Help > Getting Started."""
