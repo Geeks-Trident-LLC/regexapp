@@ -11,16 +11,15 @@ from textwrap import dedent
 from regexapp import RegexBuilder
 from regexapp.collection import REF
 from regexapp.collection import PatternReference
+from regexapp import version
+from regexapp import edition
 
 import yaml
 import re
 
 
-__version__ = '0.0.1'
-version = __version__
-
-__edition__ = 'Community Edition'
-edition = __edition__
+__version__ = version
+__edition__ = edition
 
 
 def get_relative_center_location(parent, width, height):
@@ -315,7 +314,7 @@ class Application:
         about.resizable(False, False)
 
         # company
-        fmt = 'Regex GUI v{} ({})'
+        fmt = 'Regex GUI v{} ({} Edition)'
         company_lbl = tk.Label(about, text=fmt.format(version, edition))
         company_lbl.place(x=10, y=10)
 
