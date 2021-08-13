@@ -20,7 +20,7 @@ from regexapp.core import DynamicGenTestScript
 from regexapp.core import add_reference
 from regexapp.core import remove_reference
 
-__version__ = '0.0.6'
+__version__ = '0.1.0'
 version = __version__
 __edition__ = 'Community'
 edition = __edition__

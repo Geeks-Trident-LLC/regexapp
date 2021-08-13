@@ -5,17 +5,21 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from os import path
+from pathlib import Path
 import webbrowser
 from textwrap import dedent
 from regexapp import RegexBuilder
 from regexapp.collection import REF
+from regexapp.collection import PatternReference
+from regexapp import version
+from regexapp import edition
+
+import yaml
+import re
 
 
-__version__ = '0.0.1'
-version = __version__
-
-__edition__ = 'Community Edition'
-edition = __edition__
+__version__ = version
+__edition__ = edition
 
 
 def get_relative_center_location(parent, width, height):
@@ -40,18 +44,69 @@ def get_relative_center_location(parent, width, height):
     return x, y
 
 
-def create_msgbox(error=None, info=None, title=None):
+def create_msgbox(title=None, error=None, warning=None, info=None,
+                  question=None, okcancel=None, retrycancel=None,
+                  yesno=None, yesnocancel=None, **options):
     """create tkinter.messagebox
     Parameters
     ----------
-    error (str): an error message.  Default is None.
-    info (str): an information message.  Default is None.
     title (str): a title of messagebox.  Default is None.
+    error (str): an error message.  Default is None.
+    warning (str): a warning message. Default is None.
+    info (str): an information message.  Default is None.
+    question (str): a question message.  Default is None.
+    okcancel (str): an ok or cancel message.  Default is None.
+    retrycancel (str): a retry or cancel message.  Default is None.
+    yesno (str): a yes or no message.  Default is None.
+    yesnocancel (str): a yes, no, or cancel message.  Default is None.
+    options (dict): options for messagebox.
+
+    Returns
+    -------
+    any: a string or boolean result
     """
     if error:
-        messagebox.showerror(title=title, message=error)
+        # a return result is a "ok" string
+        result = messagebox.showerror(title=title, message=error, **options)
+    elif warning:
+        # a return result is a "ok" string
+        result = messagebox.showwarning(title=title, message=warning, **options)
+    elif info:
+        # a return result is a "ok" string
+        result = messagebox.showinfo(title=title, message=info, **options)
+    elif question:
+        # a return result is a "yes" or "no" string
+        result = messagebox.askquestion(title=title, message=question, **options)
+    elif okcancel:
+        # a return result is boolean
+        result = messagebox.askokcancel(title=title, message=okcancel, **options)
+    elif retrycancel:
+        # a return result is boolean
+        result = messagebox.askretrycancel(title=title, message=retrycancel, **options)
+    elif yesno:
+        # a return result is boolean
+        result = messagebox.askyesno(title=title, message=yesno, **options)
+    elif yesnocancel:
+        # a return result is boolean or None
+        result = messagebox.askyesnocancel(title=title, message=yesnocancel, **options)
     else:
-        messagebox.showinfo(title=title, message=info)
+        # a return result is a "ok" string
+        result = messagebox.showinfo(title=title, message=info, **options)
+
+    return result
+
+
+def set_modal_dialog(dialog):
+    """set dialog to become a modal dialog
+
+    Parameters
+    ----------
+    dialog (tkinter.TK): a dialog or window application.
+    """
+    dialog.transient(dialog.master)
+    dialog.wait_visibility()
+    dialog.grab_set()
+    dialog.wait_window()
 
 
 class Data:
@@ -150,6 +205,8 @@ class Application:
         self.author_var = tk.StringVar()
         self.email_var = tk.StringVar()
         self.company_var = tk.StringVar()
+
+        self.new_pattern_name_var = tk.StringVar()
         self.result = None
 
         self.textarea = None
@@ -164,7 +221,8 @@ class Application:
         self.build_entry()
         self.build_result()
 
-    def get_textarea(self, node):
+    @classmethod
+    def get_textarea(cls, node):
         """Get data from TextArea component
         Parameters
         ----------
@@ -256,7 +314,7 @@ class Application:
         about.resizable(False, False)
 
         # company
-        fmt = 'Regex GUI v{} ({})'
+        fmt = 'Regex GUI v{} ({} Edition)'
         company_lbl = tk.Label(about, text=fmt.format(version, edition))
         company_lbl.place(x=10, y=10)
 
@@ -289,6 +347,8 @@ class Application:
         # footer - copyright
         footer = tk.Label(about, text=Data.copyright_text)
         footer.place(x=10, y=360)
+
+        set_modal_dialog(about)
 
     def callback_preferences_settings(self):
         """Callback for Menu Preferences > Settings"""
@@ -357,13 +417,10 @@ class Application:
         ttk.Entry(lframe_regexapp_args, width=45,
                   textvariable=self.company_var).place(x=88, y=155)
 
+        set_modal_dialog(settings)
+
     def callback_preferences_system_reference(self):
         """Callback for Menu Preferences > System References"""
-
-        def close(window):
-            window.destroy()
-            window.update()
-
         sys_ref = tk.Toplevel(self.root)
         self.set_title(node=sys_ref, title='System References')
         width, height = 600, 500
@@ -401,8 +458,128 @@ class Application:
         )
 
         ttk.Button(sys_ref, text='OK',
-                   command=lambda: close(sys_ref),
+                   command=lambda: sys_ref.destroy(),
                    width=8).pack(side=tk.RIGHT)
+
+        set_modal_dialog(sys_ref)
+
+    def callback_preferences_user_reference(self):
+        """Callback for Menu Preferences > User References"""
+        def save(node):
+            fn_ = REF.user_ref_loc
+            origin_content = open(fn_).read()
+            new_content = node.get('1.0', 'end')
+            if new_content.strip() == origin_content.strip():
+                return
+            else:
+                try:
+                    REF.test(new_content)
+                    open(fn_, 'w').write(new_content)
+
+                    yaml_obj = yaml.load(new_content, Loader=yaml.SafeLoader)
+                    REF.update(yaml_obj)
+
+                except Exception as ex:
+                    error = '{}: {}'.format(type(ex).__name__, ex)
+                    create_msgbox(title='Invalid Format', error=error)
+
+        def insert(var, node):
+            name = var.get().strip()
+            if not re.match(r'\w+$', name):
+                error = 'Name of pattern must be alphanumeric and/or underscore'
+                create_msgbox(title='Pattern Naming', error=error)
+                return
+
+            content_ = node.get('1.0', 'end')
+            is_duplicated = False
+
+            for line in content_.splitlines():
+                if line.startswith('{}:'.format(name)):
+                    is_duplicated = True
+                    break
+
+            if is_duplicated:
+                fmt = 'This "{}" name already exist.  Please use a different name.'
+                error = fmt.format(name)
+                create_msgbox(title='Pattern Naming', error=error)
+                return
+
+            var.set('')
+            pattern_layout = PatternReference.get_pattern_layout(name)
+            pattern_layout = pattern_layout.replace('name_placeholder', name)
+            new_content_ = '{}\n\n{}\n'.format(content_.strip(), pattern_layout)
+            node.delete("1.0", "end")
+            node.insert(tk.INSERT, new_content_)
+
+        fn = REF.user_ref_loc
+        file_obj = Path(fn)
+        if not file_obj.exists():
+            question = '{!r} IS NOT EXISTED.\nDo you want to create?'.format(fn)
+            result = create_msgbox(question=question)
+            if result == 'yes':
+                not file_obj.parent.exists() and file_obj.parent.mkdir()
+                file_obj.touch()
+            else:
+                return
+
+        user_ref = tk.Toplevel(self.root)
+        # user_ref.bind("<FocusOut>", lambda event: user_ref.destroy())
+        self.set_title(node=user_ref, title='User References ({})'.format(fn))
+        width, height = 600, 500
+        x, y = get_relative_center_location(self.root, width, height)
+        user_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+
+        panedwindow = ttk.Panedwindow(user_ref, orient=tk.VERTICAL)
+        panedwindow.pack(fill=tk.BOTH, expand=True)
+
+        text_frame = ttk.Frame(
+            panedwindow, width=500, height=300, relief=tk.RIDGE
+        )
+        panedwindow.add(text_frame, weight=9)
+
+        text_frame.rowconfigure(0, weight=1)
+        text_frame.columnconfigure(0, weight=1)
+
+        textarea = tk.Text(text_frame, width=20, height=5, wrap='none')
+
+        with open(REF.user_ref_loc) as stream:
+            content = stream.read()
+            self.set_textarea(textarea, content)
+
+        textarea.grid(row=0, column=0, sticky='nswe')
+        vscrollbar = ttk.Scrollbar(
+            text_frame, orient=tk.VERTICAL, command=textarea.yview
+        )
+        vscrollbar.grid(row=0, column=1, sticky='ns')
+        hscrollbar = ttk.Scrollbar(
+            text_frame, orient=tk.HORIZONTAL, command=textarea.xview
+        )
+        hscrollbar.grid(row=1, column=0, sticky='ew')
+        textarea.config(
+            yscrollcommand=vscrollbar.set, xscrollcommand=hscrollbar.set,
+        )
+
+        ttk.Button(
+            user_ref, text='Save', command=lambda: save(textarea), width=8
+        ).pack(side=tk.RIGHT)
+
+        ttk.Button(
+            user_ref, text='Close', command=lambda: user_ref.destroy(), width=8
+        ).pack(side=tk.RIGHT)
+
+        tk.Label(user_ref, text='Name:').pack(side=tk.LEFT)
+
+        ttk.Entry(
+            user_ref, width=25, textvariable=self.new_pattern_name_var
+        ).pack(side=tk.LEFT)
+
+        ttk.Button(
+            user_ref, text='Insert',
+            command=lambda: insert(self.new_pattern_name_var, textarea),
+            width=8
+        ).pack(side=tk.LEFT)
+
+        set_modal_dialog(user_ref)
 
     def build_menu(self):
         """Build menubar for Regex GUI."""
@@ -432,10 +609,7 @@ class Application:
         preferences.add_separator()
         preferences.add_command(
             label='User References',
-            command=lambda: create_msgbox(
-                title='TODO item',
-                info='TODO - Need to implement User References Window'
-            )
+            command=lambda: self.callback_preferences_user_reference()
         )
 
         help_.add_command(label='Documentation',
@@ -485,7 +659,7 @@ class Application:
     def build_entry(self):
         """Build input entry for regex GUI."""
         def callback_run_btn():
-            user_data = self.get_textarea(self.textarea)
+            user_data = self.__class__.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
