@@ -795,7 +795,7 @@ class Application:
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
-                    error="Can NOT build regex pattern without data."
+                    error="Can NOT build Python test script without data."
                 )
                 return
 
@@ -813,10 +813,26 @@ class Application:
                 create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_unittest_btn():
-            create_msgbox(
-                title='TODO item',
-                info="TODO - Need to implement a function for unittest button"
-            )
+            user_data = Application.get_textarea(self.textarea)
+            if not user_data:
+                create_msgbox(
+                    title='Empty Data',
+                    error="Can NOT build Python Unittest script without data."
+                )
+                return
+
+            try:
+                kwargs = self.get_pattern_args()
+                factory = RegexBuilder(
+                    user_data=user_data, test_data=self.test_data, **kwargs
+                )
+
+                kwargs = self.get_builder_args()
+                script = factory.generate_unittest(**kwargs)
+                self.set_textarea(self.result_textarea, script)
+            except Exception as ex:
+                error = '{}: {}'.format(type(ex).__name__, ex)
+                create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_pytest_btn():
             create_msgbox(
