@@ -230,25 +230,16 @@ class Application:
         """check if a script needs to create test data"""
         return self.created_test_data_var.get()
 
-    @property
-    def is_line(self):
-        return self.radio_btn_var.get() == 'line'
-
-    @property
-    def used_space(self):
-        return self.used_space_var.get()
-
-    @property
-    def ignore_case(self):
-        return self.ignore_case_var.get()
-
-    @property
-    def prepended_ws(self):
-        return self.prepended_ws_var.get()
-
-    @property
-    def appended_ws(self):
-        return self.appended_ws_var.get()
+    def get_pattern_args(self):
+        """return arguments of RegexBuilder class"""
+        result = dict(
+            used_space=self.used_space_var.get(),
+            ignore_case=self.ignore_case_var.get(),
+            prepended_ws=self.prepended_ws_var.get(),
+            appended_ws=self.appended_ws_var.get(),
+            is_line=self.radio_btn_var.get() == 'line'
+        )
+        return result
 
     def get_builder_args(self):
         """return arguments of DynamicGenTestScript class"""
@@ -754,12 +745,8 @@ class Application:
                 return
 
             try:
-                factory = RegexBuilder(
-                    user_data=user_data, is_line=self.is_line,
-                    used_space=self.used_space, prepended_ws=self.prepended_ws,
-                    appended_ws=self.appended_ws, ignore_case=self.ignore_case
-
-                )
+                kwargs = self.get_pattern_args()
+                factory = RegexBuilder(user_data=user_data, **kwargs)
                 factory.build()
 
                 patterns = factory.patterns
@@ -812,13 +799,11 @@ class Application:
                 return
 
             try:
+                kwargs = self.get_pattern_args()
                 factory = RegexBuilder(
-                    user_data=user_data, test_data=self.test_data,
-                    is_line=self.is_line,
-                    used_space=self.used_space, prepended_ws=self.prepended_ws,
-                    appended_ws=self.appended_ws, ignore_case=self.ignore_case
-
+                    user_data=user_data, test_data=self.test_data, **kwargs
                 )
+
                 kwargs = self.get_builder_args()
                 script = factory.generate_python_test(**kwargs)
                 self.set_textarea(self.result_textarea, script)
