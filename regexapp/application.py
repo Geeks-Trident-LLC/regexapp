@@ -189,6 +189,8 @@ class Application:
         self.entry_frame = None
         self.result_frame = None
 
+        self.test_data = ''
+
         self.radio_btn_var = tk.StringVar()
         self.used_space_var = tk.BooleanVar()
         self.used_space_var.set(True)
@@ -247,6 +249,20 @@ class Application:
     @property
     def appended_ws(self):
         return self.appended_ws_var.get()
+
+    def get_builder_args(self):
+        """return arguments of DynamicGenTestScript class"""
+        result = dict(
+            test_name=self.test_name_var.get(),
+            test_cls_name=self.test_cls_name_var.get(),
+            is_minimal=self.is_minimal_var.get(),
+            max_words=self.max_words_var.get(),
+            filename=self.filename_var.get(),
+            author=self.author_var.get(),
+            email=self.email_var.get(),
+            company=self.company_var.get()
+        )
+        return result
 
     def set_default_setting(self):
         """reset to default setting"""
@@ -326,6 +342,7 @@ class Application:
         if filename:
             with open(filename) as stream:
                 content = stream.read()
+                self.test_data = content
                 if not self.is_created_test_data:
                     self.set_textarea(self.textarea, content, title=filename)
                 else:
@@ -775,6 +792,8 @@ class Application:
             if not data:
                 return
 
+            self.test_data = data
+
             title = '<<PASTE - Clipboard>>'
             if not self.is_created_test_data:
                 self.set_textarea(self.textarea, data, title=title)
@@ -784,10 +803,28 @@ class Application:
                 self.set_textarea(self.textarea, new_content, title=title)
 
         def callback_snippet_btn():
-            create_msgbox(
-                title='TODO item',
-                info="TODO - Need to implement a function for snippet button"
-            )
+            user_data = Application.get_textarea(self.textarea)
+            if not user_data:
+                create_msgbox(
+                    title='Empty Data',
+                    error="Can NOT build regex pattern without data."
+                )
+                return
+
+            try:
+                factory = RegexBuilder(
+                    user_data=user_data, test_data=self.test_data,
+                    is_line=self.is_line,
+                    used_space=self.used_space, prepended_ws=self.prepended_ws,
+                    appended_ws=self.appended_ws, ignore_case=self.ignore_case
+
+                )
+                kwargs = self.get_builder_args()
+                script = factory.generate_python_test(**kwargs)
+                self.set_textarea(self.result_textarea, script)
+            except Exception as ex:
+                error = '{}: {}'.format(type(ex).__name__, ex)
+                create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_unittest_btn():
             create_msgbox(
