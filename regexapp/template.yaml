@@ -144,3 +144,117 @@ regexapp_parametrize_item_fmt: |-
       {prepared_data},    # ref. user prepared data
       r{pattern}   # pattern
   ),
+
+
+################################################################################
+############################ snippet template & fmt ############################
+################################################################################
+snippet_template1: |-
+  {module_docstring}
+
+  import re
+
+  # test data
+  test_data = {test_data}
+
+  # regex pattern
+  pattern = r{pattern}
+
+  def test_regex(test_data, pattern):
+      """test regular expression
+
+      Parameters
+      ----------
+      test_data (str): a test data
+      pattern (str): a regular expression pattern
+      """
+      print("Pattern: {{}}".format(pattern))
+      is_matched = False
+      for index, line in enumerate(test_data.splitlines(), 1):
+          match = re.search(pattern, line)
+          if match:
+              is_matched = True
+              if match.groupdict():
+                  print("Result{{}}: {{}}".format(index, match.groupdict()))
+              else:
+                  print("Result{{}}: {{}}".format(index, match.group()))
+      else:
+          if not is_matched:
+              print("Result: No match")
+
+  # function call
+  test_regex(test_data, pattern)
+
+snippet_template2: |-
+  {module_docstring}
+
+  import re
+
+  # test data
+  test_data = {test_data}
+
+  # list of regex pattern
+  patterns = [
+      {patterns}
+  ]
+
+  def test_regex(test_data, patterns):
+      """test regular expression
+
+      Parameters
+      ----------
+      test_data (str): a test data
+      patterns (list): a list of regular expression pattern
+      """
+
+      for pattern in patterns:
+          is_matched = False
+          for line in test_data.splitlines():
+              match = re.search(pattern, line)
+              if match:
+                  is_matched = True
+                  print("Pattern: {{}}".format(pattern))
+                  if match.groupdict():
+                      print("Result: {{}}".format(match.groupdict()))
+                  else:
+                      print("Result: {{}}".format(match.group()))
+                  print("-" * 10)
+          else:
+              if not is_matched:
+                  print("Result: No match")
+
+  # function call
+  test_regex(test_data, patterns)
+
+snippet_template3: |-
+  {module_docstring}
+
+  import re
+
+  # test data
+  test_data = {test_data}
+
+  # regex pattern
+  pattern = r{pattern}
+
+  def test_regex(test_data, pattern):
+      """test regular expression
+
+      Parameters
+      ----------
+      test_data (str): a test data
+      pattern (str): a regular expression pattern
+      """
+
+      print("Pattern: {{}}".format(pattern))
+      match = re.search(pattern, test_data)
+      if match:
+          if match.groupdict():
+              print("Result: {{}}".format(match.groupdict()))
+          else:
+              print("Result: {{}}".format(match.group()))
+      else:
+          print("Result: No match")
+
+  # function call
+  test_regex(test_data, pattern)
