@@ -211,7 +211,6 @@ class Application:
         self.author_var = tk.StringVar()
         self.email_var = tk.StringVar()
         self.company_var = tk.StringVar()
-        self.created_test_data_var = tk.BooleanVar()
 
         self.new_pattern_name_var = tk.StringVar()
         self.result = None
@@ -227,11 +226,6 @@ class Application:
         self.build_textarea()
         self.build_entry()
         self.build_result()
-
-    @property
-    def is_created_test_data(self):
-        """check if a script needs to create test data"""
-        return self.created_test_data_var.get()
 
     def get_pattern_args(self):
         """return arguments of RegexBuilder class"""
@@ -272,7 +266,6 @@ class Application:
         self.author_var.set('')
         self.email_var.set('')
         self.company_var.set('')
-        self.created_test_data_var.set(False)
 
     @classmethod
     def get_textarea(cls, node):
@@ -337,12 +330,7 @@ class Application:
             with open(filename) as stream:
                 content = stream.read()
                 self.test_data = content
-                if not self.is_created_test_data:
-                    self.set_textarea(self.textarea, content, title=filename)
-                else:
-                    separator = '\n# below is a test data for a generated test script\n'
-                    new_content = '\n'.join([content, separator, content])
-                    self.set_textarea(self.textarea, new_content, title=filename)
+                self.set_textarea(self.textarea, content, title=filename)
 
     def callback_help_documentation(self):
         """Callback for Menu Help > Getting Started."""
@@ -475,19 +463,6 @@ class Application:
         ttk.Label(lframe_builder_args, text='company').place(x=5, y=155)
         ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.company_var).place(x=88, y=155)
-
-        # Settings - App Setting
-        lframe_setting_for_app = ttk.LabelFrame(
-            settings, height=80, width=380,
-            text='Setting for App'
-        )
-        lframe_setting_for_app.place(x=10, y=310)
-
-        ttk.Checkbutton(
-            lframe_setting_for_app, text='create test data',
-            variable=self.created_test_data_var,
-            onvalue=True, offvalue=False
-        ).place(x=5, y=5)
 
         ttk.Button(settings, text='Default',
                    command=lambda: self.set_default_setting(),
@@ -802,12 +777,7 @@ class Application:
             self.test_data = data
 
             title = '<<PASTE - Clipboard>>'
-            if not self.is_created_test_data:
-                self.set_textarea(self.textarea, data, title=title)
-            else:
-                separator = '\n# below is a test data for a generated test script\n'
-                new_content = '\n'.join([data, separator, data])
-                self.set_textarea(self.textarea, new_content, title=title)
+            self.set_textarea(self.textarea, data, title=title)
 
         def callback_snippet_btn():
             user_data = Application.get_textarea(self.textarea)
