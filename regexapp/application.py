@@ -736,7 +736,7 @@ class Application:
 
     def build_entry(self):
         """Build input entry for regex GUI."""
-        def callback_run_btn():
+        def callback_build_btn():
             user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
@@ -893,9 +893,9 @@ class Application:
         clear_text_btn.place(x=230, y=10)
 
         # run button
-        run_btn = ttk.Button(self.entry_frame, text='Run',
-                             command=callback_run_btn, width=8)
-        run_btn.place(x=290, y=10)
+        build_btn = ttk.Button(self.entry_frame, text='Build',
+                               command=callback_build_btn, width=8)
+        build_btn.place(x=290, y=10)
 
         # snippet button
         snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
