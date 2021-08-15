@@ -881,11 +881,11 @@ class Application:
                 error = '{}: {}'.format(type(ex).__name__, ex)
                 create_msgbox(title='RegexBuilder Error', error=error)
 
-        def callback_rf_btn():
-            create_msgbox(
-                title='TODO item',
-                info="TODO - Need to implement a function for Robotframework button"
-            )
+        # def callback_rf_btn():
+        #     create_msgbox(
+        #         title='Robotframework feature',
+        #         info="Robotframework button is available in Pro or Enterprise Edition."
+        #     )
 
         # radio buttons
         self.line_radio_btn = ttk.Radiobutton(
@@ -950,9 +950,9 @@ class Application:
         pytest_btn.place(x=488, y=10)
 
         # Robotframework button
-        rf_btn = ttk.Button(self.entry_frame, text='RF',
-                            command=callback_rf_btn, width=4)
-        rf_btn.place(x=533, y=10)
+        # rf_btn = ttk.Button(self.entry_frame, text='RF',
+        #                     command=callback_rf_btn, width=4)
+        # rf_btn.place(x=533, y=10)
 
     def build_result(self):
         """Build result text"""
