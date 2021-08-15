@@ -770,14 +770,20 @@ class Application:
             self.root.update()
 
         def callback_paste_text_btn():
-            data = self.root.clipboard_get()
-            if not data:
-                return
+            try:
+                data = self.root.clipboard_get()
+                if not data:
+                    return
 
-            self.test_data = data
+                self.test_data = data
 
-            title = '<<PASTE - Clipboard>>'
-            self.set_textarea(self.textarea, data, title=title)
+                title = '<<PASTE - Clipboard>>'
+                self.set_textarea(self.textarea, data, title=title)
+            except Exception as ex:     # noqa
+                create_msgbox(
+                    title='Empty Clipboard',
+                    info='CAN NOT paste because there is no data in pasteboard.'
+                )
 
         def callback_snippet_btn():
             user_data = Application.get_textarea(self.textarea)
