@@ -90,6 +90,10 @@ class RegexBuilder:
                      test_cls_name='TestDynamicGenTestScript',
                      author='', email='', company='',
                      is_minimal=True, filename='', **kwargs) -> str
+    generate_python_test(test_name='', max_words=6,
+                         test_cls_name='TestDynamicGenTestScript',
+                         author='', email='', company='',
+                         is_minimal=True, filename='', **kwargs) -> str
 
     Raises
     ------
@@ -329,7 +333,47 @@ class RegexBuilder:
                          test_cls_name='TestDynamicGenTestScript',
                          author='', email='', company='',
                          is_minimal=True, filename='', **kwargs):
-        """dynamically generate Python pytest script
+        """dynamically generate Robotframework script
+        Parameters
+        ----------
+        test_name (str): a predefined test name.  Default is empty.
+                + unittest will use either predefined test name or
+                    generated test name from test data
+                + pytest will use predefined test name.
+                + robotframework test will depend on test workflow.  It might be
+                    either used predefined test name or generated test name.
+        max_words (int): total number of words for generating test name.
+                Default is 6 words.
+        test_cls_name (str): a test class name for test script.  This test class
+                name only be applicable for unittest or pytest.
+                Default is TestDynamicGenTestScript.
+        author (str): author name.  Default is empty.
+        email (str): author name.  Default is empty.
+        company (str): company name.  Default is empty.
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
+        filename (str): save a generated test script to file name.
+        kwargs (str): custom keyword arguments for
+                Pro Edition or Enterprise Edition.
+
+        Returns
+        -------
+        str: Robotframework test script
+        """
+        obj = DynamicGenTestScript(
+            self, test_name=test_name, max_words=max_words,
+            test_cls_name=test_cls_name, **kwargs
+        )
+        script = obj.generate_rf_test(
+            author=author, email=email, company=company,
+            is_minimal=is_minimal, filename=filename, **kwargs
+        )
+        return script
+
+    def generate_python_test(self, test_name='', max_words=6,
+                             test_cls_name='TestDynamicGenTestScript',
+                             author='', email='', company='',
+                             is_minimal=True, filename='', **kwargs):
+        """dynamically generate Python test script
         Parameters
         ----------
         test_name (str): a predefined test name.  Default is empty.
@@ -359,7 +403,7 @@ class RegexBuilder:
             self, test_name=test_name, max_words=max_words,
             test_cls_name=test_cls_name, **kwargs
         )
-        script = obj.generate_rf_test(
+        script = obj.generate_python_test(
             author=author, email=email, company=company,
             is_minimal=is_minimal, filename=filename, **kwargs
         )
@@ -462,6 +506,8 @@ class DynamicGenTestScript:
             Default is TestDynamicGenTestScript.
     template (dict): a holder for all templates or format to generate test script.
     lst_of_tests (list): a list of test.
+    test_data (str): a test data
+    patterns (list): a list of patterns.
 
     Methods
     -------
@@ -474,18 +520,24 @@ class DynamicGenTestScript:
     generate_unittest(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
     generate_pytest(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
     generate_rf_test(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
+    generate_python_test(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
     """
     def __init__(self, test_info=None, test_name='', is_line=False,
                  max_words=6, test_cls_name='TestDynamicGenTestScript',
                  **kwargs):
         self.test_info = test_info
         self.test_name = test_name
-        self.is_line = is_line
+        if isinstance(test_info, RegexBuilder):
+            self.is_line = test_info.is_line
+        else:
+            self.is_line = is_line
         self.max_words = max_words
         self.test_cls_name = str(test_cls_name)
         self.kwargs = kwargs
         self.template = template
         self.lst_of_tests = []
+        self.test_data = None
+        self.patterns = None
         self.compile_test_info()
 
     def compile_test_info(self):
@@ -495,12 +547,14 @@ class DynamicGenTestScript:
         test_info = self.test_info
         if isinstance(test_info, RegexBuilder):
             testable = deepcopy(test_info)
+            self.test_data = testable.test_data
         else:
             chk = isinstance(test_info, list) and len(test_info) == 2
             if not chk:
                 raise RegexBuilderError('Invalid test_info format')
 
             user_data, test_data = self.test_info
+            self.test_data = test_data
             used_space = self.kwargs.get('used_space', True)
             prepended_ws = self.kwargs.get('prepended_ws', False)
             appended_ws = self.kwargs.get('appended_ws', False)
@@ -514,6 +568,8 @@ class DynamicGenTestScript:
             )
         testable.build()
         testable.test()
+
+        self.patterns = testable.patterns
 
         user_data_pattern_table = testable.user_data_pattern_table
         pattern_user_data_table = testable.pattern_user_data_table
@@ -823,3 +879,63 @@ class DynamicGenTestScript:
         """
         msg = 'TODO: need to implement generated_rf_test for robotframework'
         NotImplementedError(msg)
+
+    def generate_python_test(self, author='', email='', company='',
+                             is_minimal=True, filename='', **kwargs):
+        """dynamically generate Python test script
+        Parameters
+        ----------
+        author (str): author name.  Default is empty.
+        email (str): author name.  Default is empty.
+        company (str): company name.  Default is empty.
+        is_minimal (bool): flag to generate a minimal script.  Default is True.
+        filename (str): save a generated test script to file name.
+        kwargs (str): custom keyword arguments for
+                Pro Edition or Enterprise Edition.
+
+        Returns
+        -------
+        str: a Python test script
+        """
+        module_docstring = self.generate_docstring(
+            test_framework='test',
+            author=author, email=email, company=company, **kwargs
+        )
+        if self.is_line:
+            if isinstance(self.test_data, (list, tuple)):
+                test_data = enclose_string('\n'.join(self.test_data))
+            else:
+                test_data = enclose_string(self.test_data)
+
+            if len(self.patterns) == 1:
+                template_ = self.template.get('snippet_template1')
+                pattern = enclose_string(self.patterns[0])
+                test_script = template_.format(
+                    module_docstring=module_docstring,
+                    test_data=test_data, pattern=pattern
+                )
+            else:
+                template_ = self.template.get('snippet_template2')
+                lst = []
+                for pattern in self.patterns:
+                    lst.append('r{}'.format(enclose_string(pattern)))
+                patterns = indent(',\n'.join(lst), '    ').strip()
+                test_script = template_.format(
+                    module_docstring=module_docstring,
+                    test_data=test_data, patterns=patterns
+                )
+        else:
+            template_ = self.template.get('snippet_template3')
+            if isinstance(self.test_data, (list, tuple)):
+                test_data = enclose_string(self.test_data[0])
+            else:
+                test_data = enclose_string(self.test_data)
+
+            pattern = enclose_string(self.patterns[0])
+            test_script = template_.format(
+                module_docstring=module_docstring,
+                test_data=test_data, pattern=pattern
+            )
+
+        self.save_file(filename, test_script)
+        return test_script
