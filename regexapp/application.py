@@ -191,7 +191,8 @@ class Application:
 
         self.test_data = ''
 
-        self.radio_btn_var = tk.StringVar()
+        self.radio_line_or_block_btn_var = tk.StringVar()
+        self.radio_line_or_block_btn_var.set('block')
         self.used_space_var = tk.BooleanVar()
         self.used_space_var.set(True)
         self.prepended_ws_var = tk.BooleanVar()
@@ -237,7 +238,7 @@ class Application:
             ignore_case=self.ignore_case_var.get(),
             prepended_ws=self.prepended_ws_var.get(),
             appended_ws=self.appended_ws_var.get(),
-            is_line=self.radio_btn_var.get() == 'line'
+            is_line=self.radio_line_or_block_btn_var.get() == 'line'
         )
         return result
 
@@ -831,17 +832,18 @@ class Application:
 
         # radio buttons
         self.line_radio_btn = ttk.Radiobutton(
-            self.entry_frame, text='line', variable=self.radio_btn_var,
+            self.entry_frame, text='line',
+            variable=self.radio_line_or_block_btn_var,
             value='line'
         )
         self.line_radio_btn.place(x=10, y=10)
 
         self.block_radio_btn = ttk.Radiobutton(
-            self.entry_frame, text='block', variable=self.radio_btn_var,
+            self.entry_frame, text='block',
+            variable=self.radio_line_or_block_btn_var,
             value='block'
         )
         self.block_radio_btn.place(x=55, y=10)
-        self.block_radio_btn.invoke()
 
         # open button
         open_file_btn = ttk.Button(self.entry_frame, text='Open',
