@@ -213,7 +213,6 @@ class Application:
         self.company_var = tk.StringVar()
 
         self.new_pattern_name_var = tk.StringVar()
-        self.result = None
 
         self.textarea = None
         self.result_textarea = None
@@ -760,7 +759,8 @@ class Application:
             self.result_textarea.delete("1.0", "end")
             self.save_as_btn.config(state=tk.DISABLED)
             self.copy_text_btn.config(state=tk.DISABLED)
-            self.result = None
+            self.test_data = ''
+            # self.root.clipboard_clear()
             self.set_title()
 
         def callback_copy_text_btn():
