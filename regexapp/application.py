@@ -189,6 +189,7 @@ class Application:
         self.entry_frame = None
         self.result_frame = None
         self.save_as_btn = None
+        self.copy_text_btn = None
 
         self.test_data = ''
 
@@ -764,6 +765,7 @@ class Application:
                         result = '\n'.join(lst)
                     self.set_textarea(self.result_textarea, result)
                     self.save_as_btn.config(state=tk.NORMAL)
+                    self.copy_text_btn.config(state=tk.NORMAL)
                 else:
                     error = 'Something wrong with RegexBuilder.  Please report bug.'
                     create_msgbox(title='RegexBuilder Error', error=error)
@@ -782,8 +784,15 @@ class Application:
             self.textarea.delete("1.0", "end")
             self.result_textarea.delete("1.0", "end")
             self.save_as_btn.config(state=tk.DISABLED)
+            self.copy_text_btn.config(state=tk.DISABLED)
             self.result = None
             self.set_title()
+
+        def callback_copy_text_btn():
+            content = Application.get_textarea(self.result_textarea)
+            self.root.clipboard_clear()
+            self.root.clipboard_append(content)
+            self.root.update()
 
         def callback_paste_text_btn():
             data = self.root.clipboard_get()
@@ -819,6 +828,7 @@ class Application:
                 script = factory.generate_python_test(**kwargs)
                 self.set_textarea(self.result_textarea, script)
                 self.save_as_btn.config(state=tk.NORMAL)
+                self.copy_text_btn.config(state=tk.NORMAL)
             except Exception as ex:
                 error = '{}: {}'.format(type(ex).__name__, ex)
                 create_msgbox(title='RegexBuilder Error', error=error)
@@ -842,6 +852,7 @@ class Application:
                 script = factory.generate_unittest(**kwargs)
                 self.set_textarea(self.result_textarea, script)
                 self.save_as_btn.config(state=tk.NORMAL)
+                self.copy_text_btn.config(state=tk.NORMAL)
             except Exception as ex:
                 error = '{}: {}'.format(type(ex).__name__, ex)
                 create_msgbox(title='RegexBuilder Error', error=error)
@@ -865,6 +876,7 @@ class Application:
                 script = factory.generate_pytest(**kwargs)
                 self.set_textarea(self.result_textarea, script)
                 self.save_as_btn.config(state=tk.NORMAL)
+                self.copy_text_btn.config(state=tk.NORMAL)
             except Exception as ex:
                 error = '{}: {}'.format(type(ex).__name__, ex)
                 create_msgbox(title='RegexBuilder Error', error=error)
@@ -901,40 +913,46 @@ class Application:
         self.save_as_btn.place(x=155, y=10)
         self.save_as_btn.config(state=tk.DISABLED)
 
+        # copy button
+        self.copy_text_btn = ttk.Button(self.entry_frame, text='Copy',
+                                        command=callback_copy_text_btn, width=6)
+        self.copy_text_btn.place(x=206, y=10)
+        self.copy_text_btn.config(state=tk.DISABLED)
+
         # paste button
         paste_text_btn = ttk.Button(self.entry_frame, text='Paste',
                                     command=callback_paste_text_btn, width=6)
-        paste_text_btn.place(x=206, y=10)
+        paste_text_btn.place(x=251, y=10)
 
         # clear button
         clear_text_btn = ttk.Button(self.entry_frame, text='Clear',
                                     command=callback_clear_text_btn, width=6)
-        clear_text_btn.place(x=251, y=10)
+        clear_text_btn.place(x=296, y=10)
 
         # build button
         build_btn = ttk.Button(self.entry_frame, text='Build',
                                command=callback_build_btn, width=6)
-        build_btn.place(x=296, y=10)
+        build_btn.place(x=341, y=10)
 
         # snippet button
         snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
                                  command=callback_snippet_btn, width=7)
-        snippet_btn.place(x=341, y=10)
+        snippet_btn.place(x=386, y=10)
 
         # unittest button
         unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
                                   command=callback_unittest_btn, width=7)
-        unittest_btn.place(x=392, y=10)
+        unittest_btn.place(x=437, y=10)
 
         # pytest button
         pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
                                 command=callback_pytest_btn, width=6)
-        pytest_btn.place(x=443, y=10)
+        pytest_btn.place(x=488, y=10)
 
         # Robotframework button
         rf_btn = ttk.Button(self.entry_frame, text='RF',
                             command=callback_rf_btn, width=4)
-        rf_btn.place(x=488, y=10)
+        rf_btn.place(x=533, y=10)
 
     def build_result(self):
         """Build result text"""
