@@ -102,6 +102,49 @@ def tc_info():
         last line
     """
 
+    ############################################################################
+    # test info - snippet scenario 1 - single pattern via line
+    ############################################################################
+    snippet_line_pattern_prepared_data = "word(var_v1) digits(var_v2, or_empty) word(var_v3, or_empty)"
+
+    snippet_line_pattern_test_data = """
+        value1   123   value2
+        value3   value4
+        value5   476
+        value99
+    """
+
+    ############################################################################
+    # test info - snippet scenario 2 - patterns via line
+    ############################################################################
+    snippet_line_patterns_prepared_data = """
+        words(var_v1, started) words(var_v2, ended)
+        words(var_v3, started) number(var_v4, ended)
+    """
+
+    snippet_line_patterns_test_data = """
+        value1     9.99
+        12.3       value 99
+        value.10   value 11
+        value20    value 21
+        value99    N/A
+    """
+
+    ############################################################################
+    # test info - snippet scenario 2 - pattern via multiline
+    ############################################################################
+    snippet_multiline_pattern_prepared_data = """
+        words(var_subject1) live in words(var_object1).
+        words(var_subject2, started) will meet words(var_object2).
+    """
+
+    snippet_multiline_pattern_test_data = """
+        I live in Abc Xyz.
+        My city is friendly.
+        You will meet a lot of nice people.
+        People enjoy fishing during weekend.
+    """
+
     test_info.prepared_data = dedent(prepared_data).strip()
     test_info.user_data = test_info.prepared_data
     test_info.test_data = dedent(test_data).strip()
@@ -115,6 +158,18 @@ def tc_info():
     test_info.multiline_prepared_data = dedent(multiline_prepared_data).strip()
     test_info.multiline_user_data = test_info.multiline_prepared_data
     test_info.multiline_test_data = dedent(multiline_test_data).strip()
+
+    test_info.snippet_line_pattern_prepared_data = dedent(snippet_line_pattern_prepared_data).strip()
+    test_info.snippet_line_pattern_user_data = test_info.snippet_line_pattern_prepared_data
+    test_info.snippet_line_pattern_test_data = dedent(snippet_line_pattern_test_data).strip()
+
+    test_info.snippet_line_patterns_prepared_data = dedent(snippet_line_patterns_prepared_data).strip()
+    test_info.snippet_line_patterns_user_data = test_info.snippet_line_patterns_prepared_data
+    test_info.snippet_line_patterns_test_data = dedent(snippet_line_patterns_test_data).strip()
+
+    test_info.snippet_multiline_pattern_prepared_data = dedent(snippet_multiline_pattern_prepared_data).strip()
+    test_info.snippet_multiline_pattern_user_data = test_info.snippet_multiline_pattern_prepared_data
+    test_info.snippet_multiline_pattern_test_data = dedent(snippet_multiline_pattern_test_data).strip()
 
     test_info.author = 'user1'
     test_info.email = 'user1@abcxyz.com'
@@ -172,6 +227,24 @@ def tc_info():
         script = stream.read()
         script = script.replace('_datetime_', dt_str)
         test_info.expected_detail_pytest_script_for_multiline = script
+
+    filename = str(PurePath(base_dir, 'snippet_script_for_line_pattern.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        test_info.expected_snippet_script_for_line_pattern = script
+
+    filename = str(PurePath(base_dir, 'snippet_script_for_line_patterns.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        test_info.expected_snippet_script_for_line_patterns = script
+
+    filename = str(PurePath(base_dir, 'snippet_script_for_multiline_pattern.txt'))
+    with open(filename) as stream:
+        script = stream.read()
+        script = script.replace('_datetime_', dt_str)
+        test_info.expected_snippet_script_for_multiline_pattern = script
 
     yield test_info
 
@@ -283,6 +356,42 @@ class TestRegexBuilder:
                                               company=tc_info.company,
                                               is_minimal=False,)
         assert test_script == tc_info.expected_detail_pytest_script_for_multiline
+
+    def test_generating_python_snippet_for_line_and_pattern(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.snippet_line_pattern_user_data,
+            test_data=tc_info.snippet_line_pattern_test_data,
+            is_line=True
+        )
+        test_script = factory.generate_python_test(author=tc_info.author,
+                                                   email=tc_info.email,
+                                                   company=tc_info.company,
+                                                   is_minimal=False)
+        assert test_script == tc_info.expected_snippet_script_for_line_pattern
+
+    def test_generating_python_snippet_for_line_and_patterns(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.snippet_line_patterns_user_data,
+            test_data=tc_info.snippet_line_patterns_test_data,
+            is_line=True
+        )
+        test_script = factory.generate_python_test(author=tc_info.author,
+                                                   email=tc_info.email,
+                                                   company=tc_info.company,
+                                                   is_minimal=False)
+        assert test_script == tc_info.expected_snippet_script_for_line_patterns
+
+    def test_generating_python_snippet_for_multiline_and_pattern(self, tc_info):
+        factory = RegexBuilder(
+            user_data=tc_info.snippet_multiline_pattern_user_data,
+            test_data=tc_info.snippet_multiline_pattern_test_data,
+            is_line=False
+        )
+        test_script = factory.generate_python_test(author=tc_info.author,
+                                                   email=tc_info.email,
+                                                   company=tc_info.company,
+                                                   is_minimal=False)
+        assert test_script == tc_info.expected_snippet_script_for_multiline_pattern
 
 
 @pytest.mark.skipif(
@@ -421,3 +530,45 @@ class TestDynamicGenTestScript:
                                               company=tc_info.company,
                                               is_minimal=False)
         assert test_script == tc_info.expected_detail_pytest_script_for_multiline
+
+    def test_generating_python_snippet_for_line_and_pattern(self, tc_info):
+        factory = DynamicGenTestScript(
+            test_info=[
+                tc_info.snippet_line_pattern_prepared_data,
+                tc_info.snippet_line_pattern_test_data
+            ],
+            is_line=True
+        )
+        test_script = factory.generate_python_test(author=tc_info.author,
+                                                   email=tc_info.email,
+                                                   company=tc_info.company,
+                                                   is_minimal=False)
+        assert test_script == tc_info.expected_snippet_script_for_line_pattern
+
+    def test_generating_python_snippet_for_line_and_patterns(self, tc_info):
+        factory = DynamicGenTestScript(
+            test_info=[
+                tc_info.snippet_line_patterns_prepared_data,
+                tc_info.snippet_line_patterns_test_data
+            ],
+            is_line=True
+        )
+        test_script = factory.generate_python_test(author=tc_info.author,
+                                                   email=tc_info.email,
+                                                   company=tc_info.company,
+                                                   is_minimal=False)
+        assert test_script == tc_info.expected_snippet_script_for_line_patterns
+
+    def test_generating_python_snippet_for_multiline_and_pattern(self, tc_info):
+        factory = DynamicGenTestScript(
+            test_info=[
+                tc_info.snippet_multiline_pattern_prepared_data,
+                tc_info.snippet_multiline_pattern_test_data
+            ],
+            is_line=False
+        )
+        test_script = factory.generate_python_test(author=tc_info.author,
+                                                   email=tc_info.email,
+                                                   company=tc_info.company,
+                                                   is_minimal=False)
+        assert test_script == tc_info.expected_snippet_script_for_multiline_pattern
