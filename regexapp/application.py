@@ -879,43 +879,43 @@ class Application:
 
         # open button
         open_file_btn = ttk.Button(self.entry_frame, text='Open',
-                                   command=self.callback_file_open, width=8)
+                                   command=self.callback_file_open, width=6)
         open_file_btn.place(x=110, y=10)
 
         # paste button
         paste_text_btn = ttk.Button(self.entry_frame, text='Paste',
-                                    command=callback_paste_text_btn, width=8)
-        paste_text_btn.place(x=170, y=10)
+                                    command=callback_paste_text_btn, width=6)
+        paste_text_btn.place(x=155, y=10)
 
         # clear button
         clear_text_btn = ttk.Button(self.entry_frame, text='Clear',
-                                    command=callback_clear_text_btn, width=8)
-        clear_text_btn.place(x=230, y=10)
+                                    command=callback_clear_text_btn, width=6)
+        clear_text_btn.place(x=200, y=10)
 
-        # run button
+        # build button
         build_btn = ttk.Button(self.entry_frame, text='Build',
-                               command=callback_build_btn, width=8)
-        build_btn.place(x=290, y=10)
+                               command=callback_build_btn, width=6)
+        build_btn.place(x=245, y=10)
 
         # snippet button
         snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
-                                 command=callback_snippet_btn, width=8)
-        snippet_btn.place(x=350, y=10)
+                                 command=callback_snippet_btn, width=7)
+        snippet_btn.place(x=290, y=10)
 
         # unittest button
         unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
-                                  command=callback_unittest_btn, width=8)
-        unittest_btn.place(x=410, y=10)
+                                  command=callback_unittest_btn, width=7)
+        unittest_btn.place(x=341, y=10)
 
         # pytest button
         pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
-                                command=callback_pytest_btn, width=8)
-        pytest_btn.place(x=470, y=10)
+                                command=callback_pytest_btn, width=6)
+        pytest_btn.place(x=392, y=10)
 
         # Robotframework button
-        rf_btn = ttk.Button(self.entry_frame, text='Robotframework',
-                            command=callback_rf_btn, width=16)
-        rf_btn.place(x=530, y=10)
+        rf_btn = ttk.Button(self.entry_frame, text='RF',
+                            command=callback_rf_btn, width=4)
+        rf_btn.place(x=437, y=10)
 
     def build_result(self):
         """Build result text"""
