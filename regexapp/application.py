@@ -179,7 +179,7 @@ class Application:
     def __init__(self):
         self._base_title = 'Regex GUI'
         self.root = tk.Tk()
-        self.root.geometry('800x600+100+100')
+        self.root.geometry('900x600+100+100')
         self.root.minsize(200, 200)
         self.root.option_add('*tearOff', False)
         self.content = None
@@ -676,7 +676,7 @@ class Application:
     def build_frame(self):
         """Build layout for regex GUI."""
         self.panedwindow = ttk.Panedwindow(self.root, orient=tk.VERTICAL)
-        self.panedwindow.pack(fill=tk.BOTH, expand=True)
+        self.panedwindow.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
         self.text_frame = ttk.Frame(
             self.panedwindow, width=600, height=300, relief=tk.RIDGE
@@ -869,66 +869,66 @@ class Application:
             variable=self.radio_line_or_block_btn_var,
             value='line'
         )
-        self.line_radio_btn.place(x=10, y=10)
+        self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
 
         self.block_radio_btn = ttk.Radiobutton(
             self.entry_frame, text='block',
             variable=self.radio_line_or_block_btn_var,
             value='block'
         )
-        self.block_radio_btn.place(x=55, y=10)
+        self.block_radio_btn.grid(row=0, column=1, padx=2)
 
         # open button
         open_file_btn = ttk.Button(self.entry_frame, text='Open',
-                                   command=self.callback_file_open, width=6)
-        open_file_btn.place(x=110, y=10)
+                                   command=self.callback_file_open)
+        open_file_btn.grid(row=0, column=2, pady=2)
 
         # Save As button
         self.save_as_btn = ttk.Button(self.entry_frame, text='Save As',
-                                      command=callback_save_as_btn, width=7)
-        self.save_as_btn.place(x=155, y=10)
+                                      command=callback_save_as_btn)
+        self.save_as_btn.grid(row=0, column=3)
         self.save_as_btn.config(state=tk.DISABLED)
 
         # copy button
         self.copy_text_btn = ttk.Button(self.entry_frame, text='Copy',
-                                        command=callback_copy_text_btn, width=6)
-        self.copy_text_btn.place(x=206, y=10)
+                                        command=callback_copy_text_btn)
+        self.copy_text_btn.grid(row=0, column=4)
         self.copy_text_btn.config(state=tk.DISABLED)
 
         # paste button
         paste_text_btn = ttk.Button(self.entry_frame, text='Paste',
-                                    command=callback_paste_text_btn, width=6)
-        paste_text_btn.place(x=251, y=10)
+                                    command=callback_paste_text_btn)
+        paste_text_btn.grid(row=0, column=5)
 
         # clear button
         clear_text_btn = ttk.Button(self.entry_frame, text='Clear',
-                                    command=callback_clear_text_btn, width=6)
-        clear_text_btn.place(x=296, y=10)
+                                    command=callback_clear_text_btn)
+        clear_text_btn.grid(row=0, column=6)
 
         # build button
         build_btn = ttk.Button(self.entry_frame, text='Build',
-                               command=callback_build_btn, width=6)
-        build_btn.place(x=341, y=10)
+                               command=callback_build_btn)
+        build_btn.grid(row=0, column=7)
 
         # snippet button
         snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
-                                 command=callback_snippet_btn, width=7)
-        snippet_btn.place(x=386, y=10)
+                                 command=callback_snippet_btn)
+        snippet_btn.grid(row=0, column=8)
 
         # unittest button
         unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
-                                  command=callback_unittest_btn, width=7)
-        unittest_btn.place(x=437, y=10)
+                                  command=callback_unittest_btn)
+        unittest_btn.grid(row=0, column=9)
 
         # pytest button
         pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
-                                command=callback_pytest_btn, width=6)
-        pytest_btn.place(x=488, y=10)
+                                command=callback_pytest_btn)
+        pytest_btn.grid(row=0, column=10)
 
         # Robotframework button
         # rf_btn = ttk.Button(self.entry_frame, text='RF',
         #                     command=callback_rf_btn, width=4)
-        # rf_btn.place(x=533, y=10)
+        # rf_btn.grid(row=0, column=11)
 
     def build_result(self):
         """Build result text"""
