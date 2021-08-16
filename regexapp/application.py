@@ -353,6 +353,8 @@ class Application:
         def mouse_press(event):
             self.browser.open_new_tab(url_lbl.link)
 
+        is_macos = platform.system() == 'Darwin'
+
         about = tk.Toplevel(self.root)
         self.set_title(node=about, title='About')
         width, height = 400, 400
@@ -364,7 +366,7 @@ class Application:
         panedwindow.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
 
         # company
-        frame = ttk.Frame(panedwindow, width=380, height=20)
+        frame = tk.Frame(panedwindow, width=380, height=20)
         panedwindow.add(frame, weight=1)
 
         fmt = 'Regex GUI v{} ({} Edition)'
@@ -372,12 +374,12 @@ class Application:
         company_lbl.pack(side=tk.LEFT)
 
         # URL
-        frame = ttk.Frame(panedwindow, width=380, height=20)
+        frame = tk.Frame(panedwindow, width=380, height=20)
         panedwindow.add(frame, weight=1)
 
         url = Data.repo_url
         tk.Label(frame, text='URL:').pack(side=tk.LEFT)
-        font_size = 12 if platform.system() == 'Darwin' else 10
+        font_size = 12 if is_macos else 10
         url_lbl = tk.Label(frame, text=url, fg='blue', font=('sans-serif', font_size))
         url_lbl.default_font = ('sans-serif', font_size)
         url_lbl.pack(side=tk.LEFT)
@@ -394,7 +396,9 @@ class Application:
         )
         panedwindow.add(lframe, weight=7)
 
-        txtbox = tk.Text(lframe, width=44, height=16, wrap='word')
+        width = 49 if is_macos else 43
+        height = 19 if is_macos else 15
+        txtbox = tk.Text(lframe, width=width, height=height, wrap='word')
         txtbox.grid(row=0, column=0, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(lframe, orient=tk.VERTICAL, command=txtbox.yview)
         scrollbar.grid(row=0, column=1, sticky='nsew')
@@ -403,7 +407,7 @@ class Application:
         txtbox.config(state=tk.DISABLED)
 
         # footer - copyright
-        frame = ttk.Frame(panedwindow, width=380, height=20)
+        frame = tk.Frame(panedwindow, width=380, height=20)
         panedwindow.add(frame, weight=1)
 
         footer = tk.Label(frame, text=Data.copyright_text)
