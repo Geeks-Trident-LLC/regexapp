@@ -188,10 +188,13 @@ class Application:
         self.text_frame = None
         self.entry_frame = None
         self.result_frame = None
+        self.save_as_btn = None
+        self.copy_text_btn = None
 
         self.test_data = ''
 
-        self.radio_btn_var = tk.StringVar()
+        self.radio_line_or_block_btn_var = tk.StringVar()
+        self.radio_line_or_block_btn_var.set('block')
         self.used_space_var = tk.BooleanVar()
         self.used_space_var.set(True)
         self.prepended_ws_var = tk.BooleanVar()
@@ -208,10 +211,8 @@ class Application:
         self.author_var = tk.StringVar()
         self.email_var = tk.StringVar()
         self.company_var = tk.StringVar()
-        self.created_test_data_var = tk.BooleanVar()
 
         self.new_pattern_name_var = tk.StringVar()
-        self.result = None
 
         self.textarea = None
         self.result_textarea = None
@@ -225,11 +226,6 @@ class Application:
         self.build_entry()
         self.build_result()
 
-    @property
-    def is_created_test_data(self):
-        """check if a script needs to create test data"""
-        return self.created_test_data_var.get()
-
     def get_pattern_args(self):
         """return arguments of RegexBuilder class"""
         result = dict(
@@ -237,7 +233,7 @@ class Application:
             ignore_case=self.ignore_case_var.get(),
             prepended_ws=self.prepended_ws_var.get(),
             appended_ws=self.appended_ws_var.get(),
-            is_line=self.radio_btn_var.get() == 'line'
+            is_line=self.radio_line_or_block_btn_var.get() == 'line'
         )
         return result
 
@@ -269,7 +265,6 @@ class Application:
         self.author_var.set('')
         self.email_var.set('')
         self.company_var.set('')
-        self.created_test_data_var.set(False)
 
     @classmethod
     def get_textarea(cls, node):
@@ -334,12 +329,7 @@ class Application:
             with open(filename) as stream:
                 content = stream.read()
                 self.test_data = content
-                if not self.is_created_test_data:
-                    self.set_textarea(self.textarea, content, title=filename)
-                else:
-                    separator = '\n# below is a test data for a generated test script\n'
-                    new_content = '\n'.join([content, separator, content])
-                    self.set_textarea(self.textarea, new_content, title=filename)
+                self.set_textarea(self.textarea, content, title=filename)
 
     def callback_help_documentation(self):
         """Callback for Menu Help > Getting Started."""
@@ -472,19 +462,6 @@ class Application:
         ttk.Label(lframe_builder_args, text='company').place(x=5, y=155)
         ttk.Entry(lframe_builder_args, width=45,
                   textvariable=self.company_var).place(x=88, y=155)
-
-        # Settings - App Setting
-        lframe_setting_for_app = ttk.LabelFrame(
-            settings, height=80, width=380,
-            text='Setting for App'
-        )
-        lframe_setting_for_app.place(x=10, y=310)
-
-        ttk.Checkbutton(
-            lframe_setting_for_app, text='create test data',
-            variable=self.created_test_data_var,
-            onvalue=True, offvalue=False
-        ).place(x=5, y=5)
 
         ttk.Button(settings, text='Default',
                    command=lambda: self.set_default_setting(),
@@ -735,7 +712,7 @@ class Application:
 
     def build_entry(self):
         """Build input entry for regex GUI."""
-        def callback_run_btn():
+        def callback_build_btn():
             user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
@@ -761,6 +738,8 @@ class Application:
                             lst.append(fmt.format(index, enclose_string(pattern)))
                         result = '\n'.join(lst)
                     self.set_textarea(self.result_textarea, result)
+                    self.save_as_btn.config(state=tk.NORMAL)
+                    self.copy_text_btn.config(state=tk.NORMAL)
                 else:
                     error = 'Something wrong with RegexBuilder.  Please report bug.'
                     create_msgbox(title='RegexBuilder Error', error=error)
@@ -768,33 +747,50 @@ class Application:
                 error = '{}: {}'.format(type(ex).__name__, ex)
                 create_msgbox(title='RegexBuilder Error', error=error)
 
+        def callback_save_as_btn():
+            filename = filedialog.asksaveasfilename()
+            if filename:
+                with open(filename, 'w') as stream:
+                    content = Application.get_textarea(self.result_textarea)
+                    stream.write(content)
+
         def callback_clear_text_btn():
             self.textarea.delete("1.0", "end")
             self.result_textarea.delete("1.0", "end")
-            self.result = None
+            self.save_as_btn.config(state=tk.DISABLED)
+            self.copy_text_btn.config(state=tk.DISABLED)
+            self.test_data = ''
+            # self.root.clipboard_clear()
             self.set_title()
 
+        def callback_copy_text_btn():
+            content = Application.get_textarea(self.result_textarea)
+            self.root.clipboard_clear()
+            self.root.clipboard_append(content)
+            self.root.update()
+
         def callback_paste_text_btn():
-            data = self.root.clipboard_get()
-            if not data:
-                return
+            try:
+                data = self.root.clipboard_get()
+                if not data:
+                    return
 
-            self.test_data = data
+                self.test_data = data
 
-            title = '<<PASTE - Clipboard>>'
-            if not self.is_created_test_data:
+                title = '<<PASTE - Clipboard>>'
                 self.set_textarea(self.textarea, data, title=title)
-            else:
-                separator = '\n# below is a test data for a generated test script\n'
-                new_content = '\n'.join([data, separator, data])
-                self.set_textarea(self.textarea, new_content, title=title)
+            except Exception as ex:     # noqa
+                create_msgbox(
+                    title='Empty Clipboard',
+                    info='CAN NOT paste because there is no data in pasteboard.'
+                )
 
         def callback_snippet_btn():
             user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
-                    error="Can NOT build regex pattern without data."
+                    error="Can NOT build Python test script without data."
                 )
                 return
 
@@ -807,81 +803,132 @@ class Application:
                 kwargs = self.get_builder_args()
                 script = factory.generate_python_test(**kwargs)
                 self.set_textarea(self.result_textarea, script)
+                self.save_as_btn.config(state=tk.NORMAL)
+                self.copy_text_btn.config(state=tk.NORMAL)
             except Exception as ex:
                 error = '{}: {}'.format(type(ex).__name__, ex)
                 create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_unittest_btn():
-            create_msgbox(
-                title='TODO item',
-                info="TODO - Need to implement a function for unittest button"
-            )
+            user_data = Application.get_textarea(self.textarea)
+            if not user_data:
+                create_msgbox(
+                    title='Empty Data',
+                    error="Can NOT build Python Unittest script without data."
+                )
+                return
+
+            try:
+                kwargs = self.get_pattern_args()
+                factory = RegexBuilder(
+                    user_data=user_data, test_data=self.test_data, **kwargs
+                )
+
+                kwargs = self.get_builder_args()
+                script = factory.generate_unittest(**kwargs)
+                self.set_textarea(self.result_textarea, script)
+                self.save_as_btn.config(state=tk.NORMAL)
+                self.copy_text_btn.config(state=tk.NORMAL)
+            except Exception as ex:
+                error = '{}: {}'.format(type(ex).__name__, ex)
+                create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_pytest_btn():
-            create_msgbox(
-                title='TODO item',
-                info="TODO - Need to implement a function for pytest button"
-            )
+            user_data = Application.get_textarea(self.textarea)
+            if not user_data:
+                create_msgbox(
+                    title='Empty Data',
+                    error="Can NOT build Python Pytest script without data."
+                )
+                return
 
-        def callback_rf_btn():
-            create_msgbox(
-                title='TODO item',
-                info="TODO - Need to implement a function for Robotframework button"
-            )
+            try:
+                kwargs = self.get_pattern_args()
+                factory = RegexBuilder(
+                    user_data=user_data, test_data=self.test_data, **kwargs
+                )
+
+                kwargs = self.get_builder_args()
+                script = factory.generate_pytest(**kwargs)
+                self.set_textarea(self.result_textarea, script)
+                self.save_as_btn.config(state=tk.NORMAL)
+                self.copy_text_btn.config(state=tk.NORMAL)
+            except Exception as ex:
+                error = '{}: {}'.format(type(ex).__name__, ex)
+                create_msgbox(title='RegexBuilder Error', error=error)
+
+        # def callback_rf_btn():
+        #     create_msgbox(
+        #         title='Robotframework feature',
+        #         info="Robotframework button is available in Pro or Enterprise Edition."
+        #     )
 
         # radio buttons
         self.line_radio_btn = ttk.Radiobutton(
-            self.entry_frame, text='line', variable=self.radio_btn_var,
+            self.entry_frame, text='line',
+            variable=self.radio_line_or_block_btn_var,
             value='line'
         )
         self.line_radio_btn.place(x=10, y=10)
 
         self.block_radio_btn = ttk.Radiobutton(
-            self.entry_frame, text='block', variable=self.radio_btn_var,
+            self.entry_frame, text='block',
+            variable=self.radio_line_or_block_btn_var,
             value='block'
         )
         self.block_radio_btn.place(x=55, y=10)
-        self.block_radio_btn.invoke()
 
         # open button
         open_file_btn = ttk.Button(self.entry_frame, text='Open',
-                                   command=self.callback_file_open, width=8)
+                                   command=self.callback_file_open, width=6)
         open_file_btn.place(x=110, y=10)
+
+        # Save As button
+        self.save_as_btn = ttk.Button(self.entry_frame, text='Save As',
+                                      command=callback_save_as_btn, width=7)
+        self.save_as_btn.place(x=155, y=10)
+        self.save_as_btn.config(state=tk.DISABLED)
+
+        # copy button
+        self.copy_text_btn = ttk.Button(self.entry_frame, text='Copy',
+                                        command=callback_copy_text_btn, width=6)
+        self.copy_text_btn.place(x=206, y=10)
+        self.copy_text_btn.config(state=tk.DISABLED)
 
         # paste button
         paste_text_btn = ttk.Button(self.entry_frame, text='Paste',
-                                    command=callback_paste_text_btn, width=8)
-        paste_text_btn.place(x=170, y=10)
+                                    command=callback_paste_text_btn, width=6)
+        paste_text_btn.place(x=251, y=10)
 
         # clear button
         clear_text_btn = ttk.Button(self.entry_frame, text='Clear',
-                                    command=callback_clear_text_btn, width=8)
-        clear_text_btn.place(x=230, y=10)
+                                    command=callback_clear_text_btn, width=6)
+        clear_text_btn.place(x=296, y=10)
 
-        # run button
-        run_btn = ttk.Button(self.entry_frame, text='Run',
-                             command=callback_run_btn, width=8)
-        run_btn.place(x=290, y=10)
+        # build button
+        build_btn = ttk.Button(self.entry_frame, text='Build',
+                               command=callback_build_btn, width=6)
+        build_btn.place(x=341, y=10)
 
         # snippet button
         snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
-                                 command=callback_snippet_btn, width=8)
-        snippet_btn.place(x=350, y=10)
+                                 command=callback_snippet_btn, width=7)
+        snippet_btn.place(x=386, y=10)
 
         # unittest button
         unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
-                                  command=callback_unittest_btn, width=8)
-        unittest_btn.place(x=410, y=10)
+                                  command=callback_unittest_btn, width=7)
+        unittest_btn.place(x=437, y=10)
 
         # pytest button
         pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
-                                command=callback_pytest_btn, width=8)
-        pytest_btn.place(x=470, y=10)
+                                command=callback_pytest_btn, width=6)
+        pytest_btn.place(x=488, y=10)
 
         # Robotframework button
-        rf_btn = ttk.Button(self.entry_frame, text='Robotframework',
-                            command=callback_rf_btn, width=16)
-        rf_btn.place(x=530, y=10)
+        # rf_btn = ttk.Button(self.entry_frame, text='RF',
+        #                     command=callback_rf_btn, width=4)
+        # rf_btn.place(x=533, y=10)
 
     def build_result(self):
         """Build result text"""
