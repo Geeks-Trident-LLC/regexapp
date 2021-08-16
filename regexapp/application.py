@@ -588,6 +588,8 @@ class Application:
             node.delete("1.0", "end")
             node.insert(tk.INSERT, new_content_)
 
+        is_macos = platform.system() == 'Darwin'
+
         fn = REF.user_ref_loc
         file_obj = Path(fn)
         if not file_obj.exists():
@@ -636,25 +638,26 @@ class Application:
             yscrollcommand=vscrollbar.set, xscrollcommand=hscrollbar.set,
         )
 
-        ttk.Button(
-            user_ref, text='Save', command=lambda: save(textarea), width=8
-        ).pack(side=tk.RIGHT)
+        padx, pady = (0, 0) if is_macos else (2, 2)
 
         ttk.Button(
-            user_ref, text='Close', command=lambda: user_ref.destroy(), width=8
-        ).pack(side=tk.RIGHT)
+            user_ref, text='Save', command=lambda: save(textarea)
+        ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
-        tk.Label(user_ref, text='Name:').pack(side=tk.LEFT)
+        ttk.Button(
+            user_ref, text='Close', command=lambda: user_ref.destroy()
+        ).pack(side=tk.RIGHT, padx=padx, pady=pady)
+
+        tk.Label(user_ref, text='Name:').pack(side=tk.LEFT, padx=padx, pady=pady)
 
         ttk.Entry(
             user_ref, width=25, textvariable=self.new_pattern_name_var
-        ).pack(side=tk.LEFT)
+        ).pack(side=tk.LEFT, padx=padx, pady=pady)
 
         ttk.Button(
             user_ref, text='Insert',
             command=lambda: insert(self.new_pattern_name_var, textarea),
-            width=8
-        ).pack(side=tk.LEFT)
+        ).pack(side=tk.LEFT, padx=padx, pady=pady)
 
         set_modal_dialog(user_ref)
 
