@@ -494,6 +494,9 @@ class Application:
 
     def callback_preferences_system_reference(self):
         """Callback for Menu Preferences > System References"""
+
+        is_macos = platform.system() == 'Darwin'
+
         sys_ref = tk.Toplevel(self.root)
         self.set_title(node=sys_ref, title='System References')
         width, height = 600, 500
@@ -530,9 +533,10 @@ class Application:
             state=tk.DISABLED
         )
 
+        padx, pady = (0, 0) if is_macos else (2, 2)
         ttk.Button(sys_ref, text='OK',
-                   command=lambda: sys_ref.destroy(),
-                   width=8).pack(side=tk.RIGHT)
+                   command=lambda: sys_ref.destroy()
+                   ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
         set_modal_dialog(sys_ref)
 
