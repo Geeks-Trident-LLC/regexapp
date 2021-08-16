@@ -17,6 +17,7 @@ from regexapp.core import enclose_string
 
 import yaml
 import re
+import platform
 
 
 __version__ = version
@@ -359,17 +360,27 @@ class Application:
         about.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         about.resizable(False, False)
 
+        panedwindow = ttk.Panedwindow(about, orient=tk.VERTICAL)
+        panedwindow.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
+
         # company
+        frame = ttk.Frame(panedwindow, width=380, height=20)
+        panedwindow.add(frame, weight=1)
+
         fmt = 'Regex GUI v{} ({} Edition)'
-        company_lbl = tk.Label(about, text=fmt.format(version, edition))
-        company_lbl.place(x=10, y=10)
+        company_lbl = tk.Label(frame, text=fmt.format(version, edition))
+        company_lbl.pack(side=tk.LEFT)
 
         # URL
+        frame = ttk.Frame(panedwindow, width=380, height=20)
+        panedwindow.add(frame, weight=1)
+
         url = Data.repo_url
-        tk.Label(about, text='URL:').place(x=10, y=40)
-        url_lbl = tk.Label(about, text=url, fg='blue', font=('sans-serif', 10))
-        url_lbl.default_font = ('sans-serif', 10)
-        url_lbl.place(x=36, y=40)
+        tk.Label(frame, text='URL:').pack(side=tk.LEFT)
+        font_size = 12 if platform.system() == 'Darwin' else 10
+        url_lbl = tk.Label(frame, text=url, fg='blue', font=('sans-serif', font_size))
+        url_lbl.default_font = ('sans-serif', font_size)
+        url_lbl.pack(side=tk.LEFT)
         url_lbl.link = url
 
         url_lbl.bind('<Enter>', mouse_over)
@@ -378,12 +389,13 @@ class Application:
 
         # license textbox
         lframe = ttk.LabelFrame(
-            about, height=280, width=380,
+            panedwindow, height=300, width=380,
             text=Data.license_name
         )
-        lframe.place(x=10, y=80)
-        txtbox = tk.Text(lframe, width=45, height=14, wrap='word')
-        txtbox.grid(row=0, column=0)
+        panedwindow.add(lframe, weight=7)
+
+        txtbox = tk.Text(lframe, width=44, height=16, wrap='word')
+        txtbox.grid(row=0, column=0, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(lframe, orient=tk.VERTICAL, command=txtbox.yview)
         scrollbar.grid(row=0, column=1, sticky='nsew')
         txtbox.config(yscrollcommand=scrollbar.set)
@@ -391,8 +403,11 @@ class Application:
         txtbox.config(state=tk.DISABLED)
 
         # footer - copyright
-        footer = tk.Label(about, text=Data.copyright_text)
-        footer.place(x=10, y=360)
+        frame = ttk.Frame(panedwindow, width=380, height=20)
+        panedwindow.add(frame, weight=1)
+
+        footer = tk.Label(frame, text=Data.copyright_text)
+        footer.pack(side=tk.LEFT)
 
         set_modal_dialog(about)
 
