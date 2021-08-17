@@ -418,9 +418,13 @@ class Application:
     def callback_preferences_settings(self):
         """Callback for Menu Preferences > Settings"""
 
+        is_macos = platform.system() == 'Darwin'
+        is_linux = platform.system() == 'Linux'
+
         settings = tk.Toplevel(self.root)
         self.set_title(node=settings, title='Settings')
-        width, height = 400, 370
+        width = 540 if is_macos else 490 if is_linux else 400
+        height = 370
         x, y = get_relative_center_location(self.root, width, height)
         settings.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         settings.resizable(False, False)
@@ -430,7 +434,6 @@ class Application:
             settings, height=80, width=380,
             text='Pattern Arguments'
         )
-        # lframe_pattern_args.place(x=10, y=10)
         lframe_pattern_args.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
 
         # arguments checkboxes
@@ -454,66 +457,68 @@ class Application:
         # lframe_builder_args.place(x=10, y=95)
         lframe_builder_args.grid(row=1, column=0, padx=10, pady=(0, 10), sticky=tk.W)
 
+        pady = 0 if is_macos else 3
+
         ttk.Label(
             lframe_builder_args, text='max_words'
-        ).grid(row=0, column=0, columnspan=2, padx=2, pady=(10, 3), sticky=tk.W)
+        ).grid(row=0, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
 
         ttk.Entry(
             lframe_builder_args, width=5, textvariable=self.max_words_var
-        ).grid(row=0, column=2, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=0, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
         ttk.Checkbutton(
             lframe_builder_args, text='is_minimal',
             variable=self.is_minimal_var, onvalue=True, offvalue=False
-        ).grid(row=0, column=3, columnspan=3, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=0, column=3, columnspan=3, padx=2, pady=(5, pady), sticky=tk.W)
 
         ttk.Label(
             lframe_builder_args, text='test_name'
-        ).grid(row=1, column=0, columnspan=2, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=1, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
             lframe_builder_args, width=45,
             textvariable=self.test_name_var
-        ).grid(row=1, column=2, columnspan=4, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=1, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         ttk.Label(
             lframe_builder_args, text='test_cls_name'
-        ).grid(row=2, column=0, columnspan=2, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=2, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
             lframe_builder_args, width=45,
             textvariable=self.test_cls_name_var
-        ).grid(row=2, column=2, columnspan=4, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=2, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         ttk.Label(
             lframe_builder_args, text='filename'
-        ).grid(row=3, column=0, columnspan=2, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=3, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
             lframe_builder_args, width=45,
             textvariable=self.filename_var
-        ).grid(row=3, column=2, columnspan=4, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=3, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         ttk.Label(
             lframe_builder_args, text='author'
-        ).grid(row=4, column=0, columnspan=2, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=4, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
             lframe_builder_args, width=45,
             textvariable=self.author_var
-        ).grid(row=4, column=2, columnspan=4, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=4, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         ttk.Label(
             lframe_builder_args, text='email'
-        ).grid(row=5, column=0, columnspan=2, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=5, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
             lframe_builder_args, width=45,
             textvariable=self.email_var
-        ).grid(row=5, column=2, columnspan=4, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=5, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         ttk.Label(
             lframe_builder_args, text='company'
-        ).grid(row=6, column=0, columnspan=2, padx=2, pady=3, sticky=tk.W)
+        ).grid(row=6, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
         ttk.Entry(
             lframe_builder_args, width=45,
             textvariable=self.company_var
-        ).grid(row=6, column=2, columnspan=4, padx=2, pady=(3, 10), sticky=tk.W)
+        ).grid(row=6, column=2, columnspan=4, padx=2, pady=(pady, 10), sticky=tk.W)
 
         # Settings - Builder Arguments
         frame = ttk.Frame(
