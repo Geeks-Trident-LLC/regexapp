@@ -520,8 +520,8 @@ class Application:
             textvariable=self.company_var
         ).grid(row=6, column=2, columnspan=4, padx=2, pady=(pady, 10), sticky=tk.W)
 
-        # Settings - Builder Arguments
-        frame = ttk.Frame(
+        # OK and Default buttons
+        frame = tk.Frame(
             settings, height=20, width=380
         )
         frame.grid(row=2, column=0, padx=10, pady=10, sticky=tk.E+tk.S)
