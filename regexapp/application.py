@@ -192,7 +192,7 @@ class Application:
         self.save_as_btn = None
         self.copy_text_btn = None
 
-        self.test_data = ''
+        self.test_data = None
 
         self.radio_line_or_block_btn_var = tk.StringVar()
         self.radio_line_or_block_btn_var.set('block')
@@ -831,7 +831,7 @@ class Application:
             self.result_textarea.delete("1.0", "end")
             self.save_as_btn.config(state=tk.DISABLED)
             self.copy_text_btn.config(state=tk.DISABLED)
-            self.test_data = ''
+            self.test_data = None
             # self.root.clipboard_clear()
             self.set_title()
 
@@ -858,6 +858,15 @@ class Application:
                 )
 
         def callback_snippet_btn():
+            if self.test_data is None:
+                create_msgbox(
+                    title='No Test Data',
+                    error=("Can NOT build Python test script without "
+                           "test data.\nPlease use Open or Paste button "
+                           "to load test data")
+                )
+                return
+
             user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
