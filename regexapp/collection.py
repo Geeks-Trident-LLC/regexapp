@@ -1139,6 +1139,10 @@ class ElementPattern(str):
         if ' ' in item or r'\s' in item:
             if ' ' != item or r'\s' != item:
                 item = '(%s)' % item
+
+        if item.endswith('+') or item.endswith('*'):
+            item = '(%s)' % item
+
         _, m, *last = repetition.split('_', 2)
         if last:
             n = last[0]
