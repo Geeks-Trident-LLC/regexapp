@@ -630,7 +630,7 @@ class Application:
             var.set('')
             pattern_layout = PatternReference.get_pattern_layout(name)
             pattern_layout = pattern_layout.replace('name_placeholder', name)
-            new_content_ = '{}\n\n{}\n'.format(content_.strip(), pattern_layout)
+            new_content_ = '{}\n\n{}\n'.format(content_.strip(), pattern_layout).lstrip()
             node.delete("1.0", "end")
             node.insert(tk.INSERT, new_content_)
 
@@ -963,14 +963,14 @@ class Application:
         #     )
 
         # radio buttons
-        self.line_radio_btn = ttk.Radiobutton(
+        self.line_radio_btn = tk.Radiobutton(
             self.entry_frame, text='line',
             variable=self.radio_line_or_block_btn_var,
             value='line'
         )
         self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
 
-        self.block_radio_btn = ttk.Radiobutton(
+        self.block_radio_btn = tk.Radiobutton(
             self.entry_frame, text='block',
             variable=self.radio_line_or_block_btn_var,
             value='block'
