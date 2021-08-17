@@ -891,6 +891,15 @@ class Application:
                 create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_unittest_btn():
+            if self.test_data is None:
+                create_msgbox(
+                    title='No Test Data',
+                    error=("Can NOT build Python Unittest script without "
+                           "test data.\nPlease use Open or Paste button "
+                           "to load test data")
+                )
+                return
+
             user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
