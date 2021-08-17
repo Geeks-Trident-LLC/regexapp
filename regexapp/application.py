@@ -963,14 +963,14 @@ class Application:
         #     )
 
         # radio buttons
-        self.line_radio_btn = ttk.Radiobutton(
+        self.line_radio_btn = tk.Radiobutton(
             self.entry_frame, text='line',
             variable=self.radio_line_or_block_btn_var,
             value='line'
         )
         self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
 
-        self.block_radio_btn = ttk.Radiobutton(
+        self.block_radio_btn = tk.Radiobutton(
             self.entry_frame, text='block',
             variable=self.radio_line_or_block_btn_var,
             value='block'
