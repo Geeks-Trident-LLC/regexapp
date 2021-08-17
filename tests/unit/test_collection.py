@@ -115,7 +115,7 @@ class TestElementPattern:
             ('letter(var_word, repetition_3_8)', '(?P<word>[a-zA-Z]{3,8})'),
             ('letter(var_word, repetition_3_)', '(?P<word>[a-zA-Z]{3,})'),
             ('letter(var_word, repetition__8)', '(?P<word>[a-zA-Z]{,8})'),
-            ('word(var_v1, repetition_3)', '(?P<v1>(\\w+){3})'),
+            ('word(var_v1, N/A, repetition_3, word_bound)', '(?P<v1>\\b((\\w+){3}|N/A)\\b)'),
             ####################################################################
             # choice keyword test                                              #
             ####################################################################
@@ -123,6 +123,9 @@ class TestElementPattern:
             ('choice(up, down, administratively down, var_v2)', '(?P<v2>up|down|(administratively down))'),
             ('choice(up, down, administratively down, var_v2, or_empty)', '(?P<v2>up|down|(administratively down)|)'),
             ('choice(up, down, administratively down, var_v2, or_empty, or_digits)', '(?P<v2>up|down|(administratively down)|\\d+|)'),
+            ('choice(abc, word_bound)', '\\b(abc)\\b'),
+            ('choice(abc, xyz, word_bound)', '\\b(abc|xyz)\\b'),
+            ('choice(var_v1, abc, xyz, word_bound)', '(?P<v1>\\b(abc|xyz)\\b)'),
             ####################################################################
             # data keyword test                                                #
             ####################################################################
