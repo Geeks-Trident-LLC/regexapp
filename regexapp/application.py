@@ -467,7 +467,7 @@ class Application:
             lframe_builder_args, width=5, textvariable=self.max_words_var
         ).grid(row=0, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
-        ttk.Checkbutton(
+        tk.Checkbutton(
             lframe_builder_args, text='is_minimal',
             variable=self.is_minimal_var, onvalue=True, offvalue=False
         ).grid(row=0, column=3, columnspan=3, padx=2, pady=(5, pady), sticky=tk.W)
