@@ -630,7 +630,7 @@ class Application:
             var.set('')
             pattern_layout = PatternReference.get_pattern_layout(name)
             pattern_layout = pattern_layout.replace('name_placeholder', name)
-            new_content_ = '{}\n\n{}\n'.format(content_.strip(), pattern_layout)
+            new_content_ = '{}\n\n{}\n'.format(content_.strip(), pattern_layout).lstrip()
             node.delete("1.0", "end")
             node.insert(tk.INSERT, new_content_)
 
