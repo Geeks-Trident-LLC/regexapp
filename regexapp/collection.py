@@ -1488,7 +1488,7 @@ class BlockPattern(str):
 
     @classmethod
     def reformat(cls, pattern, is_first=False, is_last=False):
-        """reformat pattern to work with re.DOTALL matching
+        """reformat pattern to work with re.MULTILINE matching
 
         Parameters
         ----------
@@ -1502,19 +1502,15 @@ class BlockPattern(str):
         """
         if is_first:
             if pattern.startswith('(?i)'):
-                new_pattern = pattern.replace('(?i)', '(?is)')
+                new_pattern = pattern.replace('(?i)', '(?im)')
             else:
-                new_pattern = '(?s){}'.format(pattern)
+                new_pattern = '(?m){}'.format(pattern)
         else:
             new_pattern = pattern.replace('(?i)', '')
-            if new_pattern.startswith('^'):
-                new_pattern = new_pattern[1:]
-            else:
-                new_pattern = r'[^\r\n]*{}'.format(new_pattern)
 
         if not is_last:
             if new_pattern.endswith('$'):
-                new_pattern = r'{}[\r\n]+'.format(new_pattern[:-1])
+                new_pattern = r'{}[\r\n]+'.format(new_pattern)
             else:
                 new_pattern = r'{}[^\r\n]*[\r\n]+'.format(new_pattern)
 
