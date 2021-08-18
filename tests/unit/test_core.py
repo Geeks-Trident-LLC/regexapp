@@ -47,7 +47,7 @@ def tc_info():
 
         Matched Result:
         --------------
-        pattern: (?P<subject>\\w+( +\\w+)+) +is +(?P<degree>\\d+) +degrees +(?P<unit>\\w+)\\.
+        pattern: (?P<subject>\\w+( \\w+)+) +is +(?P<degree>\\d+) +degrees +(?P<unit>\\w+)\\.
         matched: [{'subject': 'today temperature', 'degree': '75', 'unit': 'fahrenheit'}, {'subject': 'the highest temperature ever recorded on Earth', 'degree': '134', 'unit': 'fahrenheit'}]
         ----------
         pattern:  +IPv4 +Address\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +: +(?P<ipv4_addr>((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3})\\((?P<status>\\w+)\\)
@@ -77,7 +77,7 @@ def tc_info():
 
         Matched Result:
         --------------
-        pattern: (?P<file_type>\\S)(?P<file_permission>\\S+) +(?P<hard_links>\\d+) +(?P<file_owner>\\w+) +(?P<file_group>\\w+) +(?P<file_size>\\d+) +(?P<date>[a-zA-Z]{3} +\\d{1,2}) +(?P<time>\\d+:\\d+) +(?P<filename>\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*)
+        pattern: (?P<file_type>\\S)(?P<file_permission>\\S+) +(?P<hard_links>\\d+) +(?P<file_owner>\\w+) +(?P<file_group>\\w+) +(?P<file_size>\\d+) +(?P<date>[a-zA-Z]{3} +\\d{1,2}) +(?P<time>\\d+:\\d+) +(?P<filename>\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)*)
         matched: [{'file_type': '-', 'file_permission': 'rw-r--r--', 'hard_links': '1', 'file_owner': 'abc', 'file_group': '197121', 'file_size': '133', 'date': 'Jun 10', 'time': '20:33', 'filename': 'README.md'}, {'file_type': '-', 'file_permission': 'rw-r--r--', 'hard_links': '1', 'file_owner': 'abc', 'file_group': '197121', 'file_size': '1488', 'date': 'Jul 27', 'time': '00:48', 'filename': 'setup.py'}, {'file_type': 'd', 'file_permission': 'rwxr-xr-x', 'hard_links': '1', 'file_owner': 'abc', 'file_group': '197121', 'file_size': '0', 'date': 'Jul  7', 'time': '15:33', 'filename': 'tests/'}]
         ----------
     """
@@ -438,7 +438,7 @@ class TestDynamicGenTestScript:
         test_script = factory.generate_unittest(author=tc_info.author,
                                                 email=tc_info.email,
                                                 company=tc_info.company,
-                                                is_minimal=True,)
+                                                is_minimal=True)
         assert test_script == tc_info.expected_unittest_script
 
     def test_generating_detail_unittest_script(self, tc_info):
@@ -460,7 +460,7 @@ class TestDynamicGenTestScript:
         test_script = factory.generate_pytest(author=tc_info.author,
                                               email=tc_info.email,
                                               company=tc_info.company,
-                                              is_minimal=True,)
+                                              is_minimal=True)
         assert test_script == tc_info.expected_pytest_script
 
     def test_generating_detail_pytest_script(self, tc_info):
