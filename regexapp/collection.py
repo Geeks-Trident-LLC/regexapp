@@ -10,7 +10,7 @@ from regexapp.exceptions import PatternReferenceError
 from regexapp.exceptions import TextPatternError
 from regexapp.exceptions import ElementPatternError
 from regexapp.exceptions import LinePatternError
-from regexapp.exceptions import BlockPatternError
+from regexapp.exceptions import MultilinePatternError
 from regexapp.exceptions import PatternBuilderError
 
 import logging
@@ -458,7 +458,7 @@ class ElementPattern(str):
     ElementPattern.build_default_pattern(keyword, params) -> bool, str
     ElementPattern.join_list(lst) -> str
     ElementPattern.add_var_name(pattern, name='') -> str
-    ElementPattern.add_word_bound(pattern, word_bound='') -> str
+    ElementPattern.add_word_bound(pattern, word_bound='', added_parentheses=True) -> str
     ElementPattern.add_start_of_string(pattern, started='') -> str
     ElementPattern.add_end_of_string(pattern, ended='') -> str
     ElementPattern.add_repetition(lst, repetition='') -> list
@@ -633,8 +633,11 @@ class ElementPattern(str):
                     pat not in lst and lst.append(pat)
 
         is_empty and lst.append('')
+        is_multiple = len(lst) > 1
         pattern = cls.join_list(lst)
-        pattern = cls.add_word_bound(pattern, word_bound=word_bound)
+        pattern = cls.add_word_bound(
+            pattern, word_bound=word_bound, added_parentheses=is_multiple
+        )
         pattern = cls.add_var_name(pattern, name=name)
         pattern = cls.add_start_of_string(pattern, started=started)
         pattern = cls.add_end_of_string(pattern, ended=ended)
@@ -1028,30 +1031,35 @@ class ElementPattern(str):
         return pattern
 
     @classmethod
-    def add_word_bound(cls, pattern, word_bound=''):
+    def add_word_bound(cls, pattern, word_bound='', added_parentheses=True):
         """add word bound i.e \\b to regex pattern
 
         Parameters
         ----------
         pattern (str): a pattern
         word_bound (str): word bound case.  Default is empty.
+        added_parentheses (bool): always add parentheses to pattern.  Default is True.
 
         Returns
         -------
         str: new pattern with enclosing word bound pattern if it is required.
         """
-        if word_bound:
-            has_ws = ' ' in pattern or r'\s' in pattern
-            new_pattern = '({})'.format(pattern) if has_ws else pattern
+        if not word_bound:
+            return pattern
 
-            if word_bound == 'word_bound_left':
-                new_pattern = r'\b{}'.format(new_pattern)
-            elif word_bound == 'word_bound_right':
-                new_pattern = r'{}\b'.format(new_pattern)
-            else:
-                new_pattern = r'\b{}\b'.format(new_pattern)
-            return new_pattern
-        return pattern
+        has_ws = ' ' in pattern or r'\s' in pattern
+        new_pattern = '({})'.format(pattern) if has_ws else pattern
+        if added_parentheses:
+            if not new_pattern.startswith('(') or not new_pattern.endswith(')'):
+                new_pattern = '({})'.format(new_pattern)
+
+        if word_bound == 'word_bound_left':
+            new_pattern = r'\b{}'.format(new_pattern)
+        elif word_bound == 'word_bound_right':
+            new_pattern = r'{}\b'.format(new_pattern)
+        else:
+            new_pattern = r'\b{}\b'.format(new_pattern)
+        return new_pattern
 
     @classmethod
     def add_start_of_string(cls, pattern, started=''):
@@ -1139,6 +1147,10 @@ class ElementPattern(str):
         if ' ' in item or r'\s' in item:
             if ' ' != item or r'\s' != item:
                 item = '(%s)' % item
+
+        if item.endswith('+') or item.endswith('*'):
+            item = '(%s)' % item
+
         _, m, *last = repetition.split('_', 2)
         if last:
             n = last[0]
@@ -1404,7 +1416,7 @@ class LinePattern(str):
             lst.append('{}$'.format(ws_pat))
 
 
-class BlockPattern(str):
+class MultilinePattern(str):
     """Use to convert multiple lines to regex pattern
 
     Parameters
@@ -1424,7 +1436,7 @@ class BlockPattern(str):
             lines = text.splitlines()
         else:
             'text argument must be string or list of string'
-            raise BlockPatternError(text)
+            raise MultilinePatternError(text)
 
         if lines:
             pattern = cls.get_pattern(lines, ignore_case=ignore_case)
@@ -1476,7 +1488,7 @@ class BlockPattern(str):
 
     @classmethod
     def reformat(cls, pattern, is_first=False, is_last=False):
-        """reformat pattern to work with re.DOTALL matching
+        """reformat pattern to work with re.MULTILINE matching
 
         Parameters
         ----------
@@ -1490,19 +1502,15 @@ class BlockPattern(str):
         """
         if is_first:
             if pattern.startswith('(?i)'):
-                new_pattern = pattern.replace('(?i)', '(?is)')
+                new_pattern = pattern.replace('(?i)', '(?im)')
             else:
-                new_pattern = '(?s){}'.format(pattern)
+                new_pattern = '(?m){}'.format(pattern)
         else:
             new_pattern = pattern.replace('(?i)', '')
-            if new_pattern.startswith('^'):
-                new_pattern = new_pattern[1:]
-            else:
-                new_pattern = r'[^\r\n]*{}'.format(new_pattern)
 
         if not is_last:
             if new_pattern.endswith('$'):
-                new_pattern = r'{}[\r\n]+'.format(new_pattern[:-1])
+                new_pattern = r'{}[\r\n]+'.format(new_pattern)
             else:
                 new_pattern = r'{}[^\r\n]*[\r\n]+'.format(new_pattern)
 
