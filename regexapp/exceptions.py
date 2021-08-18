@@ -25,7 +25,7 @@ class LinePatternError(PatternError):
     """Use to capture error during pattern conversion."""
 
 
-class BlockPatternError(PatternError):
+class MultilinePatternError(PatternError):
     """Use to capture error during pattern conversion."""
 
 

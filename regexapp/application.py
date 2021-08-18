@@ -192,7 +192,7 @@ class Application:
         self.save_as_btn = None
         self.copy_text_btn = None
 
-        self.test_data = ''
+        self.test_data = None
 
         self.radio_line_or_block_btn_var = tk.StringVar()
         self.radio_line_or_block_btn_var.set('block')
@@ -418,9 +418,13 @@ class Application:
     def callback_preferences_settings(self):
         """Callback for Menu Preferences > Settings"""
 
+        is_macos = platform.system() == 'Darwin'
+        is_linux = platform.system() == 'Linux'
+
         settings = tk.Toplevel(self.root)
         self.set_title(node=settings, title='Settings')
-        width, height = 400, 430
+        width = 540 if is_macos else 490 if is_linux else 400
+        height = 370
         x, y = get_relative_center_location(self.root, width, height)
         settings.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         settings.resizable(False, False)
@@ -430,65 +434,107 @@ class Application:
             settings, height=80, width=380,
             text='Pattern Arguments'
         )
-        lframe_pattern_args.place(x=10, y=10)
+        lframe_pattern_args.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
 
         # arguments checkboxes
         lst = [
-            ['used_space', self.used_space_var, 5, 5],
-            ['ignore_case', self.ignore_case_var, 120, 5],
-            ['prepended_ws', self.prepended_ws_var, 5, 30],
-            ['appended_ws', self.appended_ws_var, 120, 30]
+            ['used_space', self.used_space_var, 0, 0],
+            ['ignore_case', self.ignore_case_var, 0, 1],
+            ['prepended_ws', self.prepended_ws_var, 1, 0],
+            ['appended_ws', self.appended_ws_var, 1, 1]
         ]
-        for text, variable, x, y in lst:
-            ttk.Checkbutton(lframe_pattern_args, text=text, variable=variable,
-                            onvalue=True, offvalue=False).place(x=x, y=y)
+        for text, variable, row, column in lst:
+            tk.Checkbutton(
+                lframe_pattern_args, text=text, variable=variable,
+                onvalue=True, offvalue=False
+            ).grid(row=row, column=column, padx=2, pady=2, sticky=tk.W)
 
         # Settings - Builder Arguments
         lframe_builder_args = ttk.LabelFrame(
-            settings, height=210, width=380,
+            settings, height=280, width=380,
             text='Builder Arguments'
         )
-        lframe_builder_args.place(x=10, y=95)
+        # lframe_builder_args.place(x=10, y=95)
+        lframe_builder_args.grid(row=1, column=0, padx=10, pady=(0, 10), sticky=tk.W)
 
-        ttk.Label(lframe_builder_args, text='max_words').place(x=5, y=5)
-        ttk.Entry(lframe_builder_args, width=5,
-                  textvariable=self.max_words_var).place(x=88, y=5)
+        pady = 0 if is_macos else 3
 
-        ttk.Checkbutton(lframe_builder_args, text='is_minimal',
-                        variable=self.is_minimal_var,
-                        onvalue=True, offvalue=False).place(x=200, y=5)
+        ttk.Label(
+            lframe_builder_args, text='max_words'
+        ).grid(row=0, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
 
-        ttk.Label(lframe_builder_args, text='test_name').place(x=5, y=30)
-        ttk.Entry(lframe_builder_args, width=45,
-                  textvariable=self.test_name_var).place(x=88, y=30)
+        ttk.Entry(
+            lframe_builder_args, width=5, textvariable=self.max_words_var
+        ).grid(row=0, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
-        ttk.Label(lframe_builder_args, text='test_cls_name').place(x=5, y=55)
-        ttk.Entry(lframe_builder_args, width=45,
-                  textvariable=self.test_cls_name_var).place(x=88, y=55)
+        tk.Checkbutton(
+            lframe_builder_args, text='is_minimal',
+            variable=self.is_minimal_var, onvalue=True, offvalue=False
+        ).grid(row=0, column=3, columnspan=3, padx=2, pady=(5, pady), sticky=tk.W)
 
-        ttk.Label(lframe_builder_args, text='filename').place(x=5, y=80)
-        ttk.Entry(lframe_builder_args, width=45,
-                  textvariable=self.filename_var).place(x=88, y=80)
+        ttk.Label(
+            lframe_builder_args, text='test_name'
+        ).grid(row=1, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
+        ttk.Entry(
+            lframe_builder_args, width=45,
+            textvariable=self.test_name_var
+        ).grid(row=1, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Label(lframe_builder_args, text='author').place(x=5, y=105)
-        ttk.Entry(lframe_builder_args, width=45,
-                  textvariable=self.author_var).place(x=88, y=105)
+        ttk.Label(
+            lframe_builder_args, text='test_cls_name'
+        ).grid(row=2, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
+        ttk.Entry(
+            lframe_builder_args, width=45,
+            textvariable=self.test_cls_name_var
+        ).grid(row=2, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Label(lframe_builder_args, text='email').place(x=5, y=130)
-        ttk.Entry(lframe_builder_args, width=45,
-                  textvariable=self.email_var).place(x=88, y=130)
+        ttk.Label(
+            lframe_builder_args, text='filename'
+        ).grid(row=3, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
+        ttk.Entry(
+            lframe_builder_args, width=45,
+            textvariable=self.filename_var
+        ).grid(row=3, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Label(lframe_builder_args, text='company').place(x=5, y=155)
-        ttk.Entry(lframe_builder_args, width=45,
-                  textvariable=self.company_var).place(x=88, y=155)
+        ttk.Label(
+            lframe_builder_args, text='author'
+        ).grid(row=4, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
+        ttk.Entry(
+            lframe_builder_args, width=45,
+            textvariable=self.author_var
+        ).grid(row=4, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Button(settings, text='Default',
-                   command=lambda: self.set_default_setting(),
-                   width=8).place(x=270, y=395)
+        ttk.Label(
+            lframe_builder_args, text='email'
+        ).grid(row=5, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
+        ttk.Entry(
+            lframe_builder_args, width=45,
+            textvariable=self.email_var
+        ).grid(row=5, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Button(settings, text='OK',
-                   command=lambda: settings.destroy(),
-                   width=8).place(x=332, y=395)
+        ttk.Label(
+            lframe_builder_args, text='company'
+        ).grid(row=6, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
+        ttk.Entry(
+            lframe_builder_args, width=45,
+            textvariable=self.company_var
+        ).grid(row=6, column=2, columnspan=4, padx=2, pady=(pady, 10), sticky=tk.W)
+
+        # OK and Default buttons
+        frame = tk.Frame(
+            settings, height=20, width=380
+        )
+        frame.grid(row=2, column=0, padx=10, pady=10, sticky=tk.E+tk.S)
+
+        ttk.Button(
+            frame, text='Default',
+            command=lambda: self.set_default_setting(),
+        ).grid(row=0, column=6, padx=1, pady=1, sticky=tk.E)
+
+        ttk.Button(
+            frame, text='OK',
+            command=lambda: settings.destroy(),
+        ).grid(row=0, column=7, padx=1, pady=1, sticky=tk.E)
 
         set_modal_dialog(settings)
 
@@ -584,7 +630,7 @@ class Application:
             var.set('')
             pattern_layout = PatternReference.get_pattern_layout(name)
             pattern_layout = pattern_layout.replace('name_placeholder', name)
-            new_content_ = '{}\n\n{}\n'.format(content_.strip(), pattern_layout)
+            new_content_ = '{}\n\n{}\n'.format(content_.strip(), pattern_layout).lstrip()
             node.delete("1.0", "end")
             node.insert(tk.INSERT, new_content_)
 
@@ -785,7 +831,7 @@ class Application:
             self.result_textarea.delete("1.0", "end")
             self.save_as_btn.config(state=tk.DISABLED)
             self.copy_text_btn.config(state=tk.DISABLED)
-            self.test_data = ''
+            self.test_data = None
             # self.root.clipboard_clear()
             self.set_title()
 
@@ -812,6 +858,15 @@ class Application:
                 )
 
         def callback_snippet_btn():
+            if self.test_data is None:
+                create_msgbox(
+                    title='No Test Data',
+                    error=("Can NOT build Python test script without "
+                           "test data.\nPlease use Open or Paste button "
+                           "to load test data")
+                )
+                return
+
             user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
@@ -836,6 +891,15 @@ class Application:
                 create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_unittest_btn():
+            if self.test_data is None:
+                create_msgbox(
+                    title='No Test Data',
+                    error=("Can NOT build Python Unittest script without "
+                           "test data.\nPlease use Open or Paste button "
+                           "to load test data")
+                )
+                return
+
             user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
@@ -860,6 +924,15 @@ class Application:
                 create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_pytest_btn():
+            if self.test_data is None:
+                create_msgbox(
+                    title='No Test Data',
+                    error=("Can NOT build Python Pytest script without "
+                           "test data.\nPlease use Open or Paste button "
+                           "to load test data")
+                )
+                return
+
             user_data = Application.get_textarea(self.textarea)
             if not user_data:
                 create_msgbox(
@@ -890,14 +963,14 @@ class Application:
         #     )
 
         # radio buttons
-        self.line_radio_btn = ttk.Radiobutton(
+        self.line_radio_btn = tk.Radiobutton(
             self.entry_frame, text='line',
             variable=self.radio_line_or_block_btn_var,
             value='line'
         )
         self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
 
-        self.block_radio_btn = ttk.Radiobutton(
+        self.block_radio_btn = tk.Radiobutton(
             self.entry_frame, text='block',
             variable=self.radio_line_or_block_btn_var,
             value='block'
