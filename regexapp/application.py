@@ -178,9 +178,9 @@ class Application:
     browser = webbrowser
 
     def __init__(self):
-        self._base_title = 'Regex GUI'
+        self._base_title = 'Regexapp {}'.format(edition)
         self.root = tk.Tk()
-        self.root.geometry('900x600+100+100')
+        self.root.geometry('940x600+100+100')
         self.root.minsize(200, 200)
         self.root.option_add('*tearOff', False)
         self.content = None
@@ -194,8 +194,8 @@ class Application:
 
         self.test_data = None
 
-        self.radio_line_or_block_btn_var = tk.StringVar()
-        self.radio_line_or_block_btn_var.set('block')
+        self.radio_line_or_multiline_btn_var = tk.StringVar()
+        self.radio_line_or_multiline_btn_var.set('multiline')
         self.used_space_var = tk.BooleanVar()
         self.used_space_var.set(True)
         self.prepended_ws_var = tk.BooleanVar()
@@ -218,7 +218,7 @@ class Application:
         self.textarea = None
         self.result_textarea = None
         self.line_radio_btn = None
-        self.block_radio_btn = None
+        self.multiline_radio_btn = None
 
         self.set_title()
         self.build_menu()
@@ -234,7 +234,7 @@ class Application:
             ignore_case=self.ignore_case_var.get(),
             prepended_ws=self.prepended_ws_var.get(),
             appended_ws=self.appended_ws_var.get(),
-            is_line=self.radio_line_or_block_btn_var.get() == 'line'
+            is_line=self.radio_line_or_multiline_btn_var.get() == 'line'
         )
         return result
 
@@ -965,17 +965,17 @@ class Application:
         # radio buttons
         self.line_radio_btn = tk.Radiobutton(
             self.entry_frame, text='line',
-            variable=self.radio_line_or_block_btn_var,
+            variable=self.radio_line_or_multiline_btn_var,
             value='line'
         )
         self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
 
-        self.block_radio_btn = tk.Radiobutton(
-            self.entry_frame, text='block',
-            variable=self.radio_line_or_block_btn_var,
-            value='block'
+        self.multiline_radio_btn = tk.Radiobutton(
+            self.entry_frame, text='multiline',
+            variable=self.radio_line_or_multiline_btn_var,
+            value='multiline'
         )
-        self.block_radio_btn.grid(row=0, column=1, padx=2)
+        self.multiline_radio_btn.grid(row=0, column=1, padx=2)
 
         # open button
         open_file_btn = ttk.Button(self.entry_frame, text='Open',
