@@ -162,17 +162,72 @@ class Application:
     Attributes
     ----------
     root (tkinter.Tk): a top tkinter app.
-    content (Content): a Content instance.
+
+    panedwindow (ttk.Panedwindow): a Panewindow for main layout.
+    text_frame (ttk.Frame): a frame to contain test data component.
+    entry_frame (tk.Frame): a frame to contain any action button such as
+            open, paste, build, snippet, unittest, pytest, ...
+    result_frame (tk.Frame): a frame to contain test result component.
+    save_as_btn (ttk.Button): a Save As button.
+    copy_text_btn (ttk.Button): a Copy Text button.
+
+    test_data (str): a test data
+
+    radio_line_or_multiline_btn_var (tk.StringVar): a variable for radio button
+            Default is multiline.
+    used_space_var (tk.BooleanVar): a variable for used_space checkbox.
+            Default is True.
+    prepended_ws_var (tk.BooleanVar): a variable for prepended_ws checkbox.
+            Default is False
+    appended_ws_var (tk.BooleanVar): a variable for appended_ws checkbox.
+            Default is False.
+    ignore_case_var (tk.BooleanVar): a variable for ignore_case checkbox.
+            Default is False
+    test_name_var (tk.StringVar): a variable for test_name textbox.
+            Default is empty string.
+    test_cls_name_var (tk.StringVar): a variable for test_cls_name_var.
+            Default is TestDynamicGenTestScript.
+    is_minimal_var (tk.BooleanVar): a variable for is_minimal checkbox.
+            Default is True.
+    max_words_var (tk.IntVar): a variable for max_words textbox.
+            Default is 6.
+    filename_var (tk.StringVar): a variable for filename textbox.
+            Default is empty string.
+    author_var (tk.StringVar): a variable for author textbox.
+            Default is empty string.
+    email_var (tk.StringVar): a variable for email textbox.  Default is empty string.
+    company_var (tk.StringVar): a variable for company textbox.  Default is empty string.
+
+    new_pattern_name_var (tk.StringVar): a variable for creating new pattern
+            reference.  Default is empty string.
+
+    textarea (tk.Text): a TextArea component for test data.
+    result_textarea (tk.Text): a TextArea component for test result.
+    line_radio_btn (tk.RadioButton): a selection for enabling LinePattern.
+    multiline_radio_btn (tk.RadioButton): a selection for enabling MultilinePattern.
 
     Methods
     -------
-    build_menu() -> None
-    run() -> None
+    get_pattern_args() -> dict
+    get_builder_args() -> dict
+    set_default_setting() -> None
+    Application.get_textarea(node) -> str
+    set_textarea(node, data, title='') -> None
+    set_title(node=None, title='') -> None
     callback_file_open() -> None
     callback_file_exit() -> None
     callback_help_documentation() -> None
     callback_help_view_licenses() -> None
     callback_help_about() -> None
+    callback_preferences_settings() -> None
+    callback_preferences_system_reference() -> None
+    callback_preferences_user_reference() -> None
+    build_menu() -> None
+    build_frame() -> None
+    build_textarea() -> None
+    build_entry() -> None
+    build_result() -> None
+    run() -> None
     """
 
     browser = webbrowser
@@ -183,7 +238,6 @@ class Application:
         self.root.geometry('940x600+100+100')
         self.root.minsize(200, 200)
         self.root.option_add('*tearOff', False)
-        self.content = None
 
         self.panedwindow = None
         self.text_frame = None
