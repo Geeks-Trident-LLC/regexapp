@@ -42,7 +42,7 @@ last line""",    # test data
             """I have words(var_v1).
 My friend has words(var_v2).
 I don't have words(var_v3).""",    # ref. user prepared data
-            r"(?s)I +have +(?P<v1>\w+( +\w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*[^\r\n]*My +friend +has +(?P<v2>\w+( +\w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*[^\r\n]*I +don't +have +(?P<v3>\w+( +\w+)*)\."   # pattern
+            r"(?m)I +have +(?P<v1>\w+( +\w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*My +friend +has +(?P<v2>\w+( +\w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*I +don't +have +(?P<v3>\w+( +\w+)*)\."   # pattern
         )
     )
 
