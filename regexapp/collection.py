@@ -10,7 +10,7 @@ from regexapp.exceptions import PatternReferenceError
 from regexapp.exceptions import TextPatternError
 from regexapp.exceptions import ElementPatternError
 from regexapp.exceptions import LinePatternError
-from regexapp.exceptions import BlockPatternError
+from regexapp.exceptions import MultilinePatternError
 from regexapp.exceptions import PatternBuilderError
 
 import logging
@@ -1416,7 +1416,7 @@ class LinePattern(str):
             lst.append('{}$'.format(ws_pat))
 
 
-class BlockPattern(str):
+class MultilinePattern(str):
     """Use to convert multiple lines to regex pattern
 
     Parameters
@@ -1436,7 +1436,7 @@ class BlockPattern(str):
             lines = text.splitlines()
         else:
             'text argument must be string or list of string'
-            raise BlockPatternError(text)
+            raise MultilinePatternError(text)
 
         if lines:
             pattern = cls.get_pattern(lines, ignore_case=ignore_case)

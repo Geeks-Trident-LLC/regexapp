@@ -7,7 +7,7 @@ from regexapp import TextPattern
 from regexapp import ElementPattern
 from regexapp import LinePattern
 from regexapp import PatternBuilder
-from regexapp import BlockPattern
+from regexapp import MultilinePattern
 
 
 class TestPatternReference:
@@ -629,20 +629,20 @@ def tc_info():
     yield test_info
 
 
-class TestBlockPattern:
-    def test_block_pattern(self, tc_info):
-        block_pat = BlockPattern(tc_info.prepared_data, ignore_case=False)
+class TestMultilinePattern:
+    def test_multiline_pattern(self, tc_info):
+        multiline_pat = MultilinePattern(tc_info.prepared_data, ignore_case=False)
 
-        match = re.search(block_pat, tc_info.test_data)
+        match = re.search(multiline_pat, tc_info.test_data)
         matched_txt = match.group()
         matched_vars = match.groupdict()
 
         assert matched_txt == tc_info.expected_matched_text
         assert matched_vars == tc_info.expected_matched_vars
 
-        block_pat = BlockPattern(tc_info.prepared_data, ignore_case=True)
+        multiline_pat = MultilinePattern(tc_info.prepared_data, ignore_case=True)
 
-        match = re.search(block_pat, tc_info.test_data)
+        match = re.search(multiline_pat, tc_info.test_data)
         matched_txt = match.group()
         matched_vars = match.groupdict()
 

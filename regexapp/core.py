@@ -3,7 +3,7 @@ import yaml
 from pathlib import Path, PurePath
 from datetime import datetime
 from regexapp import LinePattern
-from regexapp import BlockPattern
+from regexapp import MultilinePattern
 from regexapp.exceptions import RegexBuilderError
 from regexapp.exceptions import PatternReferenceError
 from regexapp.collection import REF
@@ -184,7 +184,7 @@ class RegexBuilder:
                     ignore_case=self.ignore_case
                 )
             else:
-                pattern = BlockPattern(user_data, ignore_case=self.ignore_case)
+                pattern = MultilinePattern(user_data, ignore_case=self.ignore_case)
 
             pattern not in self.patterns and self.patterns.append(pattern)
             self.user_data_pattern_table[user_data] = pattern
