@@ -18,12 +18,12 @@ class TestDynamicGenTestScript:
             (
                 "today temperature is 75 degrees fahrenheit.",    # test data
                 "phrase(var_subject) is digits(var_degree) degrees word(var_unit).",    # ref. user prepared data
-                r"(?P<subject>\w+( +\w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."   # pattern
+                r"(?P<subject>\w+( \w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."   # pattern
             ),
             (
                 "the highest temperature ever recorded on Earth is 134 degrees fahrenheit.",    # test data
                 "phrase(var_subject) is digits(var_degree) degrees word(var_unit).",    # ref. user prepared data
-                r"(?P<subject>\w+( +\w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."   # pattern
+                r"(?P<subject>\w+( \w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."   # pattern
             ),
             (
                 "   IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)",    # test data

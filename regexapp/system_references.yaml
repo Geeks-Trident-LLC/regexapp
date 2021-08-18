@@ -64,7 +64,7 @@ word:
 words:
   group: word
   description: a pattern to match at least one word.
-  pattern: "\\w+( +\\w+)*"
+  pattern: "\\w+( \\w+)*"
   positive test:
     pattern match words: "abc xyz"
   negative test:
@@ -82,7 +82,7 @@ mixed_word:
 mixed_words:
   group: word
   description: a pattern to match at least one mixed word.
-  pattern: "\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)*"
+  pattern: "\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)*"
   positive test:
     pattern match mixed words: "email: abc@xyz.com"
   negative test:
@@ -91,7 +91,7 @@ mixed_words:
 phrase:
   group: word
   description: a pattern to match a phrase, i.e. at least two words.
-  pattern: "\\w+( +\\w+)+"
+  pattern: "\\w+( \\w+)+"
   positive test:
     pattern match a pharse: "abc xyz"
   negative test:
@@ -100,7 +100,7 @@ phrase:
 mixed_phrase:
   group: word
   description: a pattern to match a mixed pharse.
-  pattern: "\\S*[a-zA-Z0-9]\\S*( +\\S*[a-zA-Z0-9]\\S*)+"
+  pattern: "\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)+"
   positive test:
     pattern match a mixed phrase: "email: abc@xyz.com"
   negative test:
