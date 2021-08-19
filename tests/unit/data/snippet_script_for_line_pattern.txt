@@ -15,7 +15,7 @@ value5   476
 value99"""
 
 # regex pattern
-pattern = r"(?P<v1>\w+) *(?P<v2>\d+|) *(?P<v3>\w+|)"
+pattern = r"(?P<v1>\w+)\s*(?P<v2>\d+|)\s*(?P<v3>\w+|)"
 
 def test_regex(test_data, pattern):
     """test regular expression
