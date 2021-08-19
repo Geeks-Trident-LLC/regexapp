@@ -291,8 +291,8 @@ class TestLinePattern:
             ),
             (
                 'cherry is delicious.',                     # test data
-                'word(var_fruit, head) is delicious.',   # user prepared data
-                '(?i)^(?P<fruit>\\w+) is delicious\\.', # expected pattern
+                'word(var_fruit, head) is delicious.',      # user prepared data
+                '(?i)^(?P<fruit>\\w+) is delicious\\.',     # expected pattern
                 False, False, True,
                 True
             ),
@@ -453,7 +453,7 @@ class TestLinePattern:
             ),
         ]
     )
-    def test_line_pattern(self, test_data, user_prepared_data,expected_pattern,
+    def test_line_pattern(self, test_data, user_prepared_data, expected_pattern,
                           prepended_ws, appended_ws, ignore_case,
                           is_matched):
         pattern = LinePattern(
@@ -550,12 +550,14 @@ class TestLinePattern:
 
 class TestPatternBuilder:
     @pytest.mark.parametrize(
-        ('test_data', 'expected_pattern', 'var_name'),
+        ('test_data', 'expected_pattern', 'var_name', 'word_bound'),
         [
             (
                 ['Friday, April  9, 2021 8:43:15 PM'],
                 '[a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+',
-                ''
+                '',     # var_name
+                '',     # word_bound
+
             ),
             (
                 [
@@ -563,22 +565,44 @@ class TestPatternBuilder:
                     '12/06/2010 08:56:45'
                 ],
                 '([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)',
-                ''
+                '',     # var_name
+                '',     # word_bound
             ),
             (
                 ['2019 Dec  8 14:44:01'],
                 '[0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+',
-                ''
+                '',     # var_name
+                '',     # word_bound
             ),
             (
                 ['2019 Dec  8 14:44:01'],
                 '(?P<datetime>[0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+)',
-                'datetime'
+                'datetime',     # var_name
+                '',             # word_bound
             ),
+            (
+                ['2019 Dec  8 14:44:01'],
+                '(?P<datetime>\\b([0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+))',
+                'datetime',  # var_name
+                'word_bound_left',  # word_bound
+            ),
+            (
+                ['2019 Dec  8 14:44:01'],
+                '(?P<datetime>([0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+)\\b)',
+                'datetime',  # var_name
+                'word_bound_right',     # word_bound
+            ),
+            (
+                ['2019 Dec  8 14:44:01'],
+                '(?P<datetime>\\b([0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+)\\b)',
+                'datetime',  # var_name
+                'word_bound',   # word_bound
+            ),
+
         ]
     )
-    def test_pattern_builder(self, test_data, expected_pattern, var_name):
-        pattern = PatternBuilder(test_data, var_name=var_name)
+    def test_pattern_builder(self, test_data, expected_pattern, var_name, word_bound):
+        pattern = PatternBuilder(test_data, var_name=var_name, word_bound=word_bound)
         assert pattern == expected_pattern
         for data in test_data:
             match = re.search(pattern, data)
