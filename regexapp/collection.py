@@ -194,7 +194,7 @@ class PatternReference(dict):
         layout1 = """
             name_placeholder:
               ##################################################################
-              # double back flash must be used in a value of format if needed
+              # double back flash must be used in a value of pattern if needed
               # positive test and/or negative test is/are optional
               ##################################################################
               group: "replace_me"
@@ -354,8 +354,6 @@ class TextPattern(str):
     Parameters
     ----------
     text (str): a text.
-    used_space (bool): use space character instead of whitespace regex.
-            Default is True.
 
     Properties
     ----------
@@ -365,17 +363,16 @@ class TextPattern(str):
 
     Methods
     -------
-    TextPattern.get_pattern(text, used_space=True) -> str
+    TextPattern.get_pattern(text) -> str
 
     Raises
     ------
     TextPatternError: raise an exception if pattern is invalid.
-
     """
-    def __new__(cls, text, used_space=True):
+    def __new__(cls, text):
         data = str(text)
         if data:
-            text_pattern = cls.get_pattern(data, used_space=used_space)
+            text_pattern = cls.get_pattern(data)
         else:
             text_pattern = ''
         return str.__new__(cls, text_pattern)
@@ -400,14 +397,12 @@ class TextPattern(str):
         return is_ws
 
     @classmethod
-    def get_pattern(cls, text, used_space=True):
+    def get_pattern(cls, text):
         """convert data to regex pattern
 
         Parameters
         ----------
         text (str): a text
-        used_space (bool): use a space character instead of whitespace regex.
-                Default is True.
 
         Returns
         -------
@@ -417,16 +412,27 @@ class TextPattern(str):
         ------
         TextPatternError: raise an exception if pattern is invalid.
         """
-
-        pattern = ' +' if used_space else r'\s+'
+        start = 0
         result = []
-        for item in re.split(pattern, text):
-            if not item:
-                result.append(item)
+        for item in re.finditer(r'\s+', text):
+            before_matched = text[start: item.start()]
+            before_matched and result.append(do_soft_regex_escape(before_matched))
+            matched = item.group()
+            total = len(matched)
+            lst = list(matched)
+            is_space = lst[0] == ' ' and len(set(lst)) == 1
+            is_space and result.append(' ' if total == 1 else ' +')
+            not is_space and result.append(r'\s' if total == 1 else r'\s+')
+            start = item.end()
+        else:
+            if result:
+                after_matched = text[start:]
+                after_matched and result.append(do_soft_regex_escape(after_matched))
             else:
-                new_item = do_soft_regex_escape(item)
-                result.append(new_item)
-        text_pattern = pattern.join(result)
+                result.append(do_soft_regex_escape(text))
+
+        text_pattern = ''.join(result)
+
         validate_pattern(text_pattern, exception_cls=TextPatternError)
         return text_pattern
 
@@ -466,7 +472,6 @@ class ElementPattern(str):
     Raises
     ------
     ElementPatternError: raise an exception if pattern is invalid.
-
     """
     def __new__(cls, text):
         cls._variable = VarCls()
@@ -910,7 +915,7 @@ class ElementPattern(str):
 
         table = dict(space=r'^ *', space_plus=r'^ +',
                      ws=r'^\s*', ws_plus=r'^\s+')
-        pat = table.get(params, r'^ *')
+        pat = table.get(params, r'^\s*')
         return True, pat
 
     @classmethod
@@ -931,7 +936,7 @@ class ElementPattern(str):
 
         table = dict(space=r' *$', space_plus=r' +$',
                      ws=r'\s*$', ws_plus=r'\s+$')
-        pat = table.get(params, r' *$')
+        pat = table.get(params, r'\s*$')
         return True, pat
 
     @classmethod
@@ -1174,8 +1179,6 @@ class LinePattern(str):
     Parameters
     ----------
     text (str): a text.
-    used_space (bool): use space character instead of whitespace regex.
-            Default is True.
     prepended_ws (bool): prepend a whitespace at the beginning of a pattern.
             Default is False.
     appended_ws (bool): append a whitespace at the end of a pattern.
@@ -1185,35 +1188,34 @@ class LinePattern(str):
 
     Methods
     -------
-    LinePattern.get_pattern(text, used_space=True) -> str
-    LinePattern.readjust_if_or_empty(lst, used_space=True) -> None
+    LinePattern.get_pattern(text) -> str
+    LinePattern.readjust_if_or_empty(lst) -> None
     LinePattern.ensure_start_of_line_pattern(lst) -> None
     LinePattern.ensure_end_of_line_pattern(lst) -> None
-    LinePattern.prepend_whitespace(lst, used_space=True) -> None
+    LinePattern.prepend_whitespace(lst) -> None
     LinePattern.prepend_ignorecase_flag(lst) -> None
-    LinePattern.append_whitespace(lst, used_space=True) -> None
+    LinePattern.append_whitespace(lst) -> None
 
     Raises
     ------
     LinePatternError: raise an exception if pattern is invalid.
 
     """
-    def __new__(cls, text, used_space=True,
-                prepended_ws=False, appended_ws=False,
+    def __new__(cls, text, prepended_ws=False, appended_ws=False,
                 ignore_case=False):
         cls._variables = list()
         cls._items = list()
         data = str(text)
         if data:
             pattern = cls.get_pattern(
-                data, used_space=used_space, prepended_ws=prepended_ws,
+                data, prepended_ws=prepended_ws,
                 appended_ws=appended_ws, ignore_case=ignore_case
             )
         else:
-            pattern = r'^[ \t\v]*$'
+            pattern = r'^\s*$'
         return str.__new__(cls, pattern)
 
-    def __init__(self, text, used_space=True,
+    def __init__(self, text,
                  prepended_ws=False, appended_ws=False,
                  ignore_case=False):
         self.variables = self._variables
@@ -1237,7 +1239,7 @@ class LinePattern(str):
         return ''.join(lst)
 
     @classmethod
-    def get_pattern(cls, text, used_space=True,
+    def get_pattern(cls, text,
                     prepended_ws=False, appended_ws=False,
                     ignore_case=False):
         """convert text to regex pattern
@@ -1245,8 +1247,6 @@ class LinePattern(str):
         Parameters
         ----------
         text (str): a text
-        used_space (bool): use space character instead of whitespace regex.
-                Default is True.
         prepended_ws (bool): prepend a whitespace at the beginning of a pattern.
                 Default is False.
         appended_ws (bool): append a whitespace at the end of a pattern.
@@ -1269,7 +1269,7 @@ class LinePattern(str):
         for m in re.finditer(r'\w+[(][^)]*[)]', line):
             pre_match = m.string[start:m.start()]
             if pre_match:
-                lst.append(TextPattern(pre_match, used_space=used_space))
+                lst.append(TextPattern(pre_match))
             elm_pat = ElementPattern(m.group())
             if not elm_pat.variable.is_empty:
                 cls._variables.append(elm_pat.variable)
@@ -1279,40 +1279,38 @@ class LinePattern(str):
             if start:
                 after_match = m.string[start:]
                 if after_match:
-                    lst.append(TextPattern(after_match, used_space=used_space))
+                    lst.append(TextPattern(after_match))
 
         if len(lst) == 1 and lst[0].strip() == '':
-            return r'^[ \t\v]*$'
+            return r'^\s*$'
         elif not lst:
             if line.strip() == '':
-                return r'^[ \t\v]*$'
-            lst.append(TextPattern(line, used_space=used_space))
+                return r'^\s*$'
+            lst.append(TextPattern(line))
 
-        cls.readjust_if_or_empty(lst, used_space=used_space)
+        cls.readjust_if_or_empty(lst)
         cls.ensure_start_of_line_pattern(lst)
         cls.ensure_end_of_line_pattern(lst)
-        prepended_ws and cls.prepend_whitespace(lst, used_space=used_space)
+        prepended_ws and cls.prepend_whitespace(lst)
         ignore_case and cls.prepend_ignorecase_flag(lst)
-        appended_ws and cls.append_whitespace(lst, used_space=used_space)
+        appended_ws and cls.append_whitespace(lst)
         cls._items = lst
         pattern = ''.join(lst)
         validate_pattern(pattern, exception_cls=LinePatternError)
         return pattern
 
     @classmethod
-    def readjust_if_or_empty(cls, lst, used_space=True):
+    def readjust_if_or_empty(cls, lst):
         """readjust pattern if ElementPattern has or_empty flag
 
         Parameters
         ----------
         lst (list): a list of pattern
-        used_space (bool): use space character instead of whitespace regex.
-                Default is True.
         """
         if len(lst) < 2:
             return
 
-        ws_pat = r' *' if used_space else r'\s*'
+        ws_pat = r'\s*'
         for index, item in enumerate(lst[:-1]):
             next_item = lst[index+1]
             is_item_text_pat = isinstance(item, TextPattern)
@@ -1366,22 +1364,19 @@ class LinePattern(str):
                     lst[-2] = new_val
 
     @classmethod
-    def prepend_whitespace(cls, lst, used_space=True):
+    def prepend_whitespace(cls, lst):
         """prepend whitespace pattern to list
 
         Parameters
         ----------
         lst (list): a list of pattern
-        used_space (bool): use space character instead of whitespace regex.
-                Default is True.
         """
         if not lst:
             return
 
         pat = r'(\^|\\A)( |\\s)[*+]?'
         if not re.match(pat, lst[0]):
-            ws_pat = r' *' if used_space else r'\s*'
-            lst.insert(0, '^{}'.format(ws_pat))
+            lst.insert(0, r'^\s*')
 
     @classmethod
     def prepend_ignorecase_flag(cls, lst):
@@ -1399,21 +1394,18 @@ class LinePattern(str):
             lst.insert(0, '(?i)')
 
     @classmethod
-    def append_whitespace(cls, lst, used_space=True):
+    def append_whitespace(cls, lst):
         """append whitespace pattern to list
 
         Parameters
         ----------
         lst (list): a list of pattern
-        used_space (bool): use space character instead of whitespace regex.
-                Default is True.
         """
         if not lst:
             return
         pat = r'( |\\s)[*+]?(\$|\\Z)$'
         if not re.search(pat, lst[-1]):
-            ws_pat = r' *' if used_space else r'\s*'
-            lst.append('{}$'.format(ws_pat))
+            lst.append(r'\s*$')
 
 
 class MultilinePattern(str):
@@ -1523,13 +1515,11 @@ class PatternBuilder(str):
     Parameters
     ----------
     lst_of_text (list): a list of text.
-    used_space (bool): use space character instead of whitespace regex.
-            Default is True.
     var_name (str): a pattern variable.
 
     Methods
     -------
-    PatternBuilder.get_pattern(text, used_space=True) -> str
+    PatternBuilder.get_pattern(text) -> str
     PatternBuilder.get_alnum_pattern(text) -> str
     PatternBuilder.add_var_name(pattern, name='') -> str
 
@@ -1538,13 +1528,13 @@ class PatternBuilder(str):
     PatternBuilderError: raise an exception if pattern is invalid.
 
     """
-    def __new__(cls, lst_of_text, used_space=True, var_name=''):
+    def __new__(cls, lst_of_text, var_name=''):
         lst = []
         is_empty = False
         for text in lst_of_text:
             data = str(text)
             if data:
-                pattern = cls.get_pattern(data, used_space=used_space)
+                pattern = cls.get_pattern(data)
                 pattern not in lst and lst.append(pattern)
             else:
                 is_empty = True
@@ -1556,14 +1546,12 @@ class PatternBuilder(str):
         return str.__new__(cls, pattern)
 
     @classmethod
-    def get_pattern(cls, text, used_space=True):
+    def get_pattern(cls, text):
         """convert text to regex pattern
 
         Parameters
         ----------
         text (str): a text
-        used_space (bool): use space character instead of whitespace regex.
-                Default is True.
 
         Returns
         -------
@@ -1579,7 +1567,7 @@ class PatternBuilder(str):
         for m in re.finditer(r'[^a-zA-Z0-9]+', text):
             before_match = text[start:m.start()]
             lst.append(cls.get_alnum_pattern(before_match))
-            lst.append(TextPattern(m.group(), used_space=used_space))
+            lst.append(TextPattern(m.group()))
             start = m.end()
         else:
             if start > 0:
