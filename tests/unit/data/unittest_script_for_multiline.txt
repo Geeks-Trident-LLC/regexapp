@@ -37,7 +37,7 @@ Another line ....
 I don't have digital camera.
 ...
 last line""",    # test data
-            r"(?m)I +have +(?P<v1>\w+( +\w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*My +friend +has +(?P<v2>\w+( +\w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*I +don't +have +(?P<v3>\w+( +\w+)*)\."   # pattern
+            r"(?m)I have (?P<v1>\w+( \w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*My friend has (?P<v2>\w+( \w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*I don't have (?P<v3>\w+( \w+)*)\."   # pattern
         )
     )
 

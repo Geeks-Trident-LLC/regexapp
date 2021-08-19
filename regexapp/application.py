@@ -163,7 +163,7 @@ class Application:
     ----------
     root (tkinter.Tk): a top tkinter app.
 
-    panedwindow (ttk.Panedwindow): a Panewindow for main layout.
+    panedwindow (ttk.Panedwindow): a panedwindow for main layout.
     text_frame (ttk.Frame): a frame to contain test data component.
     entry_frame (tk.Frame): a frame to contain any action button such as
             open, paste, build, snippet, unittest, pytest, ...
@@ -175,8 +175,6 @@ class Application:
 
     radio_line_or_multiline_btn_var (tk.StringVar): a variable for radio button
             Default is multiline.
-    used_space_var (tk.BooleanVar): a variable for used_space checkbox.
-            Default is True.
     prepended_ws_var (tk.BooleanVar): a variable for prepended_ws checkbox.
             Default is False
     appended_ws_var (tk.BooleanVar): a variable for appended_ws checkbox.
@@ -250,8 +248,6 @@ class Application:
 
         self.radio_line_or_multiline_btn_var = tk.StringVar()
         self.radio_line_or_multiline_btn_var.set('multiline')
-        self.used_space_var = tk.BooleanVar()
-        self.used_space_var.set(True)
         self.prepended_ws_var = tk.BooleanVar()
         self.appended_ws_var = tk.BooleanVar()
         self.ignore_case_var = tk.BooleanVar()
@@ -284,7 +280,6 @@ class Application:
     def get_pattern_args(self):
         """return arguments of RegexBuilder class"""
         result = dict(
-            used_space=self.used_space_var.get(),
             ignore_case=self.ignore_case_var.get(),
             prepended_ws=self.prepended_ws_var.get(),
             appended_ws=self.appended_ws_var.get(),
@@ -308,7 +303,6 @@ class Application:
 
     def set_default_setting(self):
         """reset to default setting"""
-        self.used_space_var.set(True)
         self.prepended_ws_var.set(False)
         self.appended_ws_var.set(False)
         self.ignore_case_var.set(False)
@@ -375,8 +369,7 @@ class Application:
     def callback_file_open(self):
         """Callback for Menu File > Open."""
         filetypes = [
-            ('Text Files (*.txt)', '*.txt'),
-            ('All Dot Files (*.*)', '*.*'),
+            ('Text Files', '.txt', 'TEXT'),
             ('All Files', '*'),
         ]
         filename = filedialog.askopenfilename(filetypes=filetypes)
@@ -396,15 +389,15 @@ class Application:
 
     def callback_help_about(self):
         """Callback for Menu Help > About"""
-        def mouse_over(event):
+        def mouse_over(event):      # noqa
             url_lbl.config(font=url_lbl.default_font + ('underline',))
             url_lbl.config(cursor='hand2')
 
-        def mouse_out(event):
+        def mouse_out(event):       # noqa
             url_lbl.config(font=url_lbl.default_font)
             url_lbl.config(cursor='arrow')
 
-        def mouse_press(event):
+        def mouse_press(event):     # noqa
             self.browser.open_new_tab(url_lbl.link)
 
         is_macos = platform.system() == 'Darwin'
@@ -492,8 +485,7 @@ class Application:
 
         # arguments checkboxes
         lst = [
-            ['used_space', self.used_space_var, 0, 0],
-            ['ignore_case', self.ignore_case_var, 0, 1],
+            ['ignore_case', self.ignore_case_var, 0, 0],
             ['prepended_ws', self.prepended_ws_var, 1, 0],
             ['appended_ws', self.appended_ws_var, 1, 1]
         ]
