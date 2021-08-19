@@ -41,7 +41,7 @@ def load_tests(loader, tests, pattern):
             "test_today_temperature_is_75_degrees_fahrenheit",    # test name
             "today temperature is 75 degrees fahrenheit.",    # test data
             "phrase(var_subject) is digits(var_degree) degrees word(var_unit).",    # ref. user prepared data
-            r"(?P<subject>\w+( \w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."   # pattern
+            r"(?P<subject>\w+( \w+)+) is (?P<degree>\d+) degrees (?P<unit>\w+)\."   # pattern
         )
     )
 
@@ -51,7 +51,7 @@ def load_tests(loader, tests, pattern):
             "test_the_highest_temperature_ever_recorded_on",    # test name
             "the highest temperature ever recorded on Earth is 134 degrees fahrenheit.",    # test data
             "phrase(var_subject) is digits(var_degree) degrees word(var_unit).",    # ref. user prepared data
-            r"(?P<subject>\w+( \w+)+) +is +(?P<degree>\d+) +degrees +(?P<unit>\w+)\."   # pattern
+            r"(?P<subject>\w+( \w+)+) is (?P<degree>\d+) degrees (?P<unit>\w+)\."   # pattern
         )
     )
 
@@ -61,7 +61,7 @@ def load_tests(loader, tests, pattern):
             "test_ipv4_address_192_168_0_1_preferred",    # test name
             "   IPv4 Address. . . . . . . . . . . : 192.168.0.1(Preferred)",    # test data
             "   IPv4 Address. . . . . . . . . . . : ipv4_address(var_ipv4_addr)(word(var_status))",    # ref. user prepared data
-            r" +IPv4 +Address\. +\. +\. +\. +\. +\. +\. +\. +\. +\. +\. +: +(?P<ipv4_addr>((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){3})\((?P<status>\w+)\)"   # pattern
+            r" +IPv4 Address\. \. \. \. \. \. \. \. \. \. \. : (?P<ipv4_addr>((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))(\.((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){3})\((?P<status>\w+)\)"   # pattern
         )
     )
 
