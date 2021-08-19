@@ -85,10 +85,10 @@ class TestElementPattern:
             ('mixed_number()', '[+\\(\\[\\$-]?(\\d+(,\\d+)*)?[.]?\\d+[\\]\\)%a-zA-Z]*'),
             ('datetime()', '[0-9]+/[0-9]+/[0-9]+'),
             ('datetime(format)', '[0-9]+/[0-9]+/[0-9]+'),
-            ('datetime(format1)', '[0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+'),
-            ('datetime(format1, format3)', '([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)'),
-            ('datetime(var_datetime, format1, format3)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+))'),
-            ('datetime(var_datetime, format1, format3, n/a)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|n/a)'),
+            ('datetime(format1)', '[0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+'),
+            ('datetime(format1, format3)', '([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)'),
+            ('datetime(var_datetime, format1, format3)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+))'),
+            ('datetime(var_datetime, format1, format3, n/a)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|n/a)'),
             ('mac_address()', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})'),
             ('mac_address(or_n/a)', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a'),
             ('mac_address(var_mac_addr, or_n/a)', '(?P<mac_addr>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a)'),
@@ -236,28 +236,28 @@ class TestLinePattern:
             (
                 '   Lease Expires . . . . . . . . . . : Sunday, April 11, 2021 8:43:33 AM',  # test data
                 '   Lease Expires . . . . . . . . . . : datetime(var_datetime, format3)',    # user prepared data
-                '(?i) +Lease Expires \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<datetime>[a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)',   # expected pattern
+                '(?i) +Lease Expires \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<datetime>[a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)',   # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'vagrant  + pts/0        2021-04-11 02:58   .          1753 (10.0.2.2)',                    # test data
                 'vagrant  + pts/0        datetime(var_datetime, format4)   .          1753 (10.0.2.2)',     # user prepared data
-                '(?i)vagrant +\\+ pts/0 +(?P<datetime>[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+) +\\. +1753 \\(10\\.0\\.2\\.2\\)',  # expected pattern
+                '(?i)vagrant +\\+ pts/0 +(?P<datetime>[0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+) +\\. +1753 \\(10\\.0\\.2\\.2\\)',  # expected pattern
                 False, False, True,
                 True
             ),
             (
                 '   Lease Expires . . . . . . . . . . : Sunday, April 11, 2021 8:43:33 AM',         # test data
                 '   Lease Expires . . . . . . . . . . : datetime(var_datetime, format3, format4)',  # user prepared data
-                '(?i) +Lease Expires \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<datetime>([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+))',     # expected pattern
+                '(?i) +Lease Expires \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<datetime>([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+))',     # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'vagrant  + pts/0        2021-04-11 02:58   .          1753 (10.0.2.2)',                            # test data
                 'vagrant  + pts/0        datetime(var_datetime, format3, format4)   .          1753 (10.0.2.2)',    # user prepared data
-                '(?i)vagrant +\\+ pts/0 +(?P<datetime>([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+)) +\\. +1753 \\(10\\.0\\.2\\.2\\)',     # expected pattern
+                '(?i)vagrant +\\+ pts/0 +(?P<datetime>([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+)) +\\. +1753 \\(10\\.0\\.2\\.2\\)',     # expected pattern
                 False, False, True,
                 True
             ),
