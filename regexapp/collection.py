@@ -1526,9 +1526,11 @@ class PatternBuilder(str):
     Raises
     ------
     PatternBuilderError: raise an exception if pattern is invalid.
-
     """
     def __new__(cls, lst_of_text, var_name=''):
+        if not isinstance(lst_of_text, (list, tuple)):
+            lst_of_text = [lst_of_text]
+
         lst = []
         is_empty = False
         for text in lst_of_text:
