@@ -47,10 +47,10 @@ def tc_info():
 
         Matched Result:
         --------------
-        pattern: (?P<subject>\\w+( \\w+)+) +is +(?P<degree>\\d+) +degrees +(?P<unit>\\w+)\\.
+        pattern: (?P<subject>\\w+( \\w+)+) is (?P<degree>\\d+) degrees (?P<unit>\\w+)\\.
         matched: [{'subject': 'today temperature', 'degree': '75', 'unit': 'fahrenheit'}, {'subject': 'the highest temperature ever recorded on Earth', 'degree': '134', 'unit': 'fahrenheit'}]
         ----------
-        pattern:  +IPv4 +Address\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +\\. +: +(?P<ipv4_addr>((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3})\\((?P<status>\\w+)\\)
+        pattern:  +IPv4 Address\\. \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<ipv4_addr>((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3})\\((?P<status>\\w+)\\)
         matched: [{'ipv4_addr': '192.168.0.1', 'status': 'Preferred'}]
         ----------
     """
@@ -59,7 +59,7 @@ def tc_info():
     # other test info
     ############################################################################
     other_prepared_data = """
-        file_type(var_file_type)file_permission(var_file_permission) digits(var_hard_links) word(var_file_owner) word(var_file_group) digits(var_file_size) month_day(var_date) hour_minute(var_time) mixed_words(var_filename)
+        file_type(var_file_type)file_permission(var_file_permission) digits(var_hard_links) word(var_file_owner) word(var_file_group)  digits(var_file_size) month_day(var_date) hour_minute(var_time) mixed_words(var_filename)
     """
 
     other_test_data = """
@@ -77,7 +77,7 @@ def tc_info():
 
         Matched Result:
         --------------
-        pattern: (?P<file_type>\\S)(?P<file_permission>\\S+) +(?P<hard_links>\\d+) +(?P<file_owner>\\w+) +(?P<file_group>\\w+) +(?P<file_size>\\d+) +(?P<date>[a-zA-Z]{3} +\\d{1,2}) +(?P<time>\\d+:\\d+) +(?P<filename>\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)*)
+        pattern: (?P<file_type>\\S)(?P<file_permission>\\S+) (?P<hard_links>\\d+) (?P<file_owner>\\w+) (?P<file_group>\\w+) +(?P<file_size>\\d+) (?P<date>[a-zA-Z]{3} +\\d{1,2}) (?P<time>\\d+:\\d+) (?P<filename>\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)*)
         matched: [{'file_type': '-', 'file_permission': 'rw-r--r--', 'hard_links': '1', 'file_owner': 'abc', 'file_group': '197121', 'file_size': '133', 'date': 'Jun 10', 'time': '20:33', 'filename': 'README.md'}, {'file_type': '-', 'file_permission': 'rw-r--r--', 'hard_links': '1', 'file_owner': 'abc', 'file_group': '197121', 'file_size': '1488', 'date': 'Jul 27', 'time': '00:48', 'filename': 'setup.py'}, {'file_type': 'd', 'file_permission': 'rwxr-xr-x', 'hard_links': '1', 'file_owner': 'abc', 'file_group': '197121', 'file_size': '0', 'date': 'Jul  7', 'time': '15:33', 'filename': 'tests/'}]
         ----------
     """
@@ -105,7 +105,7 @@ def tc_info():
     ############################################################################
     # test info - snippet scenario 1 - single pattern via line
     ############################################################################
-    snippet_line_pattern_prepared_data = "word(var_v1) digits(var_v2, or_empty) word(var_v3, or_empty)"
+    snippet_line_pattern_prepared_data = "word(var_v1)  digits(var_v2, or_empty)  word(var_v3, or_empty)"
 
     snippet_line_pattern_test_data = """
         value1   123   value2
@@ -118,8 +118,8 @@ def tc_info():
     # test info - snippet scenario 2 - patterns via line
     ############################################################################
     snippet_line_patterns_prepared_data = """
-        words(var_v1, started) words(var_v2, ended)
-        words(var_v3, started) number(var_v4, ended)
+        words(var_v1, started)   words(var_v2, ended)
+        words(var_v3, started)   number(var_v4, ended)
     """
 
     snippet_line_patterns_test_data = """
