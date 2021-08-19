@@ -57,8 +57,6 @@ class RegexBuilder:
     user_data (str, list): a user data can be either string or list of string.
     test_data (str, list): a test data can be either string or list of string.
     is_line (bool): a flag to use LinePattern.  Default is False.
-    used_space (bool): use space character instead of whitespace regex.
-            Default is True.
     prepended_ws (bool): prepend a whitespace at the beginning of a pattern.
             Default is False.
     appended_ws (bool): append a whitespace at the end of a pattern.
@@ -100,12 +98,10 @@ class RegexBuilder:
     RegexBuilderError: if user_data or test_data is invalid format.
     """
     def __init__(self, user_data='', test_data='', is_line=False,
-                 used_space=True, prepended_ws=False,
-                 appended_ws=False, ignore_case=False):
+                 prepended_ws=False, appended_ws=False, ignore_case=False):
         self.user_data = user_data
         self.test_data = test_data
         self.is_line = is_line
-        self.used_space = used_space
         self.prepended_ws = prepended_ws
         self.appended_ws = appended_ws
         self.ignore_case = ignore_case
@@ -178,7 +174,7 @@ class RegexBuilder:
         for user_data in lst_of_user_data:
             if self.is_line:
                 pattern = LinePattern(
-                    user_data, used_space=self.used_space,
+                    user_data,
                     prepended_ws=self.prepended_ws,
                     appended_ws=self.appended_ws,
                     ignore_case=self.ignore_case
@@ -498,9 +494,9 @@ class DynamicGenTestScript:
             Default is 6 words.
     kwargs (dict): an optional keyword arguments.
             Community edition will use the following keywords:
-                used_space, prepended_ws, appended_ws, ignore_case
+                prepended_ws, appended_ws, ignore_case
             Pro or Enterprise edition will use
-                 used_space, prepended_ws, appended_ws, ignore_case, other keywords
+                prepended_ws, appended_ws, ignore_case, other keywords
     test_cls_name (str): a test class name for test script.  This test class
             name only be applicable for unittest or pytest.
             Default is TestDynamicGenTestScript.
@@ -555,7 +551,6 @@ class DynamicGenTestScript:
 
             user_data, test_data = self.test_info
             self.test_data = test_data
-            used_space = self.kwargs.get('used_space', True)
             prepended_ws = self.kwargs.get('prepended_ws', False)
             appended_ws = self.kwargs.get('appended_ws', False)
             ignore_case = self.kwargs.get('ignore_case', False)
@@ -563,7 +558,7 @@ class DynamicGenTestScript:
             testable = RegexBuilder(
                 user_data=user_data, test_data=test_data,
                 is_line=self.is_line,
-                used_space=used_space, prepended_ws=prepended_ws,
+                prepended_ws=prepended_ws,
                 appended_ws=appended_ws, ignore_case=ignore_case
             )
         testable.build()
