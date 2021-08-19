@@ -1043,6 +1043,8 @@ class ElementPattern(str):
         ----------
         pattern (str): a pattern
         word_bound (str): word bound case.  Default is empty.
+                value of word_bound can be word_bound, word_bound_left,
+                or word_bound_right
         added_parentheses (bool): always add parentheses to pattern.  Default is True.
 
         Returns
@@ -1516,6 +1518,9 @@ class PatternBuilder(str):
     ----------
     lst_of_text (list): a list of text.
     var_name (str): a pattern variable.
+    word_bound (str): word bound case.  Default is empty.
+            value of word_bound can be word_bound, word_bound_left,
+            or word_bound_right
 
     Methods
     -------
@@ -1527,7 +1532,7 @@ class PatternBuilder(str):
     ------
     PatternBuilderError: raise an exception if pattern is invalid.
     """
-    def __new__(cls, lst_of_text, var_name=''):
+    def __new__(cls, lst_of_text, var_name='', word_bound=''):
         if not isinstance(lst_of_text, (list, tuple)):
             lst_of_text = [lst_of_text]
 
@@ -1543,6 +1548,7 @@ class PatternBuilder(str):
 
         is_empty and lst.append('')
         pattern = ElementPattern.join_list(lst)
+        pattern = ElementPattern.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=var_name)
         validate_pattern(pattern, exception_cls=PatternBuilderError)
         return str.__new__(cls, pattern)
