@@ -85,10 +85,10 @@ class TestElementPattern:
             ('mixed_number()', '[+\\(\\[\\$-]?(\\d+(,\\d+)*)?[.]?\\d+[\\]\\)%a-zA-Z]*'),
             ('datetime()', '[0-9]+/[0-9]+/[0-9]+'),
             ('datetime(format)', '[0-9]+/[0-9]+/[0-9]+'),
-            ('datetime(format1)', '[0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+'),
-            ('datetime(format1, format3)', '([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)'),
-            ('datetime(var_datetime, format1, format3)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+))'),
-            ('datetime(var_datetime, format1, format3, n/a)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ +[0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|n/a)'),
+            ('datetime(format1)', '[0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+'),
+            ('datetime(format1, format3)', '([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)'),
+            ('datetime(var_datetime, format1, format3)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+))'),
+            ('datetime(var_datetime, format1, format3, n/a)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|n/a)'),
             ('mac_address()', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})'),
             ('mac_address(or_n/a)', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a'),
             ('mac_address(var_mac_addr, or_n/a)', '(?P<mac_addr>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a)'),
@@ -104,18 +104,18 @@ class TestElementPattern:
             ('word(var_v1, word_bound_right)', '(?P<v1>\\w+\\b)'),
             ('word(var_v1, word_bound)', '(?P<v1>\\b\\w+\\b)'),
             ('word(var_v1, word_bound_raw)', '(?P<v1>\\w+|word_bound)'),
-            ('word(var_v1, started)', '^(?P<v1>\\w+)'),
-            ('word(var_v1, started_ws)', '^\\s*(?P<v1>\\w+)'),
-            ('word(var_v1, started_ws_plus)', '^\\s+(?P<v1>\\w+)'),
-            ('word(var_v1, started_space)', '^ *(?P<v1>\\w+)'),
-            ('word(var_v1, started_space_plus)', '^ +(?P<v1>\\w+)'),
-            ('word(var_v1, started_raw)', '(?P<v1>\\w+|started)'),
-            ('word(var_v1, ended)', '(?P<v1>\\w+)$'),
-            ('word(var_v1, ended_ws)', '(?P<v1>\\w+)\\s*$'),
-            ('word(var_v1, ended_ws_plus)', '(?P<v1>\\w+)\\s+$'),
-            ('word(var_v1, ended_space)', '(?P<v1>\\w+) *$'),
-            ('word(var_v1, ended_space_plus)', '(?P<v1>\\w+) +$'),
-            ('word(var_v1, ended_raw)', '(?P<v1>\\w+|ended)'),
+            ('word(var_v1, head)', '^(?P<v1>\\w+)'),
+            ('word(var_v1, head_ws)', '^\\s*(?P<v1>\\w+)'),
+            ('word(var_v1, head_ws_plus)', '^\\s+(?P<v1>\\w+)'),
+            ('word(var_v1, head_space)', '^ *(?P<v1>\\w+)'),
+            ('word(var_v1, head_space_plus)', '^ +(?P<v1>\\w+)'),
+            ('word(var_v1, head_raw)', '(?P<v1>\\w+|head)'),
+            ('word(var_v1, tail)', '(?P<v1>\\w+)$'),
+            ('word(var_v1, tail_ws)', '(?P<v1>\\w+)\\s*$'),
+            ('word(var_v1, tail_ws_plus)', '(?P<v1>\\w+)\\s+$'),
+            ('word(var_v1, tail_space)', '(?P<v1>\\w+) *$'),
+            ('word(var_v1, tail_space_plus)', '(?P<v1>\\w+) +$'),
+            ('word(var_v1, tail_raw)', '(?P<v1>\\w+|tail)'),
             ('letter(var_word, repetition_3)', '(?P<word>[a-zA-Z]{3})'),
             ('letter(var_word, repetition_3_8)', '(?P<word>[a-zA-Z]{3,8})'),
             ('letter(var_word, repetition_3_)', '(?P<word>[a-zA-Z]{3,})'),
@@ -236,28 +236,28 @@ class TestLinePattern:
             (
                 '   Lease Expires . . . . . . . . . . : Sunday, April 11, 2021 8:43:33 AM',  # test data
                 '   Lease Expires . . . . . . . . . . : datetime(var_datetime, format3)',    # user prepared data
-                '(?i) +Lease Expires \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<datetime>[a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)',   # expected pattern
+                '(?i) +Lease Expires \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<datetime>[a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)',   # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'vagrant  + pts/0        2021-04-11 02:58   .          1753 (10.0.2.2)',                    # test data
                 'vagrant  + pts/0        datetime(var_datetime, format4)   .          1753 (10.0.2.2)',     # user prepared data
-                '(?i)vagrant +\\+ pts/0 +(?P<datetime>[0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+) +\\. +1753 \\(10\\.0\\.2\\.2\\)',  # expected pattern
+                '(?i)vagrant +\\+ pts/0 +(?P<datetime>[0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+) +\\. +1753 \\(10\\.0\\.2\\.2\\)',  # expected pattern
                 False, False, True,
                 True
             ),
             (
                 '   Lease Expires . . . . . . . . . . : Sunday, April 11, 2021 8:43:33 AM',         # test data
                 '   Lease Expires . . . . . . . . . . : datetime(var_datetime, format3, format4)',  # user prepared data
-                '(?i) +Lease Expires \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<datetime>([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+))',     # expected pattern
+                '(?i) +Lease Expires \\. \\. \\. \\. \\. \\. \\. \\. \\. \\. : (?P<datetime>([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+))',     # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'vagrant  + pts/0        2021-04-11 02:58   .          1753 (10.0.2.2)',                            # test data
                 'vagrant  + pts/0        datetime(var_datetime, format3, format4)   .          1753 (10.0.2.2)',    # user prepared data
-                '(?i)vagrant +\\+ pts/0 +(?P<datetime>([a-zA-Z]+, +[a-zA-Z]+ +[0-9]+, +[0-9]+ +[0-9]+:[0-9]+:[0-9]+ +[a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ +[0-9]+:[0-9]+)) +\\. +1753 \\(10\\.0\\.2\\.2\\)',     # expected pattern
+                '(?i)vagrant +\\+ pts/0 +(?P<datetime>([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+)) +\\. +1753 \\(10\\.0\\.2\\.2\\)',     # expected pattern
                 False, False, True,
                 True
             ),
@@ -291,42 +291,42 @@ class TestLinePattern:
             ),
             (
                 'cherry is delicious.',                     # test data
-                'word(var_fruit, started) is delicious.',   # user prepared data
-                '(?i)^(?P<fruit>\\w+) is delicious\\.', # expected pattern
+                'word(var_fruit, head) is delicious.',      # user prepared data
+                '(?i)^(?P<fruit>\\w+) is delicious\\.',     # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'cherry is delicious.',                             # test data
-                'word(var_fruit, started_ws) is delicious.',        # user prepared data
+                'word(var_fruit, head_ws) is delicious.',        # user prepared data
                 '(?i)^\\s*(?P<fruit>\\w+) is delicious\\.',     # expected pattern
                 False, False, True,
                 True
             ),
             (
                 '\r\n cherry is delicious.',                        # test data
-                'word(var_fruit, started_ws) is delicious.',        # user prepared data
+                'word(var_fruit, head_ws) is delicious.',        # user prepared data
                 '(?i)^\\s*(?P<fruit>\\w+) is delicious\\.',     # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'I live in ABC',                                        # test data
-                'I live in words(var_city, ended)',                     # user prepared data
+                'I live in words(var_city, tail)',                     # user prepared data
                 '(?i)I live in (?P<city>\\w+( \\w+)*)$',        # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'I live in ABC',                                        # test data
-                'I live in words(var_city, ended_ws)',                  # user prepared data
+                'I live in words(var_city, tail_ws)',                  # user prepared data
                 '(?i)I live in (?P<city>\\w+( \\w+)*)\\s*$',    # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'I live in ABC \r\n',                                   # test data
-                'I live in words(var_city, ended_ws)',                  # user prepared data
+                'I live in words(var_city, tail_ws)',                  # user prepared data
                 '(?i)I live in (?P<city>\\w+( \\w+)*)\\s*$',    # expected pattern
                 False, False, True,
                 True
@@ -453,7 +453,7 @@ class TestLinePattern:
             ),
         ]
     )
-    def test_line_pattern(self, test_data, user_prepared_data,expected_pattern,
+    def test_line_pattern(self, test_data, user_prepared_data, expected_pattern,
                           prepended_ws, appended_ws, ignore_case,
                           is_matched):
         pattern = LinePattern(
@@ -550,12 +550,14 @@ class TestLinePattern:
 
 class TestPatternBuilder:
     @pytest.mark.parametrize(
-        ('test_data', 'expected_pattern', 'var_name'),
+        ('test_data', 'expected_pattern', 'var_name', 'word_bound'),
         [
             (
                 ['Friday, April  9, 2021 8:43:15 PM'],
                 '[a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+',
-                ''
+                '',     # var_name
+                '',     # word_bound
+
             ),
             (
                 [
@@ -563,22 +565,44 @@ class TestPatternBuilder:
                     '12/06/2010 08:56:45'
                 ],
                 '([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)',
-                ''
+                '',     # var_name
+                '',     # word_bound
             ),
             (
                 ['2019 Dec  8 14:44:01'],
                 '[0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+',
-                ''
+                '',     # var_name
+                '',     # word_bound
             ),
             (
                 ['2019 Dec  8 14:44:01'],
                 '(?P<datetime>[0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+)',
-                'datetime'
+                'datetime',     # var_name
+                '',             # word_bound
             ),
+            (
+                ['2019 Dec  8 14:44:01'],
+                '(?P<datetime>\\b([0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+))',
+                'datetime',  # var_name
+                'word_bound_left',  # word_bound
+            ),
+            (
+                ['2019 Dec  8 14:44:01'],
+                '(?P<datetime>([0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+)\\b)',
+                'datetime',  # var_name
+                'word_bound_right',     # word_bound
+            ),
+            (
+                ['2019 Dec  8 14:44:01'],
+                '(?P<datetime>\\b([0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+)\\b)',
+                'datetime',  # var_name
+                'word_bound',   # word_bound
+            ),
+
         ]
     )
-    def test_pattern_builder(self, test_data, expected_pattern, var_name):
-        pattern = PatternBuilder(test_data, var_name=var_name)
+    def test_pattern_builder(self, test_data, expected_pattern, var_name, word_bound):
+        pattern = PatternBuilder(test_data, var_name=var_name, word_bound=word_bound)
         assert pattern == expected_pattern
         for data in test_data:
             match = re.search(pattern, data)
