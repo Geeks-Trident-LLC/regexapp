@@ -465,7 +465,7 @@ class ElementPattern(str):
     ElementPattern.join_list(lst) -> str
     ElementPattern.add_var_name(pattern, name='') -> str
     ElementPattern.add_word_bound(pattern, word_bound='', added_parentheses=True) -> str
-    ElementPattern.add_start_of_string(pattern, started='') -> str
+    ElementPattern.add_start_of_string(pattern, head='') -> str
     ElementPattern.add_end_of_string(pattern, ended='') -> str
     ElementPattern.add_repetition(lst, repetition='') -> list
 
@@ -587,7 +587,7 @@ class ElementPattern(str):
         or_pat = r'or_(?P<case>[^,]+)'
         is_empty = False
         word_bound = ''
-        started = ''
+        head = ''
         ended = ''
         is_repeated = False
 
@@ -600,11 +600,11 @@ class ElementPattern(str):
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('started(_raw|(_(ws|space)(_plus)?))?$', arg):
-                if arg == 'started_raw':
-                    'started' not in lst and lst.append('started')
+            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'head_raw':
+                    'head' not in lst and lst.append('head')
                 else:
-                    started = arg
+                    head = arg
             elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
                 if arg == 'ended_raw':
                     'ended' not in lst and lst.append('ended')
@@ -644,7 +644,7 @@ class ElementPattern(str):
             pattern, word_bound=word_bound, added_parentheses=is_multiple
         )
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, started=started)
+        pattern = cls.add_start_of_string(pattern, head=head)
         pattern = cls.add_end_of_string(pattern, ended=ended)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -689,7 +689,7 @@ class ElementPattern(str):
         or_pat = r'or_(?P<case>[^,]+)'
         is_empty = False
         word_bound = ''
-        started = ''
+        head = ''
         ended = ''
 
         for arg in arguments:
@@ -701,11 +701,11 @@ class ElementPattern(str):
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('started(_raw|(_(ws|space)(_plus)?))?$', arg):
-                if arg == 'started_raw':
-                    'started' not in lst and lst.append('started')
+            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'head_raw':
+                    'head' not in lst and lst.append('head')
                 else:
-                    started = arg
+                    head = arg
             elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
                 if arg == 'ended_raw':
                     'ended' not in lst and lst.append('ended')
@@ -738,7 +738,7 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, started=started)
+        pattern = cls.add_start_of_string(pattern, head=head)
         pattern = cls.add_end_of_string(pattern, ended=ended)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -766,7 +766,7 @@ class ElementPattern(str):
         or_pat = r'or_(?P<case>[^,]+)'
         is_empty = False
         word_bound = ''
-        started = ''
+        head = ''
         ended = ''
 
         for arg in arguments:
@@ -778,11 +778,11 @@ class ElementPattern(str):
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('started(_raw|(_(ws|space)(_plus)?))?$', arg):
-                if arg == 'started_raw':
-                    'started' not in lst and lst.append('started')
+            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'head_raw':
+                    'head' not in lst and lst.append('head')
                 else:
-                    started = arg
+                    head = arg
             elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
                 if arg == 'ended_raw':
                     'ended' not in lst and lst.append('ended')
@@ -815,7 +815,7 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, started=started)
+        pattern = cls.add_start_of_string(pattern, head=head)
         pattern = cls.add_end_of_string(pattern, ended=ended)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -843,7 +843,7 @@ class ElementPattern(str):
         or_pat = r'or_(?P<case>[^,]+)'
         is_empty = False
         word_bound = ''
-        started = ''
+        head = ''
         ended = ''
 
         for arg in arguments:
@@ -855,11 +855,11 @@ class ElementPattern(str):
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('started(_raw|(_(ws|space)(_plus)?))?$', arg):
-                if arg == 'started_raw':
-                    'started' not in lst and lst.append('started')
+            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'head_raw':
+                    'head' not in lst and lst.append('head')
                 else:
-                    started = arg
+                    head = arg
             elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
                 if arg == 'ended_raw':
                     'ended' not in lst and lst.append('ended')
@@ -892,7 +892,7 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, started=started)
+        pattern = cls.add_start_of_string(pattern, head=head)
         pattern = cls.add_end_of_string(pattern, ended=ended)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -1067,32 +1067,32 @@ class ElementPattern(str):
         return new_pattern
 
     @classmethod
-    def add_start_of_string(cls, pattern, started=''):
+    def add_start_of_string(cls, pattern, head=''):
         """prepend start of string i.e ^ or ^\\s* or ^\\s+ or ^ * or ^ + regex pattern
 
         Parameters
         ----------
         pattern (str): a pattern
-        started (str): start of string case.  Default is empty.
+        head (str): start of string case.  Default is empty.
 
         Returns
         -------
         str: new pattern with start of string pattern
         """
-        if started:
+        if head:
             case1, case2 = r'^\s*', r'^\s+'
             case3, case4 = r'^ *', r'^ +'
             case5 = r'^'
 
-            if started == 'started_ws' and not pattern.startswith(case1):
+            if head == 'head_ws' and not pattern.startswith(case1):
                 new_pattern = '{}{}'.format(case1, pattern)
-            elif started == 'started_ws_plus' and not pattern.startswith(case2):
+            elif head == 'head_ws_plus' and not pattern.startswith(case2):
                 new_pattern = '{}{}'.format(case2, pattern)
-            elif started == 'started_space' and not pattern.startswith(case3):
+            elif head == 'head_space' and not pattern.startswith(case3):
                 new_pattern = '{}{}'.format(case3, pattern)
-            elif started == 'started_space_plus' and not pattern.startswith(case4):
+            elif head == 'head_space_plus' and not pattern.startswith(case4):
                 new_pattern = '{}{}'.format(case4, pattern)
-            elif started == 'started' and not pattern.startswith(case5):
+            elif head == 'head' and not pattern.startswith(case5):
                 new_pattern = '{}{}'.format(case5, pattern)
             else:
                 new_pattern = pattern
