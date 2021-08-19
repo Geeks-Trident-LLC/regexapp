@@ -118,8 +118,8 @@ def tc_info():
     # test info - snippet scenario 2 - patterns via line
     ############################################################################
     snippet_line_patterns_prepared_data = """
-        words(var_v1, head)   words(var_v2, ended)
-        words(var_v3, head)   number(var_v4, ended)
+        words(var_v1, head)   words(var_v2, tail)
+        words(var_v3, head)   number(var_v4, tail)
     """
 
     snippet_line_patterns_test_data = """

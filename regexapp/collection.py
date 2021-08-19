@@ -466,7 +466,7 @@ class ElementPattern(str):
     ElementPattern.add_var_name(pattern, name='') -> str
     ElementPattern.add_word_bound(pattern, word_bound='', added_parentheses=True) -> str
     ElementPattern.add_start_of_string(pattern, head='') -> str
-    ElementPattern.add_end_of_string(pattern, ended='') -> str
+    ElementPattern.add_end_of_string(pattern, tail='') -> str
     ElementPattern.add_repetition(lst, repetition='') -> list
 
     Raises
@@ -588,7 +588,7 @@ class ElementPattern(str):
         is_empty = False
         word_bound = ''
         head = ''
-        ended = ''
+        tail = ''
         is_repeated = False
 
         for arg in arguments:
@@ -605,11 +605,11 @@ class ElementPattern(str):
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
-                if arg == 'ended_raw':
-                    'ended' not in lst and lst.append('ended')
+            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'tail_raw':
+                    'tail' not in lst and lst.append('tail')
                 else:
-                    ended = arg
+                    tail = arg
             elif re.match(r'repetition_\d*(_\d*)?$', arg):
                 if not is_repeated:
                     lst = cls.add_repetition(lst, repetition=arg)
@@ -645,7 +645,7 @@ class ElementPattern(str):
         )
         pattern = cls.add_var_name(pattern, name=name)
         pattern = cls.add_start_of_string(pattern, head=head)
-        pattern = cls.add_end_of_string(pattern, ended=ended)
+        pattern = cls.add_end_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -690,7 +690,7 @@ class ElementPattern(str):
         is_empty = False
         word_bound = ''
         head = ''
-        ended = ''
+        tail = ''
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
@@ -706,11 +706,11 @@ class ElementPattern(str):
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
-                if arg == 'ended_raw':
-                    'ended' not in lst and lst.append('ended')
+            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'tail_raw':
+                    'tail' not in lst and lst.append('tail')
                 else:
-                    ended = arg
+                    tail = arg
             elif re.match(r'^meta_data_\w+', arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
@@ -739,7 +739,7 @@ class ElementPattern(str):
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
         pattern = cls.add_start_of_string(pattern, head=head)
-        pattern = cls.add_end_of_string(pattern, ended=ended)
+        pattern = cls.add_end_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -767,7 +767,7 @@ class ElementPattern(str):
         is_empty = False
         word_bound = ''
         head = ''
-        ended = ''
+        tail = ''
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
@@ -783,11 +783,11 @@ class ElementPattern(str):
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
-                if arg == 'ended_raw':
-                    'ended' not in lst and lst.append('ended')
+            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'tail_raw':
+                    'tail' not in lst and lst.append('tail')
                 else:
-                    ended = arg
+                    tail = arg
             elif re.match(r'^meta_data_\w+', arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
@@ -816,7 +816,7 @@ class ElementPattern(str):
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
         pattern = cls.add_start_of_string(pattern, head=head)
-        pattern = cls.add_end_of_string(pattern, ended=ended)
+        pattern = cls.add_end_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -844,7 +844,7 @@ class ElementPattern(str):
         is_empty = False
         word_bound = ''
         head = ''
-        ended = ''
+        tail = ''
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
@@ -860,11 +860,11 @@ class ElementPattern(str):
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('ended(_raw|(_(ws|space)(_plus)?))?$', arg):
-                if arg == 'ended_raw':
-                    'ended' not in lst and lst.append('ended')
+            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'tail_raw':
+                    'tail' not in lst and lst.append('tail')
                 else:
-                    ended = arg
+                    tail = arg
             elif re.match(r'^meta_data_\w+', arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
@@ -893,7 +893,7 @@ class ElementPattern(str):
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
         pattern = cls.add_start_of_string(pattern, head=head)
-        pattern = cls.add_end_of_string(pattern, ended=ended)
+        pattern = cls.add_end_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -1100,31 +1100,31 @@ class ElementPattern(str):
         return pattern
 
     @classmethod
-    def add_end_of_string(cls, pattern, ended=''):
+    def add_end_of_string(cls, pattern, tail=''):
         """append end of string i.e $ or \\s*$ or $\\s+$ or  *$ or  +$ regex pattern
 
         Parameters
         ----------
         pattern (str): a pattern
-        ended (str): end of string case.  Default is empty.
+        tail (str): end of string case.  Default is empty.
 
         Returns
         -------
         str: new pattern with end of string pattern
         """
-        if ended:
+        if tail:
             case1, case2 = r'\s*$', r'\s+$'
             case3, case4 = r' *$', r' +$'
             case5 = r'$'
-            if ended == 'ended_ws' and not pattern.endswith(case1):
+            if tail == 'tail_ws' and not pattern.endswith(case1):
                 new_pattern = '{}{}'.format(pattern, case1)
-            elif ended == 'ended_ws_plus' and not pattern.endswith(case2):
+            elif tail == 'tail_ws_plus' and not pattern.endswith(case2):
                 new_pattern = '{}{}'.format(pattern, case2)
-            elif ended == 'ended_space' and not pattern.endswith(case3):
+            elif tail == 'tail_space' and not pattern.endswith(case3):
                 new_pattern = '{}{}'.format(pattern, case3)
-            elif ended == 'ended_space_plus' and not pattern.endswith(case4):
+            elif tail == 'tail_space_plus' and not pattern.endswith(case4):
                 new_pattern = '{}{}'.format(pattern, case4)
-            elif ended == 'ended' and not pattern.endswith(case5):
+            elif tail == 'tail' and not pattern.endswith(case5):
                 new_pattern = '{}{}'.format(pattern, case5)
             else:
                 new_pattern = pattern

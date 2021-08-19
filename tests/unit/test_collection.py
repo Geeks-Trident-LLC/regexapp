@@ -110,12 +110,12 @@ class TestElementPattern:
             ('word(var_v1, head_space)', '^ *(?P<v1>\\w+)'),
             ('word(var_v1, head_space_plus)', '^ +(?P<v1>\\w+)'),
             ('word(var_v1, head_raw)', '(?P<v1>\\w+|head)'),
-            ('word(var_v1, ended)', '(?P<v1>\\w+)$'),
-            ('word(var_v1, ended_ws)', '(?P<v1>\\w+)\\s*$'),
-            ('word(var_v1, ended_ws_plus)', '(?P<v1>\\w+)\\s+$'),
-            ('word(var_v1, ended_space)', '(?P<v1>\\w+) *$'),
-            ('word(var_v1, ended_space_plus)', '(?P<v1>\\w+) +$'),
-            ('word(var_v1, ended_raw)', '(?P<v1>\\w+|ended)'),
+            ('word(var_v1, tail)', '(?P<v1>\\w+)$'),
+            ('word(var_v1, tail_ws)', '(?P<v1>\\w+)\\s*$'),
+            ('word(var_v1, tail_ws_plus)', '(?P<v1>\\w+)\\s+$'),
+            ('word(var_v1, tail_space)', '(?P<v1>\\w+) *$'),
+            ('word(var_v1, tail_space_plus)', '(?P<v1>\\w+) +$'),
+            ('word(var_v1, tail_raw)', '(?P<v1>\\w+|tail)'),
             ('letter(var_word, repetition_3)', '(?P<word>[a-zA-Z]{3})'),
             ('letter(var_word, repetition_3_8)', '(?P<word>[a-zA-Z]{3,8})'),
             ('letter(var_word, repetition_3_)', '(?P<word>[a-zA-Z]{3,})'),
@@ -312,21 +312,21 @@ class TestLinePattern:
             ),
             (
                 'I live in ABC',                                        # test data
-                'I live in words(var_city, ended)',                     # user prepared data
+                'I live in words(var_city, tail)',                     # user prepared data
                 '(?i)I live in (?P<city>\\w+( \\w+)*)$',        # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'I live in ABC',                                        # test data
-                'I live in words(var_city, ended_ws)',                  # user prepared data
+                'I live in words(var_city, tail_ws)',                  # user prepared data
                 '(?i)I live in (?P<city>\\w+( \\w+)*)\\s*$',    # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'I live in ABC \r\n',                                   # test data
-                'I live in words(var_city, ended_ws)',                  # user prepared data
+                'I live in words(var_city, tail_ws)',                  # user prepared data
                 '(?i)I live in (?P<city>\\w+( \\w+)*)\\s*$',    # expected pattern
                 False, False, True,
                 True
