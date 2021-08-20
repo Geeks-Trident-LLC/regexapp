@@ -14,6 +14,7 @@ from regexapp.collection import PatternReference
 from regexapp import version
 from regexapp import edition
 from regexapp.core import enclose_string
+from regexapp import PatternBuilder
 
 import yaml
 import re
@@ -168,13 +169,22 @@ class Application:
     entry_frame (tk.Frame): a frame to contain any action button such as
             open, paste, build, snippet, unittest, pytest, ...
     result_frame (tk.Frame): a frame to contain test result component.
+    var_name_frame (tk.Frame): a frame to contain var_name textbox
+    word_bound_frame (tk.Frame): a frame to contain word_bound combobox
     save_as_btn (ttk.Button): a Save As button.
     copy_text_btn (ttk.Button): a Copy Text button.
 
     test_data (str): a test data
+    snapshot (dict): store data of switching app.
 
     radio_line_or_multiline_btn_var (tk.StringVar): a variable for radio button
             Default is multiline.
+
+    builder_chkbox_var (tk.BooleanVar): a variable for builder checkbox.
+    var_name_var (tk.StringVar): a variable for var_name textbox.
+    word_bound_var (tk.StringVar): a variable for word_bound combobox.
+    is_confirmed (bool): True to show confirmation.  Default is True.
+
     prepended_ws_var (tk.BooleanVar): a variable for prepended_ws checkbox.
             Default is False
     appended_ws_var (tk.BooleanVar): a variable for appended_ws checkbox.
@@ -204,10 +214,17 @@ class Application:
     line_radio_btn (tk.RadioButton): a selection for enabling LinePattern.
     multiline_radio_btn (tk.RadioButton): a selection for enabling MultilinePattern.
 
+    Properties
+    ----------
+    is_pattern_builder_app -> bool
+
     Methods
     -------
+    shift_to_pattern_builder_app() -> None
+    shift_to_regex_builder_app() -> None
     get_pattern_args() -> dict
     get_builder_args() -> dict
+    get_pattern_builder_args() -> dict
     set_default_setting() -> None
     Application.get_textarea(node) -> str
     set_textarea(node, data, title='') -> None
@@ -241,13 +258,26 @@ class Application:
         self.text_frame = None
         self.entry_frame = None
         self.result_frame = None
+        self.var_name_frame = None
+        self.word_bound_frame = None
         self.save_as_btn = None
         self.copy_text_btn = None
+        self.snippet_btn = None
+        self.unittest_btn = None
+        self.pytest_btn = None
 
         self.test_data = None
+        self.snapshot = dict()
 
         self.radio_line_or_multiline_btn_var = tk.StringVar()
         self.radio_line_or_multiline_btn_var.set('multiline')
+
+        self.builder_chkbox_var = tk.BooleanVar()
+        self.var_name_var = tk.StringVar()
+        self.word_bound_var = tk.StringVar()
+        self.word_bound_var.set('')
+        self.is_confirmed = True
+
         self.prepended_ws_var = tk.BooleanVar()
         self.appended_ws_var = tk.BooleanVar()
         self.ignore_case_var = tk.BooleanVar()
@@ -277,6 +307,95 @@ class Application:
         self.build_entry()
         self.build_result()
 
+    @property
+    def is_pattern_builder_app(self):
+        return self.builder_chkbox_var.get() is True
+
+    def shift_to_pattern_builder_app(self):
+
+        if self.is_confirmed:
+            title = 'Switching To Pattern Builder App'
+            yesnocancel = """
+                Leaving Regex Builder App.
+                "Yes" will switch app and will show confirmation.
+                "No" will switch app and wont show confirmation.
+                "Cancel" wont switch app.
+                Do you want to switch app?
+            """
+            yesnocancel = dedent(yesnocancel).strip()
+            result = create_msgbox(title=title, yesnocancel=yesnocancel)
+            if result is None:
+                self.builder_chkbox_var.set(not self.builder_chkbox_var.get())
+            else:
+                self.is_confirmed = result
+        else:
+            result = self.is_confirmed
+
+        if result is not None:
+            data = self.get_textarea(self.textarea)
+            result = self.get_textarea(self.result_textarea)
+            self.snapshot.update(
+                dict(
+                    regex_builder_app_data=data,
+                    regex_builder_app_result=result
+                )
+            )
+            data = self.snapshot.get('pattern_builder_app_data', '')
+            result = self.snapshot.get('pattern_builder_app_result', '')
+
+            self.set_textarea(self.textarea, data)
+            self.set_textarea(self.result_textarea, result)
+
+            self.line_radio_btn.grid_remove()
+            self.multiline_radio_btn.grid_remove()
+            self.snippet_btn.grid_remove()
+            self.unittest_btn.grid_remove()
+            self.pytest_btn.grid_remove()
+            self.var_name_frame.grid(row=0, column=12)
+            self.word_bound_frame.grid(row=0, column=13)
+
+    def shift_to_regex_builder_app(self):
+        if self.is_confirmed:
+            title = 'Switching To Regex Builder App'
+            yesnocancel = """
+                Leaving Pattern Builder App.
+                "Yes" will switch app and will show confirmation.
+                "No" will switch app and wont show confirmation.
+                "Cancel" wont switch app.
+                Do you want to switch app?
+            """
+            yesnocancel = dedent(yesnocancel).strip()
+            result = create_msgbox(title=title, yesnocancel=yesnocancel)
+            if result is None:
+                self.builder_chkbox_var.set(not self.builder_chkbox_var.get())
+            else:
+                self.is_confirmed = result
+        else:
+            result = self.is_confirmed
+
+        if result is not None:
+            data = self.get_textarea(self.textarea)
+            result = self.get_textarea(self.result_textarea)
+            self.snapshot.update(
+                dict(
+                    pattern_builder_app_data=data,
+                    pattern_builder_app_result=result
+                )
+            )
+            data = self.snapshot.get('regex_builder_app_data', '')
+            result = self.snapshot.get('regex_builder_app_result', '')
+
+            self.set_textarea(self.textarea, data)
+            self.set_textarea(self.result_textarea, result)
+
+            self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
+            self.multiline_radio_btn.grid(row=0, column=1, padx=2)
+            self.snippet_btn.grid(row=0, column=8, pady=2)
+            self.unittest_btn.grid(row=0, column=9, pady=2)
+            self.pytest_btn.grid(row=0, column=10, pady=2)
+            self.var_name_frame.grid_remove()
+            self.word_bound_frame.grid_remove()
+
     def get_pattern_args(self):
         """return arguments of RegexBuilder class"""
         result = dict(
@@ -298,6 +417,14 @@ class Application:
             author=self.author_var.get(),
             email=self.email_var.get(),
             company=self.company_var.get()
+        )
+        return result
+
+    def get_pattern_builder_args(self):
+        """return arguments of PatternBuilder class"""
+        result = dict(
+            var_name=self.var_name_var.get(),
+            word_bound=self.word_bound_var.get()
         )
         return result
 
@@ -376,7 +503,8 @@ class Application:
         if filename:
             with open(filename) as stream:
                 content = stream.read()
-                self.test_data = content
+                if not self.is_pattern_builder_app:
+                    self.test_data = content
                 self.set_textarea(self.textarea, content, title=filename)
 
     def callback_help_documentation(self):
@@ -839,31 +967,41 @@ class Application:
                 )
                 return
 
-            try:
-                kwargs = self.get_pattern_args()
-                factory = RegexBuilder(user_data=user_data, **kwargs)
-                factory.build()
-
-                patterns = factory.patterns
-                total = len(patterns)
-                if total >= 1:
-                    if total == 1:
-                        result = 'pattern = r{}'.format(enclose_string(patterns[0]))
-                    else:
-                        lst = []
-                        fmt = 'pattern{} = r{}'
-                        for index, pattern in enumerate(patterns, 1):
-                            lst.append(fmt.format(index, enclose_string(pattern)))
-                        result = '\n'.join(lst)
+            if self.is_pattern_builder_app:
+                try:
+                    kwargs = self.get_pattern_builder_args()
+                    pattern = PatternBuilder(user_data, **kwargs)
+                    result = 'pattern = r{}'.format(enclose_string(pattern))
                     self.set_textarea(self.result_textarea, result)
-                    self.save_as_btn.config(state=tk.NORMAL)
-                    self.copy_text_btn.config(state=tk.NORMAL)
-                else:
-                    error = 'Something wrong with RegexBuilder.  Please report bug.'
+                except Exception as ex:
+                    error = '{}: {}'.format(type(ex).__name__, ex)
+                    create_msgbox(title='PatternBuilder Error', error=error)
+            else:
+                try:
+                    kwargs = self.get_pattern_args()
+                    factory = RegexBuilder(user_data=user_data, **kwargs)
+                    factory.build()
+
+                    patterns = factory.patterns
+                    total = len(patterns)
+                    if total >= 1:
+                        if total == 1:
+                            result = 'pattern = r{}'.format(enclose_string(patterns[0]))
+                        else:
+                            lst = []
+                            fmt = 'pattern{} = r{}'
+                            for index, pattern in enumerate(patterns, 1):
+                                lst.append(fmt.format(index, enclose_string(pattern)))
+                            result = '\n'.join(lst)
+                        self.set_textarea(self.result_textarea, result)
+                        self.save_as_btn.config(state=tk.NORMAL)
+                        self.copy_text_btn.config(state=tk.NORMAL)
+                    else:
+                        error = 'Something wrong with RegexBuilder.  Please report bug.'
+                        create_msgbox(title='RegexBuilder Error', error=error)
+                except Exception as ex:
+                    error = '{}: {}'.format(type(ex).__name__, ex)
                     create_msgbox(title='RegexBuilder Error', error=error)
-            except Exception as ex:
-                error = '{}: {}'.format(type(ex).__name__, ex)
-                create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_save_as_btn():
             filename = filedialog.asksaveasfilename()
@@ -893,7 +1031,8 @@ class Application:
                 if not data:
                     return
 
-                self.test_data = data
+                if not self.is_pattern_builder_app:
+                    self.test_data = data
 
                 title = '<<PASTE - Clipboard>>'
                 self.set_textarea(self.textarea, data, title=title)
@@ -1002,6 +1141,12 @@ class Application:
                 error = '{}: {}'.format(type(ex).__name__, ex)
                 create_msgbox(title='RegexBuilder Error', error=error)
 
+        def callback_builder_chkbox():
+            if self.is_pattern_builder_app:
+                self.shift_to_pattern_builder_app()
+            else:
+                self.shift_to_regex_builder_app()
+
         # def callback_rf_btn():
         #     create_msgbox(
         #         title='Robotframework feature',
@@ -1056,19 +1201,42 @@ class Application:
         build_btn.grid(row=0, column=7)
 
         # snippet button
-        snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
-                                 command=callback_snippet_btn)
-        snippet_btn.grid(row=0, column=8)
+        self.snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
+                                      command=callback_snippet_btn)
+        self.snippet_btn.grid(row=0, column=8)
 
         # unittest button
-        unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
-                                  command=callback_unittest_btn)
-        unittest_btn.grid(row=0, column=9)
+        self.unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
+                                       command=callback_unittest_btn)
+        self.unittest_btn.grid(row=0, column=9)
 
         # pytest button
-        pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
-                                command=callback_pytest_btn)
-        pytest_btn.grid(row=0, column=10)
+        self.pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
+                                     command=callback_pytest_btn)
+        self.pytest_btn.grid(row=0, column=10)
+
+        # builder checkbox
+        builder_chkbox = tk.Checkbutton(
+            self.entry_frame, text='Builder', variable=self.builder_chkbox_var,
+            onvalue=True, offvalue=False,
+            command=callback_builder_chkbox
+        )
+        builder_chkbox.grid(row=0, column=11)
+
+        self.var_name_frame = ttk.Frame(self.entry_frame)
+        ttk.Label(self.var_name_frame, text='var_name').pack(padx=(10, 4), side=tk.LEFT)
+        ttk.Entry(
+            self.var_name_frame, width=12, textvariable=self.var_name_var
+        ).pack(side=tk.LEFT)
+
+        self.word_bound_frame = ttk.Frame(self.entry_frame)
+        ttk.Label(self.word_bound_frame, text='word_bound').pack(padx=(10, 4), side=tk.LEFT)
+        ttk.Combobox(
+            self.word_bound_frame,
+            state='readonly',
+            values=['word_bound', 'word_bound_left', 'word_bound_right', ''],
+            textvariable=self.word_bound_var
+        ).pack(side=tk.LEFT)
 
         # Robotframework button
         # rf_btn = ttk.Button(self.entry_frame, text='RF',
