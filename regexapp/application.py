@@ -166,11 +166,11 @@ class Application:
 
     panedwindow (ttk.Panedwindow): a panedwindow for main layout.
     text_frame (ttk.Frame): a frame to contain test data component.
-    entry_frame (tk.Frame): a frame to contain any action button such as
+    entry_frame (ttk.Frame): a frame to contain any action button such as
             open, paste, build, snippet, unittest, pytest, ...
-    result_frame (tk.Frame): a frame to contain test result component.
-    var_name_frame (tk.Frame): a frame to contain var_name textbox
-    word_bound_frame (tk.Frame): a frame to contain word_bound combobox
+    result_frame (ttk.Frame): a frame to contain test result component.
+    var_name_frame (ttk.Frame): a frame to contain var_name textbox
+    word_bound_frame (ttk.Frame): a frame to contain word_bound combobox
     save_as_btn (ttk.Button): a Save As button.
     copy_text_btn (ttk.Button): a Copy Text button.
 
@@ -307,6 +307,7 @@ class Application:
         self.RadioButton = tk.Radiobutton if self.is_linux else ttk.Radiobutton
         self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
         self.Label = ttk.Label
+        self.Frame = ttk.Frame
 
         self.set_title()
         self.build_menu()
@@ -549,7 +550,7 @@ class Application:
         panedwindow.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
 
         # company
-        frame = tk.Frame(panedwindow, width=380, height=20)
+        frame = self.Frame(panedwindow, width=380, height=20)
         panedwindow.add(frame, weight=1)
 
         fmt = 'Regex GUI v{} ({} Edition)'
@@ -557,7 +558,7 @@ class Application:
         company_lbl.pack(side=tk.LEFT)
 
         # URL
-        frame = tk.Frame(panedwindow, width=380, height=20)
+        frame = self.Frame(panedwindow, width=380, height=20)
         panedwindow.add(frame, weight=1)
 
         url = Data.repo_url
@@ -593,7 +594,7 @@ class Application:
         txtbox.config(state=tk.DISABLED)
 
         # footer - copyright
-        frame = tk.Frame(panedwindow, width=380, height=20)
+        frame = self.Frame(panedwindow, width=380, height=20)
         panedwindow.add(frame, weight=1)
 
         footer = self.Label(frame, text=Data.copyright_text)
@@ -703,7 +704,7 @@ class Application:
         ).grid(row=6, column=2, columnspan=4, padx=2, pady=(pady, 10), sticky=tk.W)
 
         # OK and Default buttons
-        frame = tk.Frame(
+        frame = self.Frame(
             settings, height=20, width=380
         )
         frame.grid(row=2, column=0, padx=10, pady=10, sticky=tk.E+tk.S)
@@ -732,7 +733,7 @@ class Application:
         panedwindow = ttk.Panedwindow(sys_ref, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True)
 
-        text_frame = ttk.Frame(
+        text_frame = self.Frame(
             panedwindow, width=500, height=300, relief=tk.RIDGE
         )
         panedwindow.add(text_frame, weight=9)
@@ -835,7 +836,7 @@ class Application:
         panedwindow = ttk.Panedwindow(user_ref, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True)
 
-        text_frame = ttk.Frame(
+        text_frame = self.Frame(
             panedwindow, width=500, height=300, relief=tk.RIDGE
         )
         panedwindow.add(text_frame, weight=9)
@@ -928,13 +929,13 @@ class Application:
         self.panedwindow = ttk.Panedwindow(self.root, orient=tk.VERTICAL)
         self.panedwindow.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-        self.text_frame = ttk.Frame(
+        self.text_frame = self.Frame(
             self.panedwindow, width=600, height=300, relief=tk.RIDGE
         )
-        self.entry_frame = ttk.Frame(
+        self.entry_frame = self.Frame(
             self.panedwindow, width=600, height=40, relief=tk.RIDGE
         )
-        self.result_frame = ttk.Frame(
+        self.result_frame = self.Frame(
             self.panedwindow, width=600, height=350, relief=tk.RIDGE
         )
         self.panedwindow.add(self.text_frame, weight=4)
@@ -1237,13 +1238,13 @@ class Application:
         )
         builder_chkbox.grid(row=0, column=11)
 
-        self.var_name_frame = ttk.Frame(self.entry_frame)
+        self.var_name_frame = self.Frame(self.entry_frame)
         self.Label(self.var_name_frame, text='var_name').pack(padx=(10, 4), side=tk.LEFT)
         ttk.Entry(
             self.var_name_frame, width=12, textvariable=self.var_name_var
         ).pack(side=tk.LEFT)
 
-        self.word_bound_frame = ttk.Frame(self.entry_frame)
+        self.word_bound_frame = self.Frame(self.entry_frame)
         self.Label(self.word_bound_frame, text='word_bound').pack(padx=(10, 4), side=tk.LEFT)
         ttk.Combobox(
             self.word_bound_frame,
