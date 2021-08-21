@@ -308,6 +308,11 @@ class Application:
         self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
         self.Label = ttk.Label
         self.Frame = ttk.Frame
+        self.LabelFrame = ttk.LabelFrame
+        self.Button = ttk.Button
+        self.TextBox = ttk.Entry
+        self.TextArea = tk.Text
+        self.PanedWindow = ttk.PanedWindow
 
         self.set_title()
         self.build_menu()
@@ -546,7 +551,7 @@ class Application:
         about.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         about.resizable(False, False)
 
-        panedwindow = ttk.Panedwindow(about, orient=tk.VERTICAL)
+        panedwindow = self.PanedWindow(about, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
 
         # company
@@ -577,7 +582,7 @@ class Application:
         url_lbl.bind('<Button-1>', mouse_press)
 
         # license textbox
-        lframe = ttk.LabelFrame(
+        lframe = self.LabelFrame(
             panedwindow, height=300, width=380,
             text=Data.license_name
         )
@@ -585,7 +590,7 @@ class Application:
 
         width = 49 if self.is_macos else 43
         height = 19 if self.is_macos else 15
-        txtbox = tk.Text(lframe, width=width, height=height, wrap='word')
+        txtbox = self.TextArea(lframe, width=width, height=height, wrap='word')
         txtbox.grid(row=0, column=0, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(lframe, orient=tk.VERTICAL, command=txtbox.yview)
         scrollbar.grid(row=0, column=1, sticky='nsew')
@@ -614,7 +619,7 @@ class Application:
         settings.resizable(False, False)
 
         # Settings - Pattern Arguments
-        lframe_pattern_args = ttk.LabelFrame(
+        lframe_pattern_args = self.LabelFrame(
             settings, height=80, width=380,
             text='Pattern Arguments'
         )
@@ -633,7 +638,7 @@ class Application:
             ).grid(row=row, column=column, padx=2, pady=2, sticky=tk.W)
 
         # Settings - Builder Arguments
-        lframe_builder_args = ttk.LabelFrame(
+        lframe_builder_args = self.LabelFrame(
             settings, height=280, width=380,
             text='Builder Arguments'
         )
@@ -646,7 +651,7 @@ class Application:
             lframe_builder_args, text='max_words'
         ).grid(row=0, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
 
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=5, textvariable=self.max_words_var
         ).grid(row=0, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
@@ -658,7 +663,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='test_name'
         ).grid(row=1, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.test_name_var
         ).grid(row=1, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -666,7 +671,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='test_cls_name'
         ).grid(row=2, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.test_cls_name_var
         ).grid(row=2, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -674,7 +679,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='filename'
         ).grid(row=3, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.filename_var
         ).grid(row=3, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -682,7 +687,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='author'
         ).grid(row=4, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.author_var
         ).grid(row=4, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -690,7 +695,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='email'
         ).grid(row=5, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.email_var
         ).grid(row=5, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -698,7 +703,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='company'
         ).grid(row=6, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.company_var
         ).grid(row=6, column=2, columnspan=4, padx=2, pady=(pady, 10), sticky=tk.W)
@@ -709,12 +714,12 @@ class Application:
         )
         frame.grid(row=2, column=0, padx=10, pady=10, sticky=tk.E+tk.S)
 
-        ttk.Button(
+        self.Button(
             frame, text='Default',
             command=lambda: self.set_default_setting(),
         ).grid(row=0, column=6, padx=1, pady=1, sticky=tk.E)
 
-        ttk.Button(
+        self.Button(
             frame, text='OK',
             command=lambda: settings.destroy(),
         ).grid(row=0, column=7, padx=1, pady=1, sticky=tk.E)
@@ -730,7 +735,7 @@ class Application:
         x, y = get_relative_center_location(self.root, width, height)
         sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
-        panedwindow = ttk.Panedwindow(sys_ref, orient=tk.VERTICAL)
+        panedwindow = self.PanedWindow(sys_ref, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True)
 
         text_frame = self.Frame(
@@ -741,7 +746,7 @@ class Application:
         text_frame.rowconfigure(0, weight=1)
         text_frame.columnconfigure(0, weight=1)
 
-        textarea = tk.Text(text_frame, width=20, height=5, wrap='none')
+        textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
         with open(REF.sys_ref_loc) as stream:
             content = stream.read()
             self.set_textarea(textarea, content)
@@ -761,9 +766,9 @@ class Application:
         )
 
         padx, pady = (0, 0) if self.is_macos else (2, 2)
-        ttk.Button(sys_ref, text='OK',
-                   command=lambda: sys_ref.destroy()
-                   ).pack(side=tk.RIGHT, padx=padx, pady=pady)
+        self.Button(sys_ref, text='OK',
+                    command=lambda: sys_ref.destroy()
+                    ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
         set_modal_dialog(sys_ref)
 
@@ -833,7 +838,7 @@ class Application:
         x, y = get_relative_center_location(self.root, width, height)
         user_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
-        panedwindow = ttk.Panedwindow(user_ref, orient=tk.VERTICAL)
+        panedwindow = self.PanedWindow(user_ref, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True)
 
         text_frame = self.Frame(
@@ -844,7 +849,7 @@ class Application:
         text_frame.rowconfigure(0, weight=1)
         text_frame.columnconfigure(0, weight=1)
 
-        textarea = tk.Text(text_frame, width=20, height=5, wrap='none')
+        textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
 
         with open(REF.user_ref_loc) as stream:
             content = stream.read()
@@ -865,21 +870,21 @@ class Application:
 
         padx, pady = (0, 0) if self.is_macos else (2, 2)
 
-        ttk.Button(
+        self.Button(
             user_ref, text='Save', command=lambda: save(textarea)
         ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
-        ttk.Button(
+        self.Button(
             user_ref, text='Close', command=lambda: user_ref.destroy()
         ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
         self.Label(user_ref, text='Name:').pack(side=tk.LEFT, padx=padx, pady=pady)
 
-        ttk.Entry(
+        self.TextBox(
             user_ref, width=25, textvariable=self.new_pattern_name_var
         ).pack(side=tk.LEFT, padx=padx, pady=pady)
 
-        ttk.Button(
+        self.Button(
             user_ref, text='Insert',
             command=lambda: insert(self.new_pattern_name_var, textarea),
         ).pack(side=tk.LEFT, padx=padx, pady=pady)
@@ -926,7 +931,7 @@ class Application:
 
     def build_frame(self):
         """Build layout for regex GUI."""
-        self.panedwindow = ttk.Panedwindow(self.root, orient=tk.VERTICAL)
+        self.panedwindow = self.PanedWindow(self.root, orient=tk.VERTICAL)
         self.panedwindow.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
         self.text_frame = self.Frame(
@@ -947,7 +952,7 @@ class Application:
 
         self.text_frame.rowconfigure(0, weight=1)
         self.text_frame.columnconfigure(0, weight=1)
-        self.textarea = tk.Text(self.text_frame, width=20, height=5, wrap='none')
+        self.textarea = self.TextArea(self.text_frame, width=20, height=5, wrap='none')
         self.textarea.grid(row=0, column=0, sticky='nswe')
         vscrollbar = ttk.Scrollbar(
             self.text_frame, orient=tk.VERTICAL, command=self.textarea.yview
@@ -1175,22 +1180,22 @@ class Application:
 
         btn_width = 5.5 if self.is_macos else 8
         # open button
-        open_file_btn = ttk.Button(self.entry_frame, text='Open',
-                                   command=self.callback_file_open,
-                                   width=btn_width)
+        open_file_btn = self.Button(self.entry_frame, text='Open',
+                                    command=self.callback_file_open,
+                                    width=btn_width)
         open_file_btn.grid(row=0, column=2, pady=2)
 
         # Save As button
-        self.save_as_btn = ttk.Button(self.entry_frame, text='Save As',
-                                      command=callback_save_as_btn,
-                                      width=btn_width)
+        self.save_as_btn = self.Button(self.entry_frame, text='Save As',
+                                       command=callback_save_as_btn,
+                                       width=btn_width)
         self.save_as_btn.grid(row=0, column=3)
         self.save_as_btn.config(state=tk.DISABLED)
 
         # copy button
-        self.copy_text_btn = ttk.Button(self.entry_frame, text='Copy',
-                                        command=callback_copy_text_btn,
-                                        width=btn_width)
+        self.copy_text_btn = self.Button(self.entry_frame, text='Copy',
+                                         command=callback_copy_text_btn,
+                                         width=btn_width)
         self.copy_text_btn.grid(row=0, column=4)
         self.copy_text_btn.config(state=tk.DISABLED)
 
@@ -1201,33 +1206,33 @@ class Application:
         paste_text_btn.grid(row=0, column=5)
 
         # clear button
-        clear_text_btn = ttk.Button(self.entry_frame, text='Clear',
-                                    command=callback_clear_text_btn,
-                                    width=btn_width)
+        clear_text_btn = self.Button(self.entry_frame, text='Clear',
+                                     command=callback_clear_text_btn,
+                                     width=btn_width)
         clear_text_btn.grid(row=0, column=6)
 
         # build button
-        build_btn = ttk.Button(self.entry_frame, text='Build',
-                               command=callback_build_btn,
-                               width=btn_width)
+        build_btn = self.Button(self.entry_frame, text='Build',
+                                command=callback_build_btn,
+                                width=btn_width)
         build_btn.grid(row=0, column=7)
 
         # snippet button
-        self.snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
-                                      command=callback_snippet_btn,
-                                      width=btn_width)
+        self.snippet_btn = self.Button(self.entry_frame, text='Snippet',
+                                       command=callback_snippet_btn,
+                                       width=btn_width)
         self.snippet_btn.grid(row=0, column=8)
 
         # unittest button
-        self.unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
-                                       command=callback_unittest_btn,
-                                       width=btn_width)
+        self.unittest_btn = self.Button(self.entry_frame, text='Unittest',
+                                        command=callback_unittest_btn,
+                                        width=btn_width)
         self.unittest_btn.grid(row=0, column=9)
 
         # pytest button
-        self.pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
-                                     command=callback_pytest_btn,
-                                     width=btn_width)
+        self.pytest_btn = self.Button(self.entry_frame, text='Pytest',
+                                      command=callback_pytest_btn,
+                                      width=btn_width)
         self.pytest_btn.grid(row=0, column=10)
 
         # builder checkbox
@@ -1240,7 +1245,7 @@ class Application:
 
         self.var_name_frame = self.Frame(self.entry_frame)
         self.Label(self.var_name_frame, text='var_name').pack(padx=(10, 4), side=tk.LEFT)
-        ttk.Entry(
+        self.TextBox(
             self.var_name_frame, width=12, textvariable=self.var_name_var
         ).pack(side=tk.LEFT)
 
@@ -1255,7 +1260,7 @@ class Application:
         ).pack(side=tk.LEFT)
 
         # Robotframework button
-        # rf_btn = ttk.Button(self.entry_frame, text='RF',
+        # rf_btn = self.Button(self.entry_frame, text='RF',
         #                     command=callback_rf_btn, width=4)
         # rf_btn.grid(row=0, column=11)
 
@@ -1263,7 +1268,7 @@ class Application:
         """Build result text"""
         self.result_frame.rowconfigure(0, weight=1)
         self.result_frame.columnconfigure(0, weight=1)
-        self.result_textarea = tk.Text(
+        self.result_textarea = self.TextArea(
             self.result_frame, width=20, height=5, wrap='none'
         )
         self.result_textarea.grid(row=0, column=0, sticky='nswe')
