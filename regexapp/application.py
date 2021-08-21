@@ -621,9 +621,12 @@ class Application:
         settings.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         settings.resizable(False, False)
 
+        top_frame = self.Frame(settings)
+        top_frame.pack(fill=tk.BOTH, expand=True)
+
         # Settings - Pattern Arguments
         lframe_pattern_args = self.LabelFrame(
-            settings, height=80, width=380,
+            top_frame, height=80, width=380,
             text='Pattern Arguments'
         )
         lframe_pattern_args.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
@@ -642,7 +645,7 @@ class Application:
 
         # Settings - Builder Arguments
         lframe_builder_args = self.LabelFrame(
-            settings, height=280, width=380,
+            top_frame, height=280, width=380,
             text='Builder Arguments'
         )
         # lframe_builder_args.place(x=10, y=95)
@@ -713,7 +716,7 @@ class Application:
 
         # OK and Default buttons
         frame = self.Frame(
-            settings, height=20, width=380
+            top_frame, height=20, width=380
         )
         frame.grid(row=2, column=0, padx=10, pady=10, sticky=tk.E+tk.S)
 
