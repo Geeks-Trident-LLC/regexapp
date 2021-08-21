@@ -303,8 +303,10 @@ class Application:
         self.is_macos = platform.system() == 'Darwin'
         self.is_linux = platform.system() == 'Linux'
         self.is_window = platform.system() == 'Windows'
+
         self.RadioButton = tk.Radiobutton if self.is_linux else ttk.Radiobutton
         self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
+        self.Label = ttk.Label
 
         self.set_title()
         self.build_menu()
@@ -551,7 +553,7 @@ class Application:
         panedwindow.add(frame, weight=1)
 
         fmt = 'Regex GUI v{} ({} Edition)'
-        company_lbl = tk.Label(frame, text=fmt.format(version, edition))
+        company_lbl = self.Label(frame, text=fmt.format(version, edition))
         company_lbl.pack(side=tk.LEFT)
 
         # URL
@@ -559,9 +561,12 @@ class Application:
         panedwindow.add(frame, weight=1)
 
         url = Data.repo_url
-        tk.Label(frame, text='URL:').pack(side=tk.LEFT)
+        self.Label(frame, text='URL:').pack(side=tk.LEFT)
         font_size = 12 if self.is_macos else 10
-        url_lbl = tk.Label(frame, text=url, fg='blue', font=('sans-serif', font_size))
+        style = ttk.Style()
+        style.configure("Blue.TLabel", foreground="blue")
+        url_lbl = self.Label(frame, text=url, font=('sans-serif', font_size))
+        url_lbl.config(style='Blue.TLabel')
         url_lbl.default_font = ('sans-serif', font_size)
         url_lbl.pack(side=tk.LEFT)
         url_lbl.link = url
@@ -591,7 +596,7 @@ class Application:
         frame = tk.Frame(panedwindow, width=380, height=20)
         panedwindow.add(frame, weight=1)
 
-        footer = tk.Label(frame, text=Data.copyright_text)
+        footer = self.Label(frame, text=Data.copyright_text)
         footer.pack(side=tk.LEFT)
 
         set_modal_dialog(about)
@@ -636,7 +641,7 @@ class Application:
 
         pady = 0 if self.is_macos else 3
 
-        ttk.Label(
+        self.Label(
             lframe_builder_args, text='max_words'
         ).grid(row=0, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
 
@@ -649,7 +654,7 @@ class Application:
             variable=self.is_minimal_var, onvalue=True, offvalue=False
         ).grid(row=0, column=3, columnspan=3, padx=2, pady=(5, pady), sticky=tk.W)
 
-        ttk.Label(
+        self.Label(
             lframe_builder_args, text='test_name'
         ).grid(row=1, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
@@ -657,7 +662,7 @@ class Application:
             textvariable=self.test_name_var
         ).grid(row=1, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Label(
+        self.Label(
             lframe_builder_args, text='test_cls_name'
         ).grid(row=2, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
@@ -665,7 +670,7 @@ class Application:
             textvariable=self.test_cls_name_var
         ).grid(row=2, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Label(
+        self.Label(
             lframe_builder_args, text='filename'
         ).grid(row=3, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
@@ -673,7 +678,7 @@ class Application:
             textvariable=self.filename_var
         ).grid(row=3, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Label(
+        self.Label(
             lframe_builder_args, text='author'
         ).grid(row=4, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
@@ -681,7 +686,7 @@ class Application:
             textvariable=self.author_var
         ).grid(row=4, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Label(
+        self.Label(
             lframe_builder_args, text='email'
         ).grid(row=5, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         ttk.Entry(
@@ -689,7 +694,7 @@ class Application:
             textvariable=self.email_var
         ).grid(row=5, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
-        ttk.Label(
+        self.Label(
             lframe_builder_args, text='company'
         ).grid(row=6, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
         ttk.Entry(
@@ -867,7 +872,7 @@ class Application:
             user_ref, text='Close', command=lambda: user_ref.destroy()
         ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
-        tk.Label(user_ref, text='Name:').pack(side=tk.LEFT, padx=padx, pady=pady)
+        self.Label(user_ref, text='Name:').pack(side=tk.LEFT, padx=padx, pady=pady)
 
         ttk.Entry(
             user_ref, width=25, textvariable=self.new_pattern_name_var
@@ -1233,13 +1238,13 @@ class Application:
         builder_chkbox.grid(row=0, column=11)
 
         self.var_name_frame = ttk.Frame(self.entry_frame)
-        ttk.Label(self.var_name_frame, text='var_name').pack(padx=(10, 4), side=tk.LEFT)
+        self.Label(self.var_name_frame, text='var_name').pack(padx=(10, 4), side=tk.LEFT)
         ttk.Entry(
             self.var_name_frame, width=12, textvariable=self.var_name_var
         ).pack(side=tk.LEFT)
 
         self.word_bound_frame = ttk.Frame(self.entry_frame)
-        ttk.Label(self.word_bound_frame, text='word_bound').pack(padx=(10, 4), side=tk.LEFT)
+        self.Label(self.word_bound_frame, text='word_bound').pack(padx=(10, 4), side=tk.LEFT)
         ttk.Combobox(
             self.word_bound_frame,
             state='readonly',
