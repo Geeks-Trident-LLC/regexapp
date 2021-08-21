@@ -775,7 +775,7 @@ class Application:
         )
 
         padx, pady = (0, 0) if self.is_macos else (2, 2)
-        self.Button(sys_ref, text='OK',
+        self.Button(top_frame, text='OK',
                     command=lambda: sys_ref.destroy()
                     ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
