@@ -1167,60 +1167,61 @@ class Application:
         )
         self.multiline_radio_btn.grid(row=0, column=1, padx=2)
 
+        btn_width = 5.5 if self.is_macos else 8
         # open button
         open_file_btn = ttk.Button(self.entry_frame, text='Open',
                                    command=self.callback_file_open,
-                                   width=8)
+                                   width=btn_width)
         open_file_btn.grid(row=0, column=2, pady=2)
 
         # Save As button
         self.save_as_btn = ttk.Button(self.entry_frame, text='Save As',
                                       command=callback_save_as_btn,
-                                      width=8)
+                                      width=btn_width)
         self.save_as_btn.grid(row=0, column=3)
         self.save_as_btn.config(state=tk.DISABLED)
 
         # copy button
         self.copy_text_btn = ttk.Button(self.entry_frame, text='Copy',
                                         command=callback_copy_text_btn,
-                                        width=8)
+                                        width=btn_width)
         self.copy_text_btn.grid(row=0, column=4)
         self.copy_text_btn.config(state=tk.DISABLED)
 
         # paste button
         paste_text_btn = ttk.Button(self.entry_frame, text='Paste',
                                     command=callback_paste_text_btn,
-                                    width=8)
+                                    width=btn_width)
         paste_text_btn.grid(row=0, column=5)
 
         # clear button
         clear_text_btn = ttk.Button(self.entry_frame, text='Clear',
                                     command=callback_clear_text_btn,
-                                    width=8)
+                                    width=btn_width)
         clear_text_btn.grid(row=0, column=6)
 
         # build button
         build_btn = ttk.Button(self.entry_frame, text='Build',
                                command=callback_build_btn,
-                               width=8)
+                               width=btn_width)
         build_btn.grid(row=0, column=7)
 
         # snippet button
         self.snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
                                       command=callback_snippet_btn,
-                                      width=8)
+                                      width=btn_width)
         self.snippet_btn.grid(row=0, column=8)
 
         # unittest button
         self.unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
                                        command=callback_unittest_btn,
-                                       width=8)
+                                       width=btn_width)
         self.unittest_btn.grid(row=0, column=9)
 
         # pytest button
         self.pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
                                      command=callback_pytest_btn,
-                                     width=8)
+                                     width=btn_width)
         self.pytest_btn.grid(row=0, column=10)
 
         # builder checkbox
