@@ -847,7 +847,10 @@ class Application:
         x, y = get_relative_center_location(self.root, width, height)
         user_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
-        panedwindow = self.PanedWindow(user_ref, orient=tk.VERTICAL)
+        top_frame = self.Frame(user_ref)
+        top_frame.pack(fill=tk.BOTH, expand=True)
+
+        panedwindow = self.PanedWindow(top_frame, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True)
 
         text_frame = self.Frame(
@@ -880,21 +883,21 @@ class Application:
         padx, pady = (0, 0) if self.is_macos else (2, 2)
 
         self.Button(
-            user_ref, text='Save', command=lambda: save(textarea)
+            top_frame, text='Save', command=lambda: save(textarea)
         ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
         self.Button(
-            user_ref, text='Close', command=lambda: user_ref.destroy()
+            top_frame, text='Close', command=lambda: user_ref.destroy()
         ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
-        self.Label(user_ref, text='Name:').pack(side=tk.LEFT, padx=padx, pady=pady)
+        self.Label(top_frame, text='Name:').pack(side=tk.LEFT, padx=padx, pady=pady)
 
         self.TextBox(
-            user_ref, width=25, textvariable=self.new_pattern_name_var
+            top_frame, width=25, textvariable=self.new_pattern_name_var
         ).pack(side=tk.LEFT, padx=padx, pady=pady)
 
         self.Button(
-            user_ref, text='Insert',
+            top_frame, text='Insert',
             command=lambda: insert(self.new_pattern_name_var, textarea),
         ).pack(side=tk.LEFT, padx=padx, pady=pady)
 
