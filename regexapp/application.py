@@ -310,6 +310,7 @@ class Application:
         self.Frame = ttk.Frame
         self.LabelFrame = ttk.LabelFrame
         self.Button = ttk.Button
+        self.TextBox = ttk.Entry
 
         self.set_title()
         self.build_menu()
@@ -648,7 +649,7 @@ class Application:
             lframe_builder_args, text='max_words'
         ).grid(row=0, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
 
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=5, textvariable=self.max_words_var
         ).grid(row=0, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
@@ -660,7 +661,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='test_name'
         ).grid(row=1, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.test_name_var
         ).grid(row=1, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -668,7 +669,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='test_cls_name'
         ).grid(row=2, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.test_cls_name_var
         ).grid(row=2, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -676,7 +677,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='filename'
         ).grid(row=3, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.filename_var
         ).grid(row=3, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -684,7 +685,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='author'
         ).grid(row=4, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.author_var
         ).grid(row=4, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -692,7 +693,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='email'
         ).grid(row=5, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.email_var
         ).grid(row=5, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
@@ -700,7 +701,7 @@ class Application:
         self.Label(
             lframe_builder_args, text='company'
         ).grid(row=6, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
-        ttk.Entry(
+        self.TextBox(
             lframe_builder_args, width=45,
             textvariable=self.company_var
         ).grid(row=6, column=2, columnspan=4, padx=2, pady=(pady, 10), sticky=tk.W)
@@ -877,7 +878,7 @@ class Application:
 
         self.Label(user_ref, text='Name:').pack(side=tk.LEFT, padx=padx, pady=pady)
 
-        ttk.Entry(
+        self.TextBox(
             user_ref, width=25, textvariable=self.new_pattern_name_var
         ).pack(side=tk.LEFT, padx=padx, pady=pady)
 
@@ -1242,7 +1243,7 @@ class Application:
 
         self.var_name_frame = self.Frame(self.entry_frame)
         self.Label(self.var_name_frame, text='var_name').pack(padx=(10, 4), side=tk.LEFT)
-        ttk.Entry(
+        self.TextBox(
             self.var_name_frame, width=12, textvariable=self.var_name_var
         ).pack(side=tk.LEFT)
 
