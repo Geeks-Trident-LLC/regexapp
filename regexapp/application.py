@@ -311,6 +311,7 @@ class Application:
         self.LabelFrame = ttk.LabelFrame
         self.Button = ttk.Button
         self.TextBox = ttk.Entry
+        self.PanedWindow = ttk.PanedWindow
 
         self.set_title()
         self.build_menu()
@@ -549,7 +550,7 @@ class Application:
         about.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         about.resizable(False, False)
 
-        panedwindow = ttk.Panedwindow(about, orient=tk.VERTICAL)
+        panedwindow = self.PanedWindow(about, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
 
         # company
@@ -733,7 +734,7 @@ class Application:
         x, y = get_relative_center_location(self.root, width, height)
         sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
-        panedwindow = ttk.Panedwindow(sys_ref, orient=tk.VERTICAL)
+        panedwindow = self.PanedWindow(sys_ref, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True)
 
         text_frame = self.Frame(
@@ -765,8 +766,8 @@ class Application:
 
         padx, pady = (0, 0) if self.is_macos else (2, 2)
         self.Button(sys_ref, text='OK',
-                   command=lambda: sys_ref.destroy()
-                   ).pack(side=tk.RIGHT, padx=padx, pady=pady)
+                    command=lambda: sys_ref.destroy()
+                    ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
         set_modal_dialog(sys_ref)
 
@@ -836,7 +837,7 @@ class Application:
         x, y = get_relative_center_location(self.root, width, height)
         user_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
-        panedwindow = ttk.Panedwindow(user_ref, orient=tk.VERTICAL)
+        panedwindow = self.PanedWindow(user_ref, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True)
 
         text_frame = self.Frame(
@@ -929,7 +930,7 @@ class Application:
 
     def build_frame(self):
         """Build layout for regex GUI."""
-        self.panedwindow = ttk.Panedwindow(self.root, orient=tk.VERTICAL)
+        self.panedwindow = self.PanedWindow(self.root, orient=tk.VERTICAL)
         self.panedwindow.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
         self.text_frame = self.Frame(
