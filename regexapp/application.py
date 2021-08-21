@@ -275,7 +275,7 @@ class Application:
         self.builder_chkbox_var = tk.BooleanVar()
         self.var_name_var = tk.StringVar()
         self.word_bound_var = tk.StringVar()
-        self.word_bound_var.set('')
+        self.word_bound_var.set('none')
         self.is_confirmed = True
 
         self.prepended_ws_var = tk.BooleanVar()
@@ -299,6 +299,12 @@ class Application:
         self.result_textarea = None
         self.line_radio_btn = None
         self.multiline_radio_btn = None
+
+        self.is_macos = platform.system() == 'Darwin'
+        self.is_linux = platform.system() == 'Linux'
+        self.is_window = platform.system() == 'Windows'
+        self.RadioButton = tk.Radiobutton if self.is_linux else ttk.Radiobutton
+        self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
 
         self.set_title()
         self.build_menu()
@@ -422,9 +428,11 @@ class Application:
 
     def get_pattern_builder_args(self):
         """return arguments of PatternBuilder class"""
+        table = dict(none='', both='word_bound',
+                     left='word_bound_left', right='word_bound_right')
         result = dict(
             var_name=self.var_name_var.get(),
-            word_bound=self.word_bound_var.get()
+            word_bound=table.get(self.word_bound_var.get(), '')
         )
         return result
 
@@ -528,8 +536,6 @@ class Application:
         def mouse_press(event):     # noqa
             self.browser.open_new_tab(url_lbl.link)
 
-        is_macos = platform.system() == 'Darwin'
-
         about = tk.Toplevel(self.root)
         self.set_title(node=about, title='About')
         width, height = 400, 400
@@ -554,7 +560,7 @@ class Application:
 
         url = Data.repo_url
         tk.Label(frame, text='URL:').pack(side=tk.LEFT)
-        font_size = 12 if is_macos else 10
+        font_size = 12 if self.is_macos else 10
         url_lbl = tk.Label(frame, text=url, fg='blue', font=('sans-serif', font_size))
         url_lbl.default_font = ('sans-serif', font_size)
         url_lbl.pack(side=tk.LEFT)
@@ -571,8 +577,8 @@ class Application:
         )
         panedwindow.add(lframe, weight=7)
 
-        width = 49 if is_macos else 43
-        height = 19 if is_macos else 15
+        width = 49 if self.is_macos else 43
+        height = 19 if self.is_macos else 15
         txtbox = tk.Text(lframe, width=width, height=height, wrap='word')
         txtbox.grid(row=0, column=0, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(lframe, orient=tk.VERTICAL, command=txtbox.yview)
@@ -593,12 +599,9 @@ class Application:
     def callback_preferences_settings(self):
         """Callback for Menu Preferences > Settings"""
 
-        is_macos = platform.system() == 'Darwin'
-        is_linux = platform.system() == 'Linux'
-
         settings = tk.Toplevel(self.root)
         self.set_title(node=settings, title='Settings')
-        width = 540 if is_macos else 490 if is_linux else 400
+        width = 540 if self.is_macos else 490 if self.is_linux else 400
         height = 370
         x, y = get_relative_center_location(self.root, width, height)
         settings.geometry('{}x{}+{}+{}'.format(width, height, x, y))
@@ -618,7 +621,7 @@ class Application:
             ['appended_ws', self.appended_ws_var, 1, 1]
         ]
         for text, variable, row, column in lst:
-            tk.Checkbutton(
+            self.CheckBox(
                 lframe_pattern_args, text=text, variable=variable,
                 onvalue=True, offvalue=False
             ).grid(row=row, column=column, padx=2, pady=2, sticky=tk.W)
@@ -631,7 +634,7 @@ class Application:
         # lframe_builder_args.place(x=10, y=95)
         lframe_builder_args.grid(row=1, column=0, padx=10, pady=(0, 10), sticky=tk.W)
 
-        pady = 0 if is_macos else 3
+        pady = 0 if self.is_macos else 3
 
         ttk.Label(
             lframe_builder_args, text='max_words'
@@ -641,7 +644,7 @@ class Application:
             lframe_builder_args, width=5, textvariable=self.max_words_var
         ).grid(row=0, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
-        tk.Checkbutton(
+        self.CheckBox(
             lframe_builder_args, text='is_minimal',
             variable=self.is_minimal_var, onvalue=True, offvalue=False
         ).grid(row=0, column=3, columnspan=3, padx=2, pady=(5, pady), sticky=tk.W)
@@ -715,8 +718,6 @@ class Application:
     def callback_preferences_system_reference(self):
         """Callback for Menu Preferences > System References"""
 
-        is_macos = platform.system() == 'Darwin'
-
         sys_ref = tk.Toplevel(self.root)
         self.set_title(node=sys_ref, title='System References')
         width, height = 600, 500
@@ -753,7 +754,7 @@ class Application:
             state=tk.DISABLED
         )
 
-        padx, pady = (0, 0) if is_macos else (2, 2)
+        padx, pady = (0, 0) if self.is_macos else (2, 2)
         ttk.Button(sys_ref, text='OK',
                    command=lambda: sys_ref.destroy()
                    ).pack(side=tk.RIGHT, padx=padx, pady=pady)
@@ -808,8 +809,6 @@ class Application:
             node.delete("1.0", "end")
             node.insert(tk.INSERT, new_content_)
 
-        is_macos = platform.system() == 'Darwin'
-
         fn = REF.user_ref_loc
         file_obj = Path(fn)
         if not file_obj.exists():
@@ -858,7 +857,7 @@ class Application:
             yscrollcommand=vscrollbar.set, xscrollcommand=hscrollbar.set,
         )
 
-        padx, pady = (0, 0) if is_macos else (2, 2)
+        padx, pady = (0, 0) if self.is_macos else (2, 2)
 
         ttk.Button(
             user_ref, text='Save', command=lambda: save(textarea)
@@ -1154,14 +1153,14 @@ class Application:
         #     )
 
         # radio buttons
-        self.line_radio_btn = tk.Radiobutton(
+        self.line_radio_btn = self.RadioButton(
             self.entry_frame, text='line',
             variable=self.radio_line_or_multiline_btn_var,
             value='line'
         )
         self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
 
-        self.multiline_radio_btn = tk.Radiobutton(
+        self.multiline_radio_btn = self.RadioButton(
             self.entry_frame, text='multiline',
             variable=self.radio_line_or_multiline_btn_var,
             value='multiline'
@@ -1170,53 +1169,62 @@ class Application:
 
         # open button
         open_file_btn = ttk.Button(self.entry_frame, text='Open',
-                                   command=self.callback_file_open)
+                                   command=self.callback_file_open,
+                                   width=8)
         open_file_btn.grid(row=0, column=2, pady=2)
 
         # Save As button
         self.save_as_btn = ttk.Button(self.entry_frame, text='Save As',
-                                      command=callback_save_as_btn)
+                                      command=callback_save_as_btn,
+                                      width=8)
         self.save_as_btn.grid(row=0, column=3)
         self.save_as_btn.config(state=tk.DISABLED)
 
         # copy button
         self.copy_text_btn = ttk.Button(self.entry_frame, text='Copy',
-                                        command=callback_copy_text_btn)
+                                        command=callback_copy_text_btn,
+                                        width=8)
         self.copy_text_btn.grid(row=0, column=4)
         self.copy_text_btn.config(state=tk.DISABLED)
 
         # paste button
         paste_text_btn = ttk.Button(self.entry_frame, text='Paste',
-                                    command=callback_paste_text_btn)
+                                    command=callback_paste_text_btn,
+                                    width=8)
         paste_text_btn.grid(row=0, column=5)
 
         # clear button
         clear_text_btn = ttk.Button(self.entry_frame, text='Clear',
-                                    command=callback_clear_text_btn)
+                                    command=callback_clear_text_btn,
+                                    width=8)
         clear_text_btn.grid(row=0, column=6)
 
         # build button
         build_btn = ttk.Button(self.entry_frame, text='Build',
-                               command=callback_build_btn)
+                               command=callback_build_btn,
+                               width=8)
         build_btn.grid(row=0, column=7)
 
         # snippet button
         self.snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
-                                      command=callback_snippet_btn)
+                                      command=callback_snippet_btn,
+                                      width=8)
         self.snippet_btn.grid(row=0, column=8)
 
         # unittest button
         self.unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
-                                       command=callback_unittest_btn)
+                                       command=callback_unittest_btn,
+                                       width=8)
         self.unittest_btn.grid(row=0, column=9)
 
         # pytest button
         self.pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
-                                     command=callback_pytest_btn)
+                                     command=callback_pytest_btn,
+                                     width=8)
         self.pytest_btn.grid(row=0, column=10)
 
         # builder checkbox
-        builder_chkbox = tk.Checkbutton(
+        builder_chkbox = self.CheckBox(
             self.entry_frame, text='Builder', variable=self.builder_chkbox_var,
             onvalue=True, offvalue=False,
             command=callback_builder_chkbox
@@ -1234,8 +1242,9 @@ class Application:
         ttk.Combobox(
             self.word_bound_frame,
             state='readonly',
-            values=['word_bound', 'word_bound_left', 'word_bound_right', ''],
-            textvariable=self.word_bound_var
+            values=['both', 'left', 'right', 'none'],
+            textvariable=self.word_bound_var,
+            width=6
         ).pack(side=tk.LEFT)
 
         # Robotframework button
