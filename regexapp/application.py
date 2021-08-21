@@ -309,6 +309,7 @@ class Application:
         self.Label = ttk.Label
         self.Frame = ttk.Frame
         self.LabelFrame = ttk.LabelFrame
+        self.Button = ttk.Button
 
         self.set_title()
         self.build_menu()
@@ -710,12 +711,12 @@ class Application:
         )
         frame.grid(row=2, column=0, padx=10, pady=10, sticky=tk.E+tk.S)
 
-        ttk.Button(
+        self.Button(
             frame, text='Default',
             command=lambda: self.set_default_setting(),
         ).grid(row=0, column=6, padx=1, pady=1, sticky=tk.E)
 
-        ttk.Button(
+        self.Button(
             frame, text='OK',
             command=lambda: settings.destroy(),
         ).grid(row=0, column=7, padx=1, pady=1, sticky=tk.E)
@@ -762,7 +763,7 @@ class Application:
         )
 
         padx, pady = (0, 0) if self.is_macos else (2, 2)
-        ttk.Button(sys_ref, text='OK',
+        self.Button(sys_ref, text='OK',
                    command=lambda: sys_ref.destroy()
                    ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
@@ -866,11 +867,11 @@ class Application:
 
         padx, pady = (0, 0) if self.is_macos else (2, 2)
 
-        ttk.Button(
+        self.Button(
             user_ref, text='Save', command=lambda: save(textarea)
         ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
-        ttk.Button(
+        self.Button(
             user_ref, text='Close', command=lambda: user_ref.destroy()
         ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
@@ -880,7 +881,7 @@ class Application:
             user_ref, width=25, textvariable=self.new_pattern_name_var
         ).pack(side=tk.LEFT, padx=padx, pady=pady)
 
-        ttk.Button(
+        self.Button(
             user_ref, text='Insert',
             command=lambda: insert(self.new_pattern_name_var, textarea),
         ).pack(side=tk.LEFT, padx=padx, pady=pady)
@@ -1176,22 +1177,22 @@ class Application:
 
         btn_width = 5.5 if self.is_macos else 8
         # open button
-        open_file_btn = ttk.Button(self.entry_frame, text='Open',
-                                   command=self.callback_file_open,
-                                   width=btn_width)
+        open_file_btn = self.Button(self.entry_frame, text='Open',
+                                    command=self.callback_file_open,
+                                    width=btn_width)
         open_file_btn.grid(row=0, column=2, pady=2)
 
         # Save As button
-        self.save_as_btn = ttk.Button(self.entry_frame, text='Save As',
-                                      command=callback_save_as_btn,
-                                      width=btn_width)
+        self.save_as_btn = self.Button(self.entry_frame, text='Save As',
+                                       command=callback_save_as_btn,
+                                       width=btn_width)
         self.save_as_btn.grid(row=0, column=3)
         self.save_as_btn.config(state=tk.DISABLED)
 
         # copy button
-        self.copy_text_btn = ttk.Button(self.entry_frame, text='Copy',
-                                        command=callback_copy_text_btn,
-                                        width=btn_width)
+        self.copy_text_btn = self.Button(self.entry_frame, text='Copy',
+                                         command=callback_copy_text_btn,
+                                         width=btn_width)
         self.copy_text_btn.grid(row=0, column=4)
         self.copy_text_btn.config(state=tk.DISABLED)
 
@@ -1202,33 +1203,33 @@ class Application:
         paste_text_btn.grid(row=0, column=5)
 
         # clear button
-        clear_text_btn = ttk.Button(self.entry_frame, text='Clear',
-                                    command=callback_clear_text_btn,
-                                    width=btn_width)
+        clear_text_btn = self.Button(self.entry_frame, text='Clear',
+                                     command=callback_clear_text_btn,
+                                     width=btn_width)
         clear_text_btn.grid(row=0, column=6)
 
         # build button
-        build_btn = ttk.Button(self.entry_frame, text='Build',
-                               command=callback_build_btn,
-                               width=btn_width)
+        build_btn = self.Button(self.entry_frame, text='Build',
+                                command=callback_build_btn,
+                                width=btn_width)
         build_btn.grid(row=0, column=7)
 
         # snippet button
-        self.snippet_btn = ttk.Button(self.entry_frame, text='Snippet',
-                                      command=callback_snippet_btn,
-                                      width=btn_width)
+        self.snippet_btn = self.Button(self.entry_frame, text='Snippet',
+                                       command=callback_snippet_btn,
+                                       width=btn_width)
         self.snippet_btn.grid(row=0, column=8)
 
         # unittest button
-        self.unittest_btn = ttk.Button(self.entry_frame, text='Unittest',
-                                       command=callback_unittest_btn,
-                                       width=btn_width)
+        self.unittest_btn = self.Button(self.entry_frame, text='Unittest',
+                                        command=callback_unittest_btn,
+                                        width=btn_width)
         self.unittest_btn.grid(row=0, column=9)
 
         # pytest button
-        self.pytest_btn = ttk.Button(self.entry_frame, text='Pytest',
-                                     command=callback_pytest_btn,
-                                     width=btn_width)
+        self.pytest_btn = self.Button(self.entry_frame, text='Pytest',
+                                      command=callback_pytest_btn,
+                                      width=btn_width)
         self.pytest_btn.grid(row=0, column=10)
 
         # builder checkbox
@@ -1256,7 +1257,7 @@ class Application:
         ).pack(side=tk.LEFT)
 
         # Robotframework button
-        # rf_btn = ttk.Button(self.entry_frame, text='RF',
+        # rf_btn = self.Button(self.entry_frame, text='RF',
         #                     command=callback_rf_btn, width=4)
         # rf_btn.grid(row=0, column=11)
 
