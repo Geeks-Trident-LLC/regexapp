@@ -308,6 +308,7 @@ class Application:
         self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
         self.Label = ttk.Label
         self.Frame = ttk.Frame
+        self.LabelFrame = ttk.LabelFrame
 
         self.set_title()
         self.build_menu()
@@ -577,7 +578,7 @@ class Application:
         url_lbl.bind('<Button-1>', mouse_press)
 
         # license textbox
-        lframe = ttk.LabelFrame(
+        lframe = self.LabelFrame(
             panedwindow, height=300, width=380,
             text=Data.license_name
         )
@@ -614,7 +615,7 @@ class Application:
         settings.resizable(False, False)
 
         # Settings - Pattern Arguments
-        lframe_pattern_args = ttk.LabelFrame(
+        lframe_pattern_args = self.LabelFrame(
             settings, height=80, width=380,
             text='Pattern Arguments'
         )
@@ -633,7 +634,7 @@ class Application:
             ).grid(row=row, column=column, padx=2, pady=2, sticky=tk.W)
 
         # Settings - Builder Arguments
-        lframe_builder_args = ttk.LabelFrame(
+        lframe_builder_args = self.LabelFrame(
             settings, height=280, width=380,
             text='Builder Arguments'
         )
