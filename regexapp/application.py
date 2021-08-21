@@ -311,6 +311,7 @@ class Application:
         self.LabelFrame = ttk.LabelFrame
         self.Button = ttk.Button
         self.TextBox = ttk.Entry
+        self.TextArea = tk.Text
         self.PanedWindow = ttk.PanedWindow
 
         self.set_title()
@@ -589,7 +590,7 @@ class Application:
 
         width = 49 if self.is_macos else 43
         height = 19 if self.is_macos else 15
-        txtbox = tk.Text(lframe, width=width, height=height, wrap='word')
+        txtbox = self.TextArea(lframe, width=width, height=height, wrap='word')
         txtbox.grid(row=0, column=0, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(lframe, orient=tk.VERTICAL, command=txtbox.yview)
         scrollbar.grid(row=0, column=1, sticky='nsew')
@@ -745,7 +746,7 @@ class Application:
         text_frame.rowconfigure(0, weight=1)
         text_frame.columnconfigure(0, weight=1)
 
-        textarea = tk.Text(text_frame, width=20, height=5, wrap='none')
+        textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
         with open(REF.sys_ref_loc) as stream:
             content = stream.read()
             self.set_textarea(textarea, content)
@@ -848,7 +849,7 @@ class Application:
         text_frame.rowconfigure(0, weight=1)
         text_frame.columnconfigure(0, weight=1)
 
-        textarea = tk.Text(text_frame, width=20, height=5, wrap='none')
+        textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
 
         with open(REF.user_ref_loc) as stream:
             content = stream.read()
@@ -951,7 +952,7 @@ class Application:
 
         self.text_frame.rowconfigure(0, weight=1)
         self.text_frame.columnconfigure(0, weight=1)
-        self.textarea = tk.Text(self.text_frame, width=20, height=5, wrap='none')
+        self.textarea = self.TextArea(self.text_frame, width=20, height=5, wrap='none')
         self.textarea.grid(row=0, column=0, sticky='nswe')
         vscrollbar = ttk.Scrollbar(
             self.text_frame, orient=tk.VERTICAL, command=self.textarea.yview
@@ -1267,7 +1268,7 @@ class Application:
         """Build result text"""
         self.result_frame.rowconfigure(0, weight=1)
         self.result_frame.columnconfigure(0, weight=1)
-        self.result_textarea = tk.Text(
+        self.result_textarea = self.TextArea(
             self.result_frame, width=20, height=5, wrap='none'
         )
         self.result_textarea.grid(row=0, column=0, sticky='nswe')
