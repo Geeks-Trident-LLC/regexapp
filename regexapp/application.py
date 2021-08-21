@@ -551,7 +551,10 @@ class Application:
         about.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         about.resizable(False, False)
 
-        panedwindow = self.PanedWindow(about, orient=tk.VERTICAL)
+        top_frame = self.Frame(about)
+        top_frame.pack(fill=tk.BOTH, expand=True)
+
+        panedwindow = self.PanedWindow(top_frame, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
 
         # company
