@@ -741,7 +741,10 @@ class Application:
         x, y = get_relative_center_location(self.root, width, height)
         sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
-        panedwindow = self.PanedWindow(sys_ref, orient=tk.VERTICAL)
+        top_frame = self.Frame(sys_ref)
+        top_frame.pack(fill=tk.BOTH, expand=True)
+
+        panedwindow = self.PanedWindow(top_frame, orient=tk.VERTICAL)
         panedwindow.pack(fill=tk.BOTH, expand=True)
 
         text_frame = self.Frame(
