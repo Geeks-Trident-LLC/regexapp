@@ -118,7 +118,7 @@ class Data:
     license_url = path.join(repo_url, 'blob/main/LICENSE')
     # TODO: Need to update wiki page for documentation_url instead of README.md.
     documentation_url = path.join(repo_url, 'blob/develop/README.md')
-    copyright_text = 'Copyright @ 2021 Geeks Trident LLC.  All rights reserved.'
+    copyright_text = 'Copyright @ 2021-2030 Geeks Trident LLC.  All rights reserved.'
 
     @classmethod
     def get_license(cls):
@@ -546,7 +546,7 @@ class Application:
 
         about = tk.Toplevel(self.root)
         self.set_title(node=about, title='About')
-        width, height = 400, 400
+        width, height = 440, 400
         x, y = get_relative_center_location(self.root, width, height)
         about.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         about.resizable(False, False)
@@ -558,7 +558,7 @@ class Application:
         panedwindow.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
 
         # company
-        frame = self.Frame(panedwindow, width=380, height=20)
+        frame = self.Frame(panedwindow, width=420, height=20)
         panedwindow.add(frame, weight=1)
 
         fmt = 'Regex GUI v{} ({} Edition)'
@@ -566,7 +566,7 @@ class Application:
         company_lbl.pack(side=tk.LEFT)
 
         # URL
-        frame = self.Frame(panedwindow, width=380, height=20)
+        frame = self.Frame(panedwindow, width=420, height=20)
         panedwindow.add(frame, weight=1)
 
         url = Data.repo_url
@@ -586,13 +586,13 @@ class Application:
 
         # license textbox
         lframe = self.LabelFrame(
-            panedwindow, height=300, width=380,
+            panedwindow, height=300, width=420,
             text=Data.license_name
         )
         panedwindow.add(lframe, weight=7)
 
-        width = 49 if self.is_macos else 43
-        height = 19 if self.is_macos else 15
+        width = 55 if self.is_macos else 48
+        height = 19 if self.is_macos else 15 if self.is_linux else 16
         txtbox = self.TextArea(lframe, width=width, height=height, wrap='word')
         txtbox.grid(row=0, column=0, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(lframe, orient=tk.VERTICAL, command=txtbox.yview)
