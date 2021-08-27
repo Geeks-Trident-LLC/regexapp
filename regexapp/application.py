@@ -248,39 +248,72 @@ class Application:
     browser = webbrowser
 
     def __init__(self):
+        # support platform: macOS, Linux, and Window
+        self.is_macos = platform.system() == 'Darwin'
+        self.is_linux = platform.system() == 'Linux'
+        self.is_window = platform.system() == 'Windows'
+
+        # standardize tkinter component for macOS, Linux, and Window operating system
+        self.RadioButton = tk.Radiobutton if self.is_linux else ttk.Radiobutton
+        self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
+        self.Label = ttk.Label
+        self.Frame = ttk.Frame
+        self.LabelFrame = ttk.LabelFrame
+        self.Button = ttk.Button
+        self.TextBox = ttk.Entry
+        self.TextArea = tk.Text
+        self.PanedWindow = ttk.PanedWindow
+
+        # tkinter root
         self._base_title = 'Regexapp {}'.format(edition)
         self.root = tk.Tk()
         self.root.geometry('940x600+100+100')
         self.root.minsize(200, 200)
         self.root.option_add('*tearOff', False)
 
+        # tkinter components for main layout
         self.panedwindow = None
         self.text_frame = None
         self.entry_frame = None
         self.result_frame = None
-        self.var_name_frame = None
-        self.word_bound_frame = None
+
+        self.textarea = None
+        self.result_textarea = None
+        self.line_radio_btn = None
+        self.multiline_radio_btn = None
+
         self.save_as_btn = None
         self.copy_text_btn = None
         self.snippet_btn = None
         self.unittest_btn = None
         self.pytest_btn = None
 
+        # tkinter components for builder app
+        self.var_name_frame = None
+        self.word_bound_frame = None
+
+        # datastore
         self.test_data = None
         self.snapshot = dict()
 
+        # variables
+        # variables: radio button
         self.radio_line_or_multiline_btn_var = tk.StringVar()
         self.radio_line_or_multiline_btn_var.set('multiline')
 
+        # variables: for builder app
         self.builder_chkbox_var = tk.BooleanVar()
         self.var_name_var = tk.StringVar()
         self.word_bound_var = tk.StringVar()
         self.word_bound_var.set('none')
         self.is_confirmed = True
 
+        # variables: pattern arguments
         self.prepended_ws_var = tk.BooleanVar()
         self.appended_ws_var = tk.BooleanVar()
         self.ignore_case_var = tk.BooleanVar()
+
+        # variables: builder arguments
         self.test_name_var = tk.StringVar()
         self.test_cls_name_var = tk.StringVar()
         self.test_cls_name_var.set('TestDynamicGenTestScript')
@@ -293,27 +326,10 @@ class Application:
         self.email_var = tk.StringVar()
         self.company_var = tk.StringVar()
 
+        # variables: preferences > user reference
         self.new_pattern_name_var = tk.StringVar()
 
-        self.textarea = None
-        self.result_textarea = None
-        self.line_radio_btn = None
-        self.multiline_radio_btn = None
-
-        self.is_macos = platform.system() == 'Darwin'
-        self.is_linux = platform.system() == 'Linux'
-        self.is_window = platform.system() == 'Windows'
-
-        self.RadioButton = tk.Radiobutton if self.is_linux else ttk.Radiobutton
-        self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
-        self.Label = ttk.Label
-        self.Frame = ttk.Frame
-        self.LabelFrame = ttk.LabelFrame
-        self.Button = ttk.Button
-        self.TextBox = ttk.Entry
-        self.TextArea = tk.Text
-        self.PanedWindow = ttk.PanedWindow
-
+        # method call
         self.set_title()
         self.build_menu()
         self.build_frame()
