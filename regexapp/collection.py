@@ -644,7 +644,7 @@ class ElementPattern(str):
             pattern, word_bound=word_bound, added_parentheses=is_multiple
         )
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, head=head)
+        pattern = cls.add_head_of_string(pattern, head=head)
         pattern = cls.add_end_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -738,7 +738,7 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, head=head)
+        pattern = cls.add_head_of_string(pattern, head=head)
         pattern = cls.add_end_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -815,7 +815,7 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, head=head)
+        pattern = cls.add_head_of_string(pattern, head=head)
         pattern = cls.add_end_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -892,7 +892,7 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, head=head)
+        pattern = cls.add_head_of_string(pattern, head=head)
         pattern = cls.add_end_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
@@ -1069,7 +1069,7 @@ class ElementPattern(str):
         return new_pattern
 
     @classmethod
-    def add_start_of_string(cls, pattern, head=''):
+    def add_head_of_string(cls, pattern, head=''):
         """prepend start of string i.e ^ or ^\\s* or ^\\s+ or ^ * or ^ + regex pattern
 
         Parameters
