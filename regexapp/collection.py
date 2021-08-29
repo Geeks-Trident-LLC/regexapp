@@ -439,6 +439,23 @@ class TextPattern(str):
         validate_pattern(text_pattern, exception_cls=TextPatternError)
         return text_pattern
 
+    def lstrip(self, chars=None):
+        """Return a copy of the TextPattern with leading whitespace removed.
+
+        Parameters
+        ----------
+        chars (None, str): If chars is given and not None,
+                remove characters in chars instead.
+
+        Returns
+        -------
+        TextPattern: a new TextPattern with leading whitespace removed.
+
+        """
+        new_text = self.text.lstrip() if chars is None else self.text.lstrip(chars)
+        pattern = TextPattern(new_text)
+        return pattern
+
 
 class ElementPattern(str):
     """Use to convert element data to regex pattern
