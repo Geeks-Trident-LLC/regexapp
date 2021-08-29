@@ -970,7 +970,7 @@ class ElementPattern(str):
 
         table = dict(space=r'^ *', space_plus=r'^ +',
                      ws=r'^\s*', ws_plus=r'^\s+')
-        pat = table.get(params, r'^\s*')
+        pat = table.get(params, r'^')
         return True, pat
 
     @classmethod
@@ -1388,6 +1388,16 @@ class LinePattern(str):
             return
 
         curr, nxt = lst[0], lst[1]
+
+        if curr == '^':
+            if isinstance(nxt, TextPattern):
+                if nxt == ' ':
+                    lst.pop(1)
+                    return
+                if re.match(' [^+*]', nxt):
+                    lst[1] = nxt.lstrip()
+                    return
+
         match = re.match(r'(?P<pre_ws>( |\\s)[*+]*)', nxt)
         if re.match(r'(\^|\\A)( |\\s)[*+]*$', curr):
             if isinstance(nxt, TextPattern) and match:
