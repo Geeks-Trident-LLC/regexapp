@@ -991,7 +991,7 @@ class ElementPattern(str):
 
         table = dict(space=r' *$', space_plus=r' +$',
                      ws=r'\s*$', ws_plus=r'\s+$')
-        pat = table.get(params, r'\s*$')
+        pat = table.get(params, r'$')
         return True, pat
 
     @classmethod
@@ -1420,6 +1420,16 @@ class LinePattern(str):
             return
 
         last, prev = lst[-1], lst[-2]
+
+        if last == '$':
+            if isinstance(prev, TextPattern):
+                if prev == ' ':
+                    lst.pop(-2)
+                    return
+                if not re.search(' [+*]$', prev):
+                    lst[-2] = prev.rstrip()
+                    return
+
         match = re.search(r'(?P<post_ws>( |\\s)[*+]*)$', prev)
         if re.match(r'( |\\s)[*+]?(\$|\\Z)$', last):
             if isinstance(prev, TextPattern) and match:
