@@ -377,6 +377,9 @@ class TextPattern(str):
             text_pattern = ''
         return str.__new__(cls, text_pattern)
 
+    def __init__(self, text):
+        self.text = text
+
     @property
     def is_empty(self):
         if self == '':
