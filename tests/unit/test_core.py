@@ -185,12 +185,6 @@ def tc_info():
         script = script.replace('_datetime_', dt_str)
         test_info.expected_unittest_script = script
 
-    filename = str(PurePath(base_dir, 'detail_unittest_script.txt'))
-    with open(filename) as stream:
-        script = stream.read()
-        script = script.replace('_datetime_', dt_str)
-        test_info.expected_detail_unittest_script = script
-
     filename = str(PurePath(base_dir, 'pytest_script.txt'))
     with open(filename) as stream:
         script = stream.read()
@@ -275,17 +269,6 @@ class TestRegexBuilder:
                                                 company=tc_info.company,
                                                 is_minimal=True,)
         assert test_script == tc_info.expected_unittest_script
-
-    def test_generating_detail_unittest_script(self, tc_info):
-        factory = RegexBuilder(
-            user_data=tc_info.user_data, test_data=tc_info.test_data,
-            is_line=True
-        )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=False,)
-        assert test_script == tc_info.expected_detail_unittest_script
 
     def test_generating_pytest_script(self, tc_info):
         factory = RegexBuilder(
@@ -440,17 +423,6 @@ class TestDynamicGenTestScript:
                                                 company=tc_info.company,
                                                 is_minimal=True)
         assert test_script == tc_info.expected_unittest_script
-
-    def test_generating_detail_unittest_script(self, tc_info):
-        factory = DynamicGenTestScript(
-            test_info=[tc_info.prepared_data, tc_info.test_data],
-            is_line=True
-        )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=False)
-        assert test_script == tc_info.expected_detail_unittest_script
 
     def test_generating_pytest_script(self, tc_info):
         factory = DynamicGenTestScript(
