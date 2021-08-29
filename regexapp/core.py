@@ -49,6 +49,31 @@ def enclose_string(text):
     return enclosed_txt
 
 
+def generate_custom_docstring(**kwargs):
+    """Generate custom docstring for Pro Edition or Enterprise Edition
+
+    Parameters
+    ----------
+    kwargs (dict): custom keyword arguments for
+            Pro Edition or Enterprise Edition.
+
+    Returns
+    -------
+    str: a custom docstring or empty string.
+    """
+    if kwargs:
+        if is_pro_edition():
+            fmt = ('Contact tuyen@geekstrident.com to use {!r} flags on '
+                   'Regexapp Pro or Enterprise Edition.')
+            print(fmt.format(kwargs))
+        else:
+            fmt = 'CANT use {!r} flags with Regexapp Community Edition.'
+            print(fmt.format(kwargs))
+            return ''
+    else:
+        return ''
+
+
 class RegexBuilder:
     """Use for building regex pattern
 
