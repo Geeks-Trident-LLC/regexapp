@@ -473,6 +473,24 @@ class TextPattern(str):
         pattern = TextPattern(new_text)
         return pattern
 
+    def strip(self, chars=None):
+        """Return a copy of the TextPattern with leading and
+        trailing whitespace removed.
+
+        Parameters
+        ----------
+        chars (None, str): If chars is given and not None,
+                remove characters in chars instead.
+
+        Returns
+        -------
+        TextPattern: a new TextPattern with leading and trailing whitespace removed.
+
+        """
+        new_text = self.text.strip() if chars is None else self.text.strip(chars)
+        pattern = TextPattern(new_text)
+        return pattern
+
 
 class ElementPattern(str):
     """Use to convert element data to regex pattern
