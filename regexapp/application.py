@@ -555,6 +555,8 @@ class Application:
                 content = stream.read()
                 if not self.is_pattern_builder_app:
                     self.test_data_btn.config(state=tk.NORMAL)
+                    self.test_data_btn_var.set('Test Data')
+                    self.set_textarea(self.result_textarea, '')
                     self.snapshot.update(test_data=content)
                 self.set_textarea(self.textarea, content, title=filename)
 
@@ -1030,7 +1032,6 @@ class Application:
                     pattern = PatternBuilder(user_data, **kwargs)
                     result = 'pattern = r{}'.format(enclose_string(pattern))
                     self.set_textarea(self.result_textarea, result)
-                    self.test_data_btn_var.set('Test Data')
                     self.snapshot.update(test_result=result)
                 except Exception as ex:
                     error = '{}: {}'.format(type(ex).__name__, ex)
@@ -1052,6 +1053,7 @@ class Application:
                             for index, pattern in enumerate(patterns, 1):
                                 lst.append(fmt.format(index, enclose_string(pattern)))
                             result = '\n'.join(lst)
+                        self.test_data_btn_var.set('Test Data')
                         self.set_textarea(self.result_textarea, result)
                         self.save_as_btn.config(state=tk.NORMAL)
                         self.copy_text_btn.config(state=tk.NORMAL)
@@ -1095,6 +1097,8 @@ class Application:
 
                 if not self.is_pattern_builder_app:
                     self.test_data_btn.config(state=tk.NORMAL)
+                    self.test_data_btn_var.set('Test Data')
+                    self.set_textarea(self.result_textarea, '')
                     self.snapshot.update(test_data=data)
 
                 title = '<<PASTE - Clipboard>>'
