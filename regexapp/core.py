@@ -1,6 +1,4 @@
 import re
-import yaml
-from pathlib import Path, PurePath
 from datetime import datetime
 from regexapp import LinePattern
 from regexapp import MultilinePattern
@@ -14,17 +12,6 @@ from textwrap import indent
 from textwrap import dedent
 
 BASELINE_REF = deepcopy(REF)
-
-
-def get_template():
-    """return yaml instance for template.yaml"""
-    filename = str(PurePath(Path(__file__).parent, 'template.yaml'))
-    with open(filename) as stream:
-        obj = yaml.load(stream, Loader=yaml.SafeLoader)
-        return obj
-
-
-template = get_template()
 
 
 def is_pro_edition():
@@ -576,15 +563,19 @@ class DynamicGenTestScript:
     is_line (bool): a flag to use LinePattern.  Default is False.
     max_words (int): total number of words for generating test name.
             Default is 6 words.
+    test_cls_name (str): a test class name for test script.  This test class
+            name only be applicable for unittest or pytest.
+            Default is TestDynamicGenTestScript.
+    author (str): author name.  Default is empty.
+    email (str): author name.  Default is empty.
+    company (str): company name.  Default is empty.
+    filename (str): save a generated test script to file name.
     kwargs (dict): an optional keyword arguments.
             Community edition will use the following keywords:
                 prepended_ws, appended_ws, ignore_case
             Pro or Enterprise edition will use
                 prepended_ws, appended_ws, ignore_case, other keywords
-    test_cls_name (str): a test class name for test script.  This test class
-            name only be applicable for unittest or pytest.
-            Default is TestDynamicGenTestScript.
-    template (dict): a holder for all templates or format to generate test script.
+
     lst_of_tests (list): a list of test.
     test_data (str): a test data
     patterns (list): a list of patterns.
@@ -592,29 +583,52 @@ class DynamicGenTestScript:
     Methods
     -------
     compile_test_info() -> None
-    save_file(filename, content) -> None
     generate_test_name(test_data='') -> str
-    generate_custom_docstring(**kwargs) -> str
-    generate_docstring(test_framework='unittest', author='', email='', company='', **kwargs) -> str
-    generate_data_insertion() -> str
-    generate_unittest(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
-    generate_pytest(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
-    generate_rf_test(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
-    generate_python_test(author='', email='', company='', is_minimal=True, filename='', **kwargs) -> str
+    generate_unittest() -> str
+    generate_pytest() -> str
+    generate_rf_test() -> str
+    generate_python_test() -> str
     """
     def __init__(self, test_info=None, test_name='', is_line=False,
                  max_words=6, test_cls_name='TestDynamicGenTestScript',
+                 author='', email='', company='', filename='',
                  **kwargs):
         self.test_info = test_info
-        self.test_name = test_name
         if isinstance(test_info, RegexBuilder):
-            self.is_line = test_info.is_line
+            self.test_name = test_info.test_name
+            self.is_line = is_line or test_info.is_line
+            self.max_words = test_info.max_words
+            self.test_cls_name = test_info.test_cls_name
+
+            self.author = author or test_info.author
+            self.email = email or test_info.email
+            self.company = company or test_info.company
+            self.filename = filename or test_info.filename
+
+            self.prepended_ws = test_info.prepended_ws
+            self.appended_ws = test_info.appended_ws
+            self.ignore_case = test_info.ignore_case
+            self.kwargs = test_info.kwargs
         else:
+            self.test_name = test_name
             self.is_line = is_line
-        self.max_words = max_words
-        self.test_cls_name = str(test_cls_name)
-        self.kwargs = kwargs
-        self.template = template
+            self.max_words = max_words
+            self.test_cls_name = test_cls_name
+
+            self.author = author
+            self.email = email
+            self.company = company
+            self.filename = filename
+
+            self.prepended_ws = kwargs.get('prepended_ws', False)
+            self.appended_ws = kwargs.get('appended_ws', False)
+            self.ignore_case = kwargs.get('ignore_case', False)
+            self.kwargs = kwargs
+
+        'prepended_ws' in self.kwargs and self.kwargs.pop('prepended_ws')
+        'appended_ws' in self.kwargs and self.kwargs.pop('appended_ws')
+        'ignore_case' in self.kwargs and self.kwargs.pop('ignore_case')
+
         self.lst_of_tests = []
         self.test_data = None
         self.patterns = None
@@ -635,15 +649,13 @@ class DynamicGenTestScript:
 
             user_data, test_data = self.test_info
             self.test_data = test_data
-            prepended_ws = self.kwargs.get('prepended_ws', False)
-            appended_ws = self.kwargs.get('appended_ws', False)
-            ignore_case = self.kwargs.get('ignore_case', False)
 
             testable = RegexBuilder(
                 user_data=user_data, test_data=test_data,
                 is_line=self.is_line,
-                prepended_ws=prepended_ws,
-                appended_ws=appended_ws, ignore_case=ignore_case
+                prepended_ws=self.prepended_ws,
+                appended_ws=self.appended_ws,
+                ignore_case=self.ignore_case
             )
         testable.build()
         testable.test()
@@ -661,19 +673,6 @@ class DynamicGenTestScript:
             test_name = self.generate_test_name(test_data=test_data)
             prepared_data = pattern_user_data_table.get(pattern)
             self.lst_of_tests.append([test_name, test_data, prepared_data, pattern])
-
-    def save_file(self, filename, content):
-        """Save data to file
-
-        Parameters
-        ----------
-        filename (str): a file name
-        content (str): a file content
-        """
-        filename = str(filename).strip()
-        if filename:
-            with open(filename, 'w') as stream:
-                stream.write(content)
 
     def generate_test_name(self, test_data=''):
         """generate test name from test_data
@@ -696,261 +695,33 @@ class DynamicGenTestScript:
             test_name = 'test_{}'.format(test_name)
         return test_name
 
-    def generate_custom_docstring(self, **kwargs):
-        """Generate custom docstring for Pro Edition or Enterprise Edition
-
-        Parameters
-        ----------
-        kwargs (str): custom keyword arguments for
-                Pro Edition or Enterprise Edition.
-
-        Returns
-        -------
-        str: a custom docstring or empty string.
-        """
-        if kwargs:
-            if is_pro_edition():
-                fmt = ('Contact tuyen@geekstrident.com to use {!r} flags on '
-                       'Regexapp Pro or Enterprise Edition.')
-                print(fmt.format(kwargs))
-            else:
-                fmt = 'CANT use {!r} flags with Regexapp Community Edition.'
-                print(fmt.format(kwargs))
-                return ''
-        else:
-            return ''
-
-    def generate_docstring(self, test_framework='unittest',
-                           author='', email='', company='', **kwargs):
-        """Generate module docstring for test script
-
-        Parameters
-        ----------
-        test_framework (str): a test framework.  Default is unittest.
-        author (str): author name.  Default is empty.
-        email (str): author name.  Default is empty.
-        company (str): company name.  Default is empty.
-        kwargs (str): custom keyword arguments for
-                Pro Edition or Enterprise Edition.
-
-        Returns
-        -------
-        str: a module docstring
-        """
-        lang = '' if test_framework == 'robotframework' else 'Python '
-        fmt = '{}{} script is generated by Regexapp {} Edition'
-        fmt1 = 'Created by  : {}'
-        fmt2 = 'Email       : {}'
-        fmt3 = 'Company     : {}'
-        fmt4 = 'Created date: {:%Y-%m-%d}'
-
-        lst = list()
-        author = author or company
-        lst.append(fmt.format(lang, test_framework, regexapp.edition))
-        lst.append('')
-        author and lst.append(fmt1.format(author))
-        email and lst.append(fmt2.format(email))
-        company and company != author and lst.append(fmt3.format(company))
-        lst.append(fmt4.format(datetime.now()))
-        custom_docstr = self.generate_custom_docstring(**kwargs)
-        custom_docstr and lst.append(custom_docstr)
-
-        if test_framework == 'robotframework':
-            new_lst = [l.strip() for l in indent('\n'.join(lst), '# ').splitlines()]
-            comment = '\n'.join(new_lst)
-            return comment
-        else:
-            module_docstr = '"""{}\n"""'.format('\n'.join(lst))
-            return module_docstr
-
-    def generate_data_insertion(self, is_minimal=True):
-        """generate list insertion for unittest script
-
-        Parameters
-        ----------
-        is_minimal (bool): flag to generate a minimal script.  Default is True.
-
-        Returns
-        -------
-        str: a format of list insertion.
-        """
-        lst = ['arguments = list()']
-
-        basename = 'regexapp_data_insertion'
-        postfix = 'minimal_fmt' if is_minimal else 'fmt'
-        fmt = self.template.get('{}_{}'.format(basename, postfix))
-
-        fmt1 = '    # test case #{:0{}} - {}'
-        spacers = len(str(len(self.lst_of_tests)))
-        for index, test in enumerate(self.lst_of_tests, 1):
-            test_name, test_data, prepared_data, pattern = test
-            test_data = enclose_string(test_data)
-            prepared_data = enclose_string(prepared_data)
-            data = fmt.format(test_name=enclose_string(test_name),
-                              test_data='__test_data_placeholder__',
-                              prepared_data='__prepared_data_placeholder__',
-                              pattern=enclose_string(pattern))
-            lst.append('')
-            lst.append(fmt1.format(index, spacers, test_name))
-            new_data = indent(data, ' ' * 4)
-            new_data = new_data.replace('__test_data_placeholder__', test_data)
-            new_data = new_data.replace('__prepared_data_placeholder__', prepared_data)
-            lst.append(new_data)
-
-        result = '\n'.join(lst)
-        return result
-
-    def generate_unittest(self, author='', email='', company='',
-                          is_minimal=True, filename='', **kwargs):
+    def generate_unittest(self):
         """dynamically generate Python unittest script
-        Parameters
-        ----------
-        author (str): author name.  Default is empty.
-        email (str): author name.  Default is empty.
-        company (str): company name.  Default is empty.
-        is_minimal (bool): flag to generate a minimal script.  Default is True.
-        filename (str): save a generated test script to file name.
-        kwargs (str): custom keyword arguments for
-                Pro Edition or Enterprise Edition.
 
         Returns
         -------
         str: python unittest script
         """
-        lst = []
-        # part 1
-        module_docstring = self.generate_docstring(
-            test_framework='unittest',
-            author=author, email=email, company=company, **kwargs
-        )
 
-        basename = 'unittest_regexapp'
-        postfix = 'minimal_template1' if is_minimal else 'template1'
-        fmt1 = self.template.get('{}_{}'.format(basename, postfix))
-
-        data = fmt1.format(module_docstring=module_docstring,
-                           test_cls_name=self.test_cls_name)
-        lst.append(data)
-        lst.append('')
-
-        # part 2
-        postfix = 'minimal_template2' if is_minimal else 'template2'
-        fmt2 = self.template.get('{}_{}'.format(basename, postfix))
-
-        for test in self.lst_of_tests:
-            test_name = test[0]
-            method_def = fmt2.format(test_name=test_name)
-            method_def = indent(method_def, ' ' * 4)
-            if method_def not in lst:
-                lst.append(method_def)
-                lst.append('')
-
-        # part 3
-        postfix = 'minimal_template3' if is_minimal else 'template3'
-        fmt3 = self.template.get('{}_{}'.format(basename, postfix))
-
-        data_insertion = self.generate_data_insertion(is_minimal=is_minimal)
-        data = fmt3.format(data_insertion=data_insertion,
-                           test_cls_name=self.test_cls_name)
-        lst.append('')
-        lst.append(data)
-
-        test_script = '\n'.join(lst)
-        test_script = '\n'.join(l.rstrip() for l in test_script.splitlines())
-
-        self.save_file(filename, test_script)
-
+        factory = UnittestBuilder(self)
+        test_script = factory.create()
+        save_file(self.filename, test_script)
         return test_script
 
-    def generate_pytest(self, author='', email='', company='',
-                        is_minimal=True, filename='', **kwargs):
+    def generate_pytest(self):
         """dynamically generate Python pytest script
-        Parameters
-        ----------
-        author (str): author name.  Default is empty.
-        email (str): author name.  Default is empty.
-        company (str): company name.  Default is empty.
-        is_minimal (bool): flag to generate a minimal script.  Default is True.
-        filename (str): save a generated test script to file name.
-        kwargs (str): custom keyword arguments for
-                Pro Edition or Enterprise Edition.
-
         Returns
         -------
         str: python pytest script
         """
 
-        module_docstring = self.generate_docstring(
-            test_framework='pytest',
-            author=author, email=email, company=company, **kwargs
-        )
-
-        basename = 'regexapp_parametrize_item'
-        postfix = 'minimal_fmt' if is_minimal else 'fmt'
-        parametrize_item_fmt = self.template.get('{}_{}'.format(basename, postfix))
-
-        lst = ['']
-        placeholder_table = dict()
-        for index, test in enumerate(self.lst_of_tests):
-            _, test_data, prepared_data, pattern = test
-            test_data = enclose_string(test_data)
-            prepared_data = enclose_string(prepared_data)
-            key1 = '__test_data_placeholder_{}__'.format(index)
-            key2 = '__prepared_data_placeholder_{}__'.format(index)
-            placeholder_table[key1] = test_data
-            placeholder_table[key2] = prepared_data
-
-            kw = dict(test_data=key1,
-                      prepared_data=key2,
-                      pattern=enclose_string(pattern))
-            parametrize_item = parametrize_item_fmt.format(**kw)
-            parametrize_item = indent(parametrize_item, ' ' * 8)
-            lst.append(parametrize_item)
-
-        parametrize_data = '\n'.join(lst)
-
-        basename = 'pytest_parametrize_regexapp'
-        postfix = 'minimal_template' if is_minimal else 'template'
-        parametrize_template = self.template.get('{}_{}'.format(basename, postfix))
-
-        ss = parametrize_template.format(parametrize_data=parametrize_data)
-        parametrize_invocation = '\n'.join(['', indent(ss, ' ' * 4)])
-
-        for key, value in placeholder_table.items():
-            parametrize_invocation = parametrize_invocation.replace(key, value)
-
-        test_name = self.test_name or 'test_generating_script'
-        if not test_name.startswith('test_'):
-            test_name = 'test_{}'.format(test_name)
-
-        kw = dict(module_docstring=module_docstring,
-                  test_cls_name=self.test_cls_name,
-                  test_name=test_name,
-                  parametrize_invocation=parametrize_invocation)
-
-        basename = 'pytest_regexapp'
-        postfix = 'minimal_template' if is_minimal else 'template'
-        script_template = self.template.get('{}_{}'.format(basename, postfix))
-
-        test_script = script_template.format(**kw)
-        test_script = '\n'.join(l.rstrip() for l in test_script.splitlines())
-
-        self.save_file(filename, test_script)
-
+        factory = PytestBuilder(self)
+        test_script = factory.create()
+        save_file(self.filename, test_script)
         return test_script
 
-    def generate_rf_test(self, author='', email='', company='',
-                         is_minimal=True, filename='', **kwargs):
+    def generate_rf_test(self):     # noqa
         """dynamically generate Robotframework test script
-        Parameters
-        ----------
-        author (str): author name.  Default is empty.
-        email (str): author name.  Default is empty.
-        company (str): company name.  Default is empty.
-        is_minimal (bool): flag to generate a minimal script.  Default is True.
-        filename (str): save a generated test script to file name.
-        kwargs (str): custom keyword arguments for
-                Pro Edition or Enterprise Edition.
 
         Returns
         -------
@@ -959,64 +730,16 @@ class DynamicGenTestScript:
         msg = 'TODO: need to implement generated_rf_test for robotframework'
         NotImplementedError(msg)
 
-    def generate_python_test(self, author='', email='', company='',
-                             is_minimal=True, filename='', **kwargs):
+    def generate_python_test(self):
         """dynamically generate Python test script
-        Parameters
-        ----------
-        author (str): author name.  Default is empty.
-        email (str): author name.  Default is empty.
-        company (str): company name.  Default is empty.
-        is_minimal (bool): flag to generate a minimal script.  Default is True.
-        filename (str): save a generated test script to file name.
-        kwargs (str): custom keyword arguments for
-                Pro Edition or Enterprise Edition.
 
         Returns
         -------
         str: a Python test script
         """
-        module_docstring = self.generate_docstring(
-            test_framework='test',
-            author=author, email=email, company=company, **kwargs
-        )
-        if self.is_line:
-            if isinstance(self.test_data, (list, tuple)):
-                test_data = enclose_string('\n'.join(self.test_data))
-            else:
-                test_data = enclose_string(self.test_data)
-
-            if len(self.patterns) == 1:
-                template_ = self.template.get('snippet_template1')
-                pattern = enclose_string(self.patterns[0])
-                test_script = template_.format(
-                    module_docstring=module_docstring,
-                    test_data=test_data, pattern=pattern
-                )
-            else:
-                template_ = self.template.get('snippet_template2')
-                lst = []
-                for pattern in self.patterns:
-                    lst.append('r{}'.format(enclose_string(pattern)))
-                patterns = indent(',\n'.join(lst), '    ').strip()
-                test_script = template_.format(
-                    module_docstring=module_docstring,
-                    test_data=test_data, patterns=patterns
-                )
-        else:
-            template_ = self.template.get('snippet_template3')
-            if isinstance(self.test_data, (list, tuple)):
-                test_data = enclose_string(self.test_data[0])
-            else:
-                test_data = enclose_string(self.test_data)
-
-            pattern = enclose_string(self.patterns[0])
-            test_script = template_.format(
-                module_docstring=module_docstring,
-                test_data=test_data, pattern=pattern
-            )
-
-        self.save_file(filename, test_script)
+        factory = PythonSnippetBuilder(self)
+        test_script = factory.create()
+        save_file(self.filename, test_script)
         return test_script
 
 
