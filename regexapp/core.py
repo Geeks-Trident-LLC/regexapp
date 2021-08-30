@@ -1012,6 +1012,7 @@ class UnittestBuilder:
     Attributes
     ----------
     tc_gen (DynamicGenTestScript): an DynamicGenTestScript instance.
+    module_docstring (str): a Python snippet docstring.
 
     Methods
     -------
@@ -1022,6 +1023,13 @@ class UnittestBuilder:
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
+        self.module_docstring = generate_docstring(
+            test_framework='unittest',
+            author=tc_gen.author,
+            email=tc_gen.email,
+            company=tc_gen.company,
+            **tc_gen.kwargs
+        )
 
     def create_testcase_class(self):
         """return partial unit test class definition"""
@@ -1040,17 +1048,10 @@ class UnittestBuilder:
         """
         tmpl = dedent(tmpl).strip()
 
-        module_docstring = generate_docstring(
-            test_framework='unittest',
-            author=self.tc_gen.author,
-            email=self.tc_gen.email,
-            company=self.tc_gen.company,
-            **self.tc_gen.kwargs
-        )
-
+        tc_gen = self.tc_gen
         partial_script = tmpl.format(
-            module_docstring=module_docstring,
-            test_cls_name=self.tc_gen.test_cls_name
+            module_docstring=self.module_docstring,
+            test_cls_name=tc_gen.test_cls_name
         )
 
         return partial_script
@@ -1065,9 +1066,10 @@ class UnittestBuilder:
         """
         tmpl = dedent(tmpl).strip()
 
+        tc_gen = self.tc_gen
         lst = []
 
-        for test in self.tc_gen.lst_of_tests:
+        for test in tc_gen.lst_of_tests:
             test_name = test[0]
             method_def = tmpl.format(test_name=test_name)
             method_def = indent(method_def, ' ' * 4)
@@ -1109,11 +1111,12 @@ class UnittestBuilder:
         """
         tmpl_data = dedent(tmpl_data).strip()
 
+        tc_gen = self.tc_gen
         lst = ['arguments = list()']
 
         test_desc_fmt = '    # test case #{:0{}} - {}'
-        spacers = len(str(len(self.tc_gen.lst_of_tests)))
-        for index, test in enumerate(self.tc_gen.lst_of_tests, 1):
+        spacers = len(str(len(tc_gen.lst_of_tests)))
+        for index, test in enumerate(tc_gen.lst_of_tests, 1):
             test_name, test_data, _, pattern = test
             test_data = enclose_string(test_data)
             data = tmpl_data.format(
@@ -1153,6 +1156,7 @@ class PytestBuilder:
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
+
 
     def create(self):
         """return pytest script"""
