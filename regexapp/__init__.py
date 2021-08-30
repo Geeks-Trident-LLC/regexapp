@@ -16,7 +16,7 @@ from regexapp.collection import PatternBuilder
 from regexapp.collection import MultilinePattern
 from regexapp.collection import PatternReference
 from regexapp.core import RegexBuilder
-from regexapp.core import DynamicGenTestScript
+from regexapp.core import DynamicTestScriptBuilder
 from regexapp.core import add_reference
 from regexapp.core import remove_reference
 
@@ -33,7 +33,7 @@ __all__ = [
     'PatternBuilder',
     'PatternReference',
     'RegexBuilder',
-    'DynamicGenTestScript',
+    'DynamicTestScriptBuilder',
     'add_reference',
     'remove_reference',
     'version',
