@@ -119,6 +119,20 @@ def generate_docstring(test_framework='unittest',
         return module_docstr
 
 
+def save_file(filename, content):
+    """Save data to file
+
+    Parameters
+    ----------
+    filename (str): a file name
+    content (str): a file content
+    """
+    filename = str(filename).strip()
+    if filename:
+        with open(filename, 'w') as stream:
+            stream.write(content)
+
+
 class RegexBuilder:
     """Use for building regex pattern
 
