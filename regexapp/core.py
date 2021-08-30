@@ -1138,3 +1138,88 @@ class UnittestBuilder:
 
         test_script = '{}\n\n{}\n\n{}'.format(tc_class, tc_method, tc_load)
         return test_script
+
+
+class PytestBuilder:
+    """Create Pytest script
+
+    Attributes
+    ----------
+    tc_gen (DynamicGenTestScript): an DynamicGenTestScript instance.
+
+    Methods
+    -------
+    create() -> str
+    """
+    def __init__(self, tc_gen):
+        self.tc_gen = tc_gen
+
+    def create(self):
+        """return pytest script"""
+
+        tmpl = """
+            {module_docstring}
+            
+            import pytest
+            import re
+            
+            class {test_cls_name}:
+                @pytest.mark.parametrize(
+                    ('test_data', 'pattern'),
+                    (
+                        {parametrize_data}
+                    )
+                )
+                def {test_name}(self, test_data, pattern):
+                    result = re.search(pattern, test_data)
+                    assert result is not None
+        """
+        tmpl = dedent(tmpl).strip()
+
+        tmpl_data = """
+            (
+                {test_data},    # test data
+                r{pattern}   # pattern
+            ),
+        """
+        tmpl_data = dedent(tmpl_data).strip()
+
+        module_docstring = generate_docstring(
+            test_framework='pytest',
+            author=self.tc_gen.author,
+            email=self.tc_gen.email,
+            company=self.tc_gen.company,
+            **self.tc_gen.kwargs
+        )
+
+        lst = []
+        placeholder_table = dict()
+        for index, test in enumerate(self.tc_gen.lst_of_tests):
+            _, test_data, _, pattern = test
+            test_data = enclose_string(test_data)
+            key = '__test_data_placeholder_{}__'.format(index)
+            placeholder_table[key] = test_data
+
+            kw = dict(test_data=key,
+                      pattern=enclose_string(pattern))
+            parametrize_item = tmpl_data.format(**kw)
+            parametrize_item = indent(parametrize_item, ' ' * 12)
+            lst.append(parametrize_item)
+
+        parametrize_data = '\n'.join(lst)
+
+        for key, value in placeholder_table.items():
+            parametrize_data = parametrize_data.replace(key, value)
+
+        test_name = self.tc_gen.test_name or 'test_generating_script'
+        if not test_name.startswith('test_'):
+            test_name = 'test_{}'.format(test_name)
+
+        test_script = tmpl.format(
+            odule_docstring=module_docstring,
+            test_cls_name=self.tc_gen.test_cls_name,
+            test_name=test_name,
+            parametrize_data=parametrize_data
+        )
+        test_script = '\n'.join(line.rstrip() for line in test_script.splitlines())
+        return test_script
