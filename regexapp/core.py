@@ -864,7 +864,7 @@ class PytestBuilder:
             parametrize_item = indent(parametrize_item, ' ' * 12)
             lst.append(parametrize_item)
 
-        parametrize_data = '\n'.join(lst)
+        parametrize_data = '\n'.join(lst).strip()
 
         for key, value in placeholder_table.items():
             parametrize_data = parametrize_data.replace(key, value)
