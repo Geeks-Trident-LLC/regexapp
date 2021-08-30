@@ -1223,3 +1223,235 @@ class PytestBuilder:
         )
         test_script = '\n'.join(line.rstrip() for line in test_script.splitlines())
         return test_script
+
+
+class PythonSnippetBuilder:
+    """Create Python snippet test script
+
+    Attributes
+    ----------
+    tc_gen (DynamicGenTestScript): an DynamicGenTestScript instance.
+    module_docstring (str): a Python snippet docstring.
+
+    Methods
+    -------
+    create() -> str
+    create_line_via_pattern_script(test_data, pattern) -> str
+    create_line_via_patterns_script(test_data, patterns) -> str
+    create_multiline_via_pattern_script(test_data, pattern) -> str
+    """
+    def __init__(self, tc_gen):
+        self.tc_gen = tc_gen
+        self.module_docstring = generate_docstring(
+            test_framework='test',
+            author=tc_gen.author,
+            email=tc_gen.email,
+            company=tc_gen.company,
+            **tc_gen.kwargs
+        )
+
+    def create_line_via_pattern_script(self, test_data, pattern):
+        """return python test script - line via pattern
+
+        Parameters
+        ----------
+        test_data (str): a test data.
+        pattern (str): a regex pattern.
+
+        Returns
+        -------
+        str: a python test script
+        """
+
+        tmpl = '''
+            {module_docstring}
+
+            import re
+
+            # test data
+            test_data = {test_data}
+
+            # regex pattern
+            pattern = r{pattern}
+
+            def test_regex(test_data, pattern):
+                """test regular expression
+
+                Parameters
+                ----------
+                test_data (str): a test data
+                pattern (str): a regular expression pattern
+                """
+                print("Pattern: {{}}".format(pattern))
+                is_matched = False
+                for index, line in enumerate(test_data.splitlines(), 1):
+                    match = re.search(pattern, line)
+                    if match:
+                        is_matched = True
+                        if match.groupdict():
+                            print("Result{{}}: {{}}".format(index, match.groupdict()))
+                        else:
+                            print("Result{{}}: {{}}".format(index, match.group()))
+                else:
+                    if not is_matched:
+                        print("Result: No match")
+
+            # function call
+            test_regex(test_data, pattern)
+        '''
+        tmpl = dedent(tmpl).strip()
+
+        test_script = tmpl.format(
+            module_docstring=self.module_docstring,
+            test_data=test_data,
+            pattern=pattern
+        )
+        return test_script
+
+    def create_line_via_patterns_script(self, test_data, patterns):
+        """return python snippet script - line via patterns
+
+        Parameters
+        ----------
+        test_data (str): a test data.
+        patterns (list): a list of patterns.
+
+        Returns
+        -------
+        str: a python test script
+        """
+        tmpl = '''
+            {module_docstring}
+            
+            import re
+            
+            # test data
+            test_data = {test_data}
+            
+            # list of regex pattern
+            patterns = [
+                {patterns}
+            ]
+            
+            def test_regex(test_data, patterns):
+                """test regular expression
+            
+                Parameters
+                ----------
+                test_data (str): a test data
+                patterns (list): a list of regular expression pattern
+                """
+            
+                for pattern in patterns:
+                    is_matched = False
+                    for line in test_data.splitlines():
+                        match = re.search(pattern, line)
+                        if match:
+                            is_matched = True
+                            print("Pattern: {{}}".format(pattern))
+                            if match.groupdict():
+                                print("Result: {{}}".format(match.groupdict()))
+                            else:
+                                print("Result: {{}}".format(match.group()))
+                            print("-" * 10)
+                    else:
+                        if not is_matched:
+                            print("Result: No match")
+            
+            # function call
+            test_regex(test_data, patterns)
+        '''
+        tmpl = dedent(tmpl).strip()
+
+        lst = []
+        for pattern in patterns:
+            lst.append('r{}'.format(enclose_string(pattern)))
+        patterns = indent(',\n'.join(lst), '    ').strip()
+        test_script = tmpl.format(
+            module_docstring=self.module_docstring,
+            test_data=test_data, patterns=patterns
+        )
+        return test_script
+
+    def create_multiline_via_pattern_script(self, test_data, pattern):
+        """return python test script - multiline via pattern
+
+        Parameters
+        ----------
+        test_data (str): a test data.
+        pattern (str): a regex pattern.
+
+        Returns
+        -------
+        str: a python test script
+        """
+        tmpl = '''
+            {module_docstring}
+            
+            import re
+            
+            # test data
+            test_data = {test_data}
+            
+            # regex pattern
+            pattern = r{pattern}
+            
+            def test_regex(test_data, pattern):
+                """test regular expression
+            
+                Parameters
+                ----------
+                test_data (str): a test data
+                pattern (str): a regular expression pattern
+                """
+            
+                print("Pattern: {{}}".format(pattern))
+                match = re.search(pattern, test_data)
+                if match:
+                    if match.groupdict():
+                        print("Result: {{}}".format(match.groupdict()))
+                    else:
+                        print("Result: {{}}".format(match.group()))
+                else:
+                    print("Result: No match")
+            
+            # function call
+            test_regex(test_data, pattern)
+        '''
+        tmpl = dedent(tmpl).strip()
+        test_script = tmpl.format(
+            module_docstring=self.module_docstring,
+            test_data=test_data, pattern=pattern
+        )
+        return test_script
+
+    def create(self):
+        """return python test script"""
+        tc_gen = self.tc_gen
+        if self.tc_gen.is_line:
+            if isinstance(tc_gen.test_data, (list, tuple)):
+                test_data = enclose_string('\n'.join(tc_gen.test_data))
+            else:
+                test_data = enclose_string(tc_gen.test_data)
+
+            if len(tc_gen.patterns) == 1:
+                pattern = enclose_string(tc_gen.patterns[0])
+                test_script = self.create_line_via_pattern_script(
+                    test_data, pattern
+                )
+            else:
+                test_script = self.create_line_via_patterns_script(
+                    test_data, tc_gen.patterns
+                )
+        else:
+            if isinstance(tc_gen.test_data, (list, tuple)):
+                test_data = enclose_string(tc_gen.test_data[0])
+            else:
+                test_data = enclose_string(tc_gen.test_data)
+
+            pattern = enclose_string(tc_gen.patterns[0])
+            test_script = self.create_multiline_via_pattern_script(
+                test_data, pattern
+            )
+
+        return test_script
