@@ -195,7 +195,7 @@ class RegexBuilder:
         self.appended_ws = appended_ws
         self.ignore_case = ignore_case
 
-        self.test_name = test_name,
+        self.test_name = test_name
         self.is_line = is_line
         self.max_words = max_words
         self.test_cls_name = test_cls_name
