@@ -1149,6 +1149,7 @@ class PytestBuilder:
     Attributes
     ----------
     tc_gen (DynamicGenTestScript): an DynamicGenTestScript instance.
+    module_docstring (str): a Python snippet docstring.
 
     Methods
     -------
@@ -1156,7 +1157,13 @@ class PytestBuilder:
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
-
+        self.module_docstring = generate_docstring(
+            test_framework='pytest',
+            author=tc_gen.author,
+            email=tc_gen.email,
+            company=tc_gen.company,
+            **tc_gen.kwargs
+        )
 
     def create(self):
         """return pytest script"""
@@ -1188,17 +1195,10 @@ class PytestBuilder:
         """
         tmpl_data = dedent(tmpl_data).strip()
 
-        module_docstring = generate_docstring(
-            test_framework='pytest',
-            author=self.tc_gen.author,
-            email=self.tc_gen.email,
-            company=self.tc_gen.company,
-            **self.tc_gen.kwargs
-        )
-
+        tc_gen = self.tc_gen
         lst = []
         placeholder_table = dict()
-        for index, test in enumerate(self.tc_gen.lst_of_tests):
+        for index, test in enumerate(tc_gen.lst_of_tests):
             _, test_data, _, pattern = test
             test_data = enclose_string(test_data)
             key = '__test_data_placeholder_{}__'.format(index)
@@ -1215,13 +1215,13 @@ class PytestBuilder:
         for key, value in placeholder_table.items():
             parametrize_data = parametrize_data.replace(key, value)
 
-        test_name = self.tc_gen.test_name or 'test_generating_script'
+        test_name = tc_gen.test_name or 'test_generating_script'
         if not test_name.startswith('test_'):
             test_name = 'test_{}'.format(test_name)
 
         test_script = tmpl.format(
-            odule_docstring=module_docstring,
-            test_cls_name=self.tc_gen.test_cls_name,
+            module_docstring=self.module_docstring,
+            test_cls_name=tc_gen.test_cls_name,
             test_name=test_name,
             parametrize_data=parametrize_data
         )
