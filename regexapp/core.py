@@ -11,6 +11,7 @@ import regexapp
 from copy import deepcopy
 from collections import OrderedDict
 from textwrap import indent
+from textwrap import dedent
 
 BASELINE_REF = deepcopy(REF)
 
@@ -1002,4 +1003,138 @@ class DynamicGenTestScript:
             )
 
         self.save_file(filename, test_script)
+        return test_script
+
+
+class UnittestBuilder:
+    """Create Unittest script
+
+    Attributes
+    ----------
+    tc_gen (DynamicGenTestScript): an DynamicGenTestScript instance.
+
+    Methods
+    -------
+    create_testcase_class() -> str
+    create_testcase_method() -> str
+    create_testcase_load() -> str
+    create() -> str
+    """
+    def __init__(self, tc_gen):
+        self.tc_gen = tc_gen
+
+    def create_testcase_class(self):
+        """return partial unit test class definition"""
+
+        tmpl = """
+          {module_docstring}
+
+          import unittest
+          import re
+
+          class {test_cls_name}(unittest.TestCase):
+              def __init__(self, test_name='', test_data=None, pattern=None):
+                  super().__init__(test_name)
+                  self.test_data = test_data
+                  self.pattern = pattern
+        """
+        tmpl = dedent(tmpl).strip()
+
+        module_docstring = generate_docstring(
+            test_framework='unittest',
+            author=self.tc_gen.author,
+            email=self.tc_gen.email,
+            company=self.tc_gen.company,
+            **self.tc_gen.kwargs
+        )
+
+        partial_script = tmpl.format(
+            module_docstring=module_docstring,
+            test_cls_name=self.tc_gen.test_cls_name
+        )
+
+        return partial_script
+
+    def create_testcase_method(self):
+        """return partial unit test method definition"""
+
+        tmpl = """
+            def {test_name}(self):
+                result = re.search(self.pattern, self.test_data)
+                self.assertIsNotNone(result)
+        """
+        tmpl = dedent(tmpl).strip()
+
+        lst = []
+
+        for test in self.tc_gen.lst_of_tests:
+            test_name = test[0]
+            method_def = tmpl.format(test_name=test_name)
+            method_def = indent(method_def, ' ' * 4)
+            if method_def not in lst:
+                lst.append(method_def)
+                lst.append('')
+
+        partial_script = '\n'.join(lst)
+        return partial_script
+
+    def create_testcase_load(self):
+        """return partial unit test load_tests function definition"""
+
+        tmpl = """
+            def load_tests(loader, tests, pattern):
+                test_cases = unittest.TestSuite()
+                
+                {data_insertion}
+                
+                for arg in arguments:
+                    test_name, test_data, pattern = arg
+                    testcase = {test_cls_name}(
+                        test_name=test_name,
+                        test_data=test_data,
+                        pattern=pattern
+                    )
+                    test_cases.addTest(testcase)
+                return test_cases
+        """
+
+        tmpl_data = """
+            arguments.append(
+                (
+                    {test_name},    # test name
+                    {test_data},    # test data
+                    r{pattern}   # pattern
+                )
+            )
+        """
+        tmpl_data = dedent(tmpl_data).strip()
+
+        lst = ['arguments = list()']
+
+        test_desc_fmt = '    # test case #{:0{}} - {}'
+        spacers = len(str(len(self.tc_gen.lst_of_tests)))
+        for index, test in enumerate(self.tc_gen.lst_of_tests, 1):
+            test_name, test_data, _, pattern = test
+            test_data = enclose_string(test_data)
+            data = tmpl_data.format(
+                test_name=enclose_string(test_name),
+                test_data='__test_data_placeholder__',
+                pattern=enclose_string(pattern))
+            lst.append('')
+            lst.append(test_desc_fmt.format(index, spacers, test_name))
+            new_data = indent(data, ' ' * 4)
+            new_data = new_data.replace('__test_data_placeholder__', test_data)
+            lst.append(new_data)
+
+        data_insertion = '\n'.join(lst)
+        sub_script = tmpl.format(data_insertion=data_insertion)
+        return sub_script
+
+    def create(self):
+        """return Python unittest script"""
+        tc_class = self.create_testcase_class()
+        tc_method = self.create_testcase_method()
+        tc_load = self.create_testcase_load()
+
+        test_script = '{}\n\n{}\n\n{}'.format(tc_class, tc_method, tc_load)
         return test_script
