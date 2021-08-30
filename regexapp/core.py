@@ -749,6 +749,7 @@ class UnittestBuilder:
                     test_cases.addTest(testcase)
                 return test_cases
         """
+        tmpl = dedent(tmpl).strip()
 
         tmpl_data = """
             arguments.append(
@@ -780,7 +781,10 @@ class UnittestBuilder:
             lst.append(new_data)
 
         data_insertion = '\n'.join(lst)
-        sub_script = tmpl.format(data_insertion=data_insertion)
+        sub_script = tmpl.format(
+            data_insertion=data_insertion,
+            test_cls_name=tc_gen.test_cls_name
+        )
         return sub_script
 
     def create(self):
