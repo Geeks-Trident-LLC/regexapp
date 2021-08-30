@@ -37,7 +37,7 @@ def enclose_string(text):
     return enclosed_txt
 
 
-def generate_custom_docstring(**kwargs):
+def create_custom_docstring(**kwargs):
     """Generate custom docstring for Pro Edition or Enterprise Edition
 
     Parameters
@@ -62,8 +62,8 @@ def generate_custom_docstring(**kwargs):
         return ''
 
 
-def generate_docstring(test_framework='unittest',
-                       author='', email='', company='', **kwargs):
+def create_docstring(test_framework='unittest',
+                     author='', email='', company='', **kwargs):
     """Generate module docstring for test script
 
     Parameters
@@ -94,7 +94,7 @@ def generate_docstring(test_framework='unittest',
     email and lst.append(fmt2.format(email))
     company and company != author and lst.append(fmt3.format(company))
     lst.append(fmt4.format(datetime.now()))
-    custom_docstr = generate_custom_docstring(**kwargs)
+    custom_docstr = create_custom_docstring(**kwargs)
     custom_docstr and lst.append(custom_docstr)
 
     if test_framework == 'robotframework':
@@ -172,10 +172,10 @@ class RegexBuilder:
     RegexBuilder.validate_data(data, name) -> bool
     build() -> None
     test(showed=True) -> bool
-    generate_unittest() -> str
-    generate_pytest() -> str
-    generate_rf_test() -> str
-    generate_python_test() -> str
+    create_unittest() -> str
+    create_pytest() -> str
+    create_rf_test() -> str
+    create_python_test() -> str
 
     Raises
     ------
@@ -345,48 +345,48 @@ class RegexBuilder:
 
         return test_result
 
-    def generate_unittest(self):
+    def create_unittest(self):
         """dynamically generate Python unittest script
 
         Returns
         -------
         str: python unittest script
         """
-        factory = DynamicGenTestScript(test_info=self)
-        script = factory.generate_unittest()
+        factory = DynamicTestScriptBuilder(test_info=self)
+        script = factory.create_unittest()
         return script
 
-    def generate_pytest(self):
+    def create_pytest(self):
         """dynamically generate Python pytest script
 
         Returns
         -------
         str: python pytest script
         """
-        factory = DynamicGenTestScript(test_info=self)
-        script = factory.generate_pytest()
+        factory = DynamicTestScriptBuilder(test_info=self)
+        script = factory.create_pytest()
         return script
 
-    def generate_rf_test(self):
+    def create_rf_test(self):
         """dynamically generate Robotframework script
 
         Returns
         -------
         str: Robotframework test script
         """
-        factory = DynamicGenTestScript(test_info=self)
-        script = factory.generate_rf_test()
+        factory = DynamicTestScriptBuilder(test_info=self)
+        script = factory.create_rf_test()
         return script
 
-    def generate_python_test(self):
+    def create_python_test(self):
         """dynamically generate Python test script
 
         Returns
         -------
         str: python test script
         """
-        factory = DynamicGenTestScript(test_info=self)
-        script = factory.generate_python_test()
+        factory = DynamicTestScriptBuilder(test_info=self)
+        script = factory.create_python_test()
         return script
 
 
@@ -459,7 +459,7 @@ def remove_reference(name=''):
         raise PatternReferenceError(fmt.format(name))
 
 
-class DynamicGenTestScript:
+class DynamicTestScriptBuilder:
     """Dynamically generate test script
 
     Attributes
@@ -497,10 +497,10 @@ class DynamicGenTestScript:
     -------
     compile_test_info() -> None
     generate_test_name(test_data='') -> str
-    generate_unittest() -> str
-    generate_pytest() -> str
-    generate_rf_test() -> str
-    generate_python_test() -> str
+    create_unittest() -> str
+    create_pytest() -> str
+    create_rf_test() -> str
+    create_python_test() -> str
     """
     def __init__(self, test_info=None, test_name='', is_line=False,
                  max_words=6, test_cls_name='TestDynamicGenTestScript',
@@ -608,7 +608,7 @@ class DynamicGenTestScript:
             test_name = 'test_{}'.format(test_name)
         return test_name
 
-    def generate_unittest(self):
+    def create_unittest(self):
         """dynamically generate Python unittest script
 
         Returns
@@ -621,7 +621,7 @@ class DynamicGenTestScript:
         save_file(self.filename, test_script)
         return test_script
 
-    def generate_pytest(self):
+    def create_pytest(self):
         """dynamically generate Python pytest script
         Returns
         -------
@@ -633,7 +633,7 @@ class DynamicGenTestScript:
         save_file(self.filename, test_script)
         return test_script
 
-    def generate_rf_test(self):     # noqa
+    def create_rf_test(self):     # noqa
         """dynamically generate Robotframework test script
 
         Returns
@@ -643,7 +643,7 @@ class DynamicGenTestScript:
         msg = 'TODO: need to implement generated_rf_test for robotframework'
         NotImplementedError(msg)
 
-    def generate_python_test(self):
+    def create_python_test(self):
         """dynamically generate Python test script
 
         Returns
@@ -673,7 +673,7 @@ class UnittestBuilder:
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
-        self.module_docstring = generate_docstring(
+        self.module_docstring = create_docstring(
             test_framework='unittest',
             author=tc_gen.author,
             email=tc_gen.email,
@@ -811,7 +811,7 @@ class PytestBuilder:
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
-        self.module_docstring = generate_docstring(
+        self.module_docstring = create_docstring(
             test_framework='pytest',
             author=tc_gen.author,
             email=tc_gen.email,
@@ -900,7 +900,7 @@ class PythonSnippetBuilder:
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
-        self.module_docstring = generate_docstring(
+        self.module_docstring = create_docstring(
             test_framework='test',
             author=tc_gen.author,
             email=tc_gen.email,
