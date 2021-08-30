@@ -3,7 +3,7 @@ import sys
 import pytest
 from textwrap import dedent
 from regexapp import RegexBuilder
-from regexapp import DynamicGenTestScript
+from regexapp import DynamicTestScriptBuilder
 from regexapp import add_reference
 from regexapp import remove_reference
 from regexapp.exceptions import PatternReferenceError
@@ -249,7 +249,7 @@ class TestRegexBuilder:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_unittest()
+        test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script
 
     def test_generating_pytest_script(self, tc_info):
@@ -260,7 +260,7 @@ class TestRegexBuilder:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_pytest()
+        test_script = factory.create_pytest()
         assert test_script == tc_info.expected_pytest_script
 
     def test_generating_unittest_script_for_multiline(self, tc_info):
@@ -272,7 +272,7 @@ class TestRegexBuilder:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_unittest()
+        test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script_for_multiline
 
     def test_generating_pytest_script_for_multiline(self, tc_info):
@@ -284,7 +284,7 @@ class TestRegexBuilder:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_pytest()
+        test_script = factory.create_pytest()
         assert test_script == tc_info.expected_pytest_script_for_multiline
 
     def test_generating_python_snippet_for_line_and_pattern(self, tc_info):
@@ -296,7 +296,7 @@ class TestRegexBuilder:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_python_test()
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_line_pattern
 
     def test_generating_python_snippet_for_line_and_patterns(self, tc_info):
@@ -308,7 +308,7 @@ class TestRegexBuilder:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_python_test()
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_line_patterns
 
     def test_generating_python_snippet_for_multiline_and_pattern(self, tc_info):
@@ -320,7 +320,7 @@ class TestRegexBuilder:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_python_test()
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_multiline_pattern
 
 
@@ -361,18 +361,18 @@ def test_add_reference_exception():
 
 class TestDynamicGenTestScript:
     def test_generating_unittest_script(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[tc_info.prepared_data, tc_info.test_data],
             is_line=True,
             author=tc_info.author,
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_unittest()
+        test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script
 
     def test_generating_pytest_script(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[tc_info.prepared_data, tc_info.test_data],
             is_line=True,
             author=tc_info.author,
@@ -380,12 +380,12 @@ class TestDynamicGenTestScript:
             company=tc_info.company,
             filename='tc.txt'
         )
-        test_script = factory.generate_pytest()
+        test_script = factory.create_pytest()
         assert test_script == tc_info.expected_pytest_script
 
     # multi-lines tests
     def test_generating_unittest_script_for_multiline(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.multiline_prepared_data,
                 tc_info.multiline_test_data
@@ -395,11 +395,11 @@ class TestDynamicGenTestScript:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_unittest()
+        test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script_for_multiline
 
     def test_generating_pytest_script_for_multiline(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.multiline_prepared_data,
                 tc_info.multiline_test_data
@@ -409,11 +409,11 @@ class TestDynamicGenTestScript:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_pytest()
+        test_script = factory.create_pytest()
         assert test_script == tc_info.expected_pytest_script_for_multiline
 
     def test_generating_python_snippet_for_line_and_pattern(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.snippet_line_pattern_prepared_data,
                 tc_info.snippet_line_pattern_test_data
@@ -423,11 +423,11 @@ class TestDynamicGenTestScript:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_python_test()
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_line_pattern
 
     def test_generating_python_snippet_for_line_and_patterns(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.snippet_line_patterns_prepared_data,
                 tc_info.snippet_line_patterns_test_data
@@ -437,11 +437,11 @@ class TestDynamicGenTestScript:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_python_test()
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_line_patterns
 
     def test_generating_python_snippet_for_multiline_and_pattern(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.snippet_multiline_pattern_prepared_data,
                 tc_info.snippet_multiline_pattern_test_data
@@ -451,5 +451,5 @@ class TestDynamicGenTestScript:
             email=tc_info.email,
             company=tc_info.company,
         )
-        test_script = factory.generate_python_test()
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_multiline_pattern
