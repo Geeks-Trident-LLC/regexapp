@@ -3,7 +3,7 @@ import sys
 import pytest
 from textwrap import dedent
 from regexapp import RegexBuilder
-from regexapp import DynamicGenTestScript
+from regexapp import DynamicTestScriptBuilder
 from regexapp import add_reference
 from regexapp import remove_reference
 from regexapp.exceptions import PatternReferenceError
@@ -185,23 +185,11 @@ def tc_info():
         script = script.replace('_datetime_', dt_str)
         test_info.expected_unittest_script = script
 
-    filename = str(PurePath(base_dir, 'detail_unittest_script.txt'))
-    with open(filename) as stream:
-        script = stream.read()
-        script = script.replace('_datetime_', dt_str)
-        test_info.expected_detail_unittest_script = script
-
     filename = str(PurePath(base_dir, 'pytest_script.txt'))
     with open(filename) as stream:
         script = stream.read()
         script = script.replace('_datetime_', dt_str)
         test_info.expected_pytest_script = script
-
-    filename = str(PurePath(base_dir, 'detail_pytest_script.txt'))
-    with open(filename) as stream:
-        script = stream.read()
-        script = script.replace('_datetime_', dt_str)
-        test_info.expected_detail_pytest_script = script
 
     # multiline
     filename = str(PurePath(base_dir, 'unittest_script_for_multiline.txt'))
@@ -210,23 +198,11 @@ def tc_info():
         script = script.replace('_datetime_', dt_str)
         test_info.expected_unittest_script_for_multiline = script
 
-    filename = str(PurePath(base_dir, 'detail_unittest_script_for_multiline.txt'))
-    with open(filename) as stream:
-        script = stream.read()
-        script = script.replace('_datetime_', dt_str)
-        test_info.expected_detail_unittest_script_for_multiline = script
-
     filename = str(PurePath(base_dir, 'pytest_script_for_multiline.txt'))
     with open(filename) as stream:
         script = stream.read()
         script = script.replace('_datetime_', dt_str)
         test_info.expected_pytest_script_for_multiline = script
-
-    filename = str(PurePath(base_dir, 'detail_pytest_script_for_multiline.txt'))
-    with open(filename) as stream:
-        script = stream.read()
-        script = script.replace('_datetime_', dt_str)
-        test_info.expected_detail_pytest_script_for_multiline = script
 
     filename = str(PurePath(base_dir, 'snippet_script_for_line_pattern.txt'))
     with open(filename) as stream:
@@ -268,129 +244,83 @@ class TestRegexBuilder:
     def test_generating_unittest_script(self, tc_info):
         factory = RegexBuilder(
             user_data=tc_info.user_data, test_data=tc_info.test_data,
-            is_line=True
+            is_line=True,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=True,)
+        test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script
-
-    def test_generating_detail_unittest_script(self, tc_info):
-        factory = RegexBuilder(
-            user_data=tc_info.user_data, test_data=tc_info.test_data,
-            is_line=True
-        )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=False,)
-        assert test_script == tc_info.expected_detail_unittest_script
 
     def test_generating_pytest_script(self, tc_info):
         factory = RegexBuilder(
             user_data=tc_info.user_data, test_data=tc_info.test_data,
-            is_line=True
+            is_line=True,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_pytest(author=tc_info.author,
-                                              email=tc_info.email,
-                                              company=tc_info.company,
-                                              is_minimal=True,)
+        test_script = factory.create_pytest()
         assert test_script == tc_info.expected_pytest_script
-
-    def test_generating_detail_pytest_script(self, tc_info):
-        factory = RegexBuilder(
-            user_data=tc_info.user_data, test_data=tc_info.test_data,
-            is_line=True
-        )
-        test_script = factory.generate_pytest(author=tc_info.author,
-                                              email=tc_info.email,
-                                              company=tc_info.company,
-                                              is_minimal=False,)
-        assert test_script == tc_info.expected_detail_pytest_script
 
     def test_generating_unittest_script_for_multiline(self, tc_info):
         factory = RegexBuilder(
             user_data=tc_info.multiline_user_data,
             test_data=tc_info.multiline_test_data,
-            is_line=False
+            is_line=False,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=True,)
+        test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script_for_multiline
-
-    def test_generating_detail_unittest_script_for_multiline(self, tc_info):
-        factory = RegexBuilder(
-            user_data=tc_info.multiline_user_data,
-            test_data=tc_info.multiline_test_data,
-            is_line=False
-        )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=False,)
-        assert test_script == tc_info.expected_detail_unittest_script_for_multiline
 
     def test_generating_pytest_script_for_multiline(self, tc_info):
         factory = RegexBuilder(
             user_data=tc_info.multiline_user_data,
             test_data=tc_info.multiline_test_data,
-            is_line=False
+            is_line=False,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_pytest(author=tc_info.author,
-                                              email=tc_info.email,
-                                              company=tc_info.company,
-                                              is_minimal=True,)
+        test_script = factory.create_pytest()
         assert test_script == tc_info.expected_pytest_script_for_multiline
-
-    def test_generating_detail_pytest_script_for_multiline(self, tc_info):
-        factory = RegexBuilder(
-            user_data=tc_info.multiline_user_data,
-            test_data=tc_info.multiline_test_data,
-            is_line=False
-        )
-        test_script = factory.generate_pytest(author=tc_info.author,
-                                              email=tc_info.email,
-                                              company=tc_info.company,
-                                              is_minimal=False,)
-        assert test_script == tc_info.expected_detail_pytest_script_for_multiline
 
     def test_generating_python_snippet_for_line_and_pattern(self, tc_info):
         factory = RegexBuilder(
             user_data=tc_info.snippet_line_pattern_user_data,
             test_data=tc_info.snippet_line_pattern_test_data,
-            is_line=True
+            is_line=True,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_python_test(author=tc_info.author,
-                                                   email=tc_info.email,
-                                                   company=tc_info.company,
-                                                   is_minimal=False)
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_line_pattern
 
     def test_generating_python_snippet_for_line_and_patterns(self, tc_info):
         factory = RegexBuilder(
             user_data=tc_info.snippet_line_patterns_user_data,
             test_data=tc_info.snippet_line_patterns_test_data,
-            is_line=True
+            is_line=True,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_python_test(author=tc_info.author,
-                                                   email=tc_info.email,
-                                                   company=tc_info.company,
-                                                   is_minimal=False)
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_line_patterns
 
     def test_generating_python_snippet_for_multiline_and_pattern(self, tc_info):
         factory = RegexBuilder(
             user_data=tc_info.snippet_multiline_pattern_user_data,
             test_data=tc_info.snippet_multiline_pattern_test_data,
-            is_line=False
+            is_line=False,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_python_test(author=tc_info.author,
-                                                   email=tc_info.email,
-                                                   company=tc_info.company,
-                                                   is_minimal=False)
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_multiline_pattern
 
 
@@ -431,144 +361,95 @@ def test_add_reference_exception():
 
 class TestDynamicGenTestScript:
     def test_generating_unittest_script(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[tc_info.prepared_data, tc_info.test_data],
-            is_line=True
+            is_line=True,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=True)
+        test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script
 
-    def test_generating_detail_unittest_script(self, tc_info):
-        factory = DynamicGenTestScript(
-            test_info=[tc_info.prepared_data, tc_info.test_data],
-            is_line=True
-        )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=False)
-        assert test_script == tc_info.expected_detail_unittest_script
-
     def test_generating_pytest_script(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[tc_info.prepared_data, tc_info.test_data],
-            is_line=True
+            is_line=True,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
+            filename='tc.txt'
         )
-        test_script = factory.generate_pytest(author=tc_info.author,
-                                              email=tc_info.email,
-                                              company=tc_info.company,
-                                              is_minimal=True)
+        test_script = factory.create_pytest()
         assert test_script == tc_info.expected_pytest_script
-
-    def test_generating_detail_pytest_script(self, tc_info):
-        factory = DynamicGenTestScript(
-            test_info=[tc_info.prepared_data, tc_info.test_data],
-            is_line=True
-        )
-        test_script = factory.generate_pytest(author=tc_info.author,
-                                              email=tc_info.email,
-                                              company=tc_info.company,
-                                              is_minimal=False)
-        assert test_script == tc_info.expected_detail_pytest_script
 
     # multi-lines tests
     def test_generating_unittest_script_for_multiline(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.multiline_prepared_data,
                 tc_info.multiline_test_data
             ],
-            is_line=False
+            is_line=False,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=True)
+        test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script_for_multiline
 
-    def test_generating_detail_unittest_script_for_multiline(self, tc_info):
-        factory = DynamicGenTestScript(
-            test_info=[
-                tc_info.multiline_prepared_data,
-                tc_info.multiline_test_data
-            ],
-            is_line=False
-        )
-        test_script = factory.generate_unittest(author=tc_info.author,
-                                                email=tc_info.email,
-                                                company=tc_info.company,
-                                                is_minimal=False)
-        assert test_script == tc_info.expected_detail_unittest_script_for_multiline
-
     def test_generating_pytest_script_for_multiline(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.multiline_prepared_data,
                 tc_info.multiline_test_data
             ],
-            is_line=False
+            is_line=False,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_pytest(author=tc_info.author,
-                                              email=tc_info.email,
-                                              company=tc_info.company,
-                                              is_minimal=True)
+        test_script = factory.create_pytest()
         assert test_script == tc_info.expected_pytest_script_for_multiline
 
-    def test_generating_detail_pytest_script_for_multiline(self, tc_info):
-        factory = DynamicGenTestScript(
-            test_info=[
-                tc_info.multiline_prepared_data,
-                tc_info.multiline_test_data
-            ],
-            is_line=False
-        )
-        test_script = factory.generate_pytest(author=tc_info.author,
-                                              email=tc_info.email,
-                                              company=tc_info.company,
-                                              is_minimal=False)
-        assert test_script == tc_info.expected_detail_pytest_script_for_multiline
-
     def test_generating_python_snippet_for_line_and_pattern(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.snippet_line_pattern_prepared_data,
                 tc_info.snippet_line_pattern_test_data
             ],
-            is_line=True
+            is_line=True,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_python_test(author=tc_info.author,
-                                                   email=tc_info.email,
-                                                   company=tc_info.company,
-                                                   is_minimal=False)
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_line_pattern
 
     def test_generating_python_snippet_for_line_and_patterns(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.snippet_line_patterns_prepared_data,
                 tc_info.snippet_line_patterns_test_data
             ],
-            is_line=True
+            is_line=True,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_python_test(author=tc_info.author,
-                                                   email=tc_info.email,
-                                                   company=tc_info.company,
-                                                   is_minimal=False)
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_line_patterns
 
     def test_generating_python_snippet_for_multiline_and_pattern(self, tc_info):
-        factory = DynamicGenTestScript(
+        factory = DynamicTestScriptBuilder(
             test_info=[
                 tc_info.snippet_multiline_pattern_prepared_data,
                 tc_info.snippet_multiline_pattern_test_data
             ],
-            is_line=False
+            is_line=False,
+            author=tc_info.author,
+            email=tc_info.email,
+            company=tc_info.company,
         )
-        test_script = factory.generate_python_test(author=tc_info.author,
-                                                   email=tc_info.email,
-                                                   company=tc_info.company,
-                                                   is_minimal=False)
+        test_script = factory.create_python_test()
         assert test_script == tc_info.expected_snippet_script_for_multiline_pattern

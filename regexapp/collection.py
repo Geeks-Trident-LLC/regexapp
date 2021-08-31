@@ -377,6 +377,9 @@ class TextPattern(str):
             text_pattern = ''
         return str.__new__(cls, text_pattern)
 
+    def __init__(self, text):
+        self.text = text
+
     @property
     def is_empty(self):
         if self == '':
@@ -435,6 +438,58 @@ class TextPattern(str):
 
         validate_pattern(text_pattern, exception_cls=TextPatternError)
         return text_pattern
+
+    def lstrip(self, chars=None):
+        """Return a copy of the TextPattern with leading whitespace removed.
+
+        Parameters
+        ----------
+        chars (None, str): If chars is given and not None,
+                remove characters in chars instead.
+
+        Returns
+        -------
+        TextPattern: a new TextPattern with leading whitespace removed.
+
+        """
+        new_text = self.text.lstrip() if chars is None else self.text.lstrip(chars)
+        pattern = TextPattern(new_text)
+        return pattern
+
+    def rstrip(self, chars=None):
+        """Return a copy of the TextPattern with trailing whitespace removed.
+
+        Parameters
+        ----------
+        chars (None, str): If chars is given and not None,
+                remove characters in chars instead.
+
+        Returns
+        -------
+        TextPattern: a new TextPattern with trailing whitespace removed.
+
+        """
+        new_text = self.text.rstrip() if chars is None else self.text.rstrip(chars)
+        pattern = TextPattern(new_text)
+        return pattern
+
+    def strip(self, chars=None):
+        """Return a copy of the TextPattern with leading and
+        trailing whitespace removed.
+
+        Parameters
+        ----------
+        chars (None, str): If chars is given and not None,
+                remove characters in chars instead.
+
+        Returns
+        -------
+        TextPattern: a new TextPattern with leading and trailing whitespace removed.
+
+        """
+        new_text = self.text.strip() if chars is None else self.text.strip(chars)
+        pattern = TextPattern(new_text)
+        return pattern
 
 
 class ElementPattern(str):
@@ -644,8 +699,8 @@ class ElementPattern(str):
             pattern, word_bound=word_bound, added_parentheses=is_multiple
         )
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, head=head)
-        pattern = cls.add_end_of_string(pattern, tail=tail)
+        pattern = cls.add_head_of_string(pattern, head=head)
+        pattern = cls.add_tail_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -738,8 +793,8 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, head=head)
-        pattern = cls.add_end_of_string(pattern, tail=tail)
+        pattern = cls.add_head_of_string(pattern, head=head)
+        pattern = cls.add_tail_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -815,8 +870,8 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, head=head)
-        pattern = cls.add_end_of_string(pattern, tail=tail)
+        pattern = cls.add_head_of_string(pattern, head=head)
+        pattern = cls.add_tail_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -892,8 +947,8 @@ class ElementPattern(str):
         pattern = cls.join_list(lst)
         pattern = cls.add_word_bound(pattern, word_bound=word_bound)
         pattern = cls.add_var_name(pattern, name=name)
-        pattern = cls.add_start_of_string(pattern, head=head)
-        pattern = cls.add_end_of_string(pattern, tail=tail)
+        pattern = cls.add_head_of_string(pattern, head=head)
+        pattern = cls.add_tail_of_string(pattern, tail=tail)
         pattern = pattern.replace('__comma__', ',')
         return True, pattern
 
@@ -915,7 +970,7 @@ class ElementPattern(str):
 
         table = dict(space=r'^ *', space_plus=r'^ +',
                      ws=r'^\s*', ws_plus=r'^\s+')
-        pat = table.get(params, r'^\s*')
+        pat = table.get(params, r'^')
         return True, pat
 
     @classmethod
@@ -936,7 +991,7 @@ class ElementPattern(str):
 
         table = dict(space=r' *$', space_plus=r' +$',
                      ws=r'\s*$', ws_plus=r'\s+$')
-        pat = table.get(params, r'\s*$')
+        pat = table.get(params, r'$')
         return True, pat
 
     @classmethod
@@ -1069,7 +1124,7 @@ class ElementPattern(str):
         return new_pattern
 
     @classmethod
-    def add_start_of_string(cls, pattern, head=''):
+    def add_head_of_string(cls, pattern, head=''):
         """prepend start of string i.e ^ or ^\\s* or ^\\s+ or ^ * or ^ + regex pattern
 
         Parameters
@@ -1102,7 +1157,7 @@ class ElementPattern(str):
         return pattern
 
     @classmethod
-    def add_end_of_string(cls, pattern, tail=''):
+    def add_tail_of_string(cls, pattern, tail=''):
         """append end of string i.e $ or \\s*$ or $\\s+$ or  *$ or  +$ regex pattern
 
         Parameters
@@ -1333,6 +1388,16 @@ class LinePattern(str):
             return
 
         curr, nxt = lst[0], lst[1]
+
+        if curr == '^':
+            if isinstance(nxt, TextPattern):
+                if nxt == ' ':
+                    lst.pop(1)
+                    return
+                if re.match(' [^+*]', nxt):
+                    lst[1] = nxt.lstrip()
+                    return
+
         match = re.match(r'(?P<pre_ws>( |\\s)[*+]*)', nxt)
         if re.match(r'(\^|\\A)( |\\s)[*+]*$', curr):
             if isinstance(nxt, TextPattern) and match:
@@ -1355,6 +1420,16 @@ class LinePattern(str):
             return
 
         last, prev = lst[-1], lst[-2]
+
+        if last == '$':
+            if isinstance(prev, TextPattern):
+                if prev == ' ':
+                    lst.pop(-2)
+                    return
+                if not re.search(' [+*]$', prev):
+                    lst[-2] = prev.rstrip()
+                    return
+
         match = re.search(r'(?P<post_ws>( |\\s)[*+]*)$', prev)
         if re.match(r'( |\\s)[*+]?(\$|\\Z)$', last):
             if isinstance(prev, TextPattern) and match:

@@ -157,6 +157,21 @@ class Data:
         return license_
 
 
+class Snapshot(dict):
+    """Snapshot for storing data."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for attr, val in self.items():
+            if re.match(r'[a-z]\w*$', attr):
+                setattr(self, attr, val)
+
+    def update(self, *args, **kwargs):
+        super().update(*args, **kwargs)
+        for attr, val in self.items():
+            if re.match(r'[a-z]\w*$', attr):
+                setattr(self, attr, val)
+
+
 class Application:
     """A regex GUI class.
 
@@ -195,8 +210,6 @@ class Application:
             Default is empty string.
     test_cls_name_var (tk.StringVar): a variable for test_cls_name_var.
             Default is TestDynamicGenTestScript.
-    is_minimal_var (tk.BooleanVar): a variable for is_minimal checkbox.
-            Default is True.
     max_words_var (tk.IntVar): a variable for max_words textbox.
             Default is 6.
     filename_var (tk.StringVar): a variable for filename textbox.
@@ -222,7 +235,6 @@ class Application:
     -------
     shift_to_pattern_builder_app() -> None
     shift_to_regex_builder_app() -> None
-    get_pattern_args() -> dict
     get_builder_args() -> dict
     get_pattern_builder_args() -> dict
     set_default_setting() -> None
@@ -248,62 +260,12 @@ class Application:
     browser = webbrowser
 
     def __init__(self):
-        self._base_title = 'Regexapp {}'.format(edition)
-        self.root = tk.Tk()
-        self.root.geometry('940x600+100+100')
-        self.root.minsize(200, 200)
-        self.root.option_add('*tearOff', False)
-
-        self.panedwindow = None
-        self.text_frame = None
-        self.entry_frame = None
-        self.result_frame = None
-        self.var_name_frame = None
-        self.word_bound_frame = None
-        self.save_as_btn = None
-        self.copy_text_btn = None
-        self.snippet_btn = None
-        self.unittest_btn = None
-        self.pytest_btn = None
-
-        self.test_data = None
-        self.snapshot = dict()
-
-        self.radio_line_or_multiline_btn_var = tk.StringVar()
-        self.radio_line_or_multiline_btn_var.set('multiline')
-
-        self.builder_chkbox_var = tk.BooleanVar()
-        self.var_name_var = tk.StringVar()
-        self.word_bound_var = tk.StringVar()
-        self.word_bound_var.set('none')
-        self.is_confirmed = True
-
-        self.prepended_ws_var = tk.BooleanVar()
-        self.appended_ws_var = tk.BooleanVar()
-        self.ignore_case_var = tk.BooleanVar()
-        self.test_name_var = tk.StringVar()
-        self.test_cls_name_var = tk.StringVar()
-        self.test_cls_name_var.set('TestDynamicGenTestScript')
-        self.is_minimal_var = tk.BooleanVar()
-        self.is_minimal_var.set(True)
-        self.max_words_var = tk.IntVar()
-        self.max_words_var.set(6)
-        self.filename_var = tk.StringVar()
-        self.author_var = tk.StringVar()
-        self.email_var = tk.StringVar()
-        self.company_var = tk.StringVar()
-
-        self.new_pattern_name_var = tk.StringVar()
-
-        self.textarea = None
-        self.result_textarea = None
-        self.line_radio_btn = None
-        self.multiline_radio_btn = None
-
+        # support platform: macOS, Linux, and Window
         self.is_macos = platform.system() == 'Darwin'
         self.is_linux = platform.system() == 'Linux'
         self.is_window = platform.system() == 'Windows'
 
+        # standardize tkinter component for macOS, Linux, and Window operating system
         self.RadioButton = tk.Radiobutton if self.is_linux else ttk.Radiobutton
         self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
         self.Label = ttk.Label
@@ -314,6 +276,75 @@ class Application:
         self.TextArea = tk.Text
         self.PanedWindow = ttk.PanedWindow
 
+        # tkinter root
+        self._base_title = 'Regexapp {}'.format(edition)
+        self.root = tk.Tk()
+        self.root.geometry('1000x600+100+100')
+        self.root.minsize(200, 200)
+        self.root.option_add('*tearOff', False)
+
+        # tkinter components for main layout
+        self.panedwindow = None
+        self.text_frame = None
+        self.entry_frame = None
+        self.result_frame = None
+
+        self.textarea = None
+        self.result_textarea = None
+        self.line_radio_btn = None
+        self.multiline_radio_btn = None
+
+        self.save_as_btn = None
+        self.copy_text_btn = None
+        self.snippet_btn = None
+        self.unittest_btn = None
+        self.pytest_btn = None
+        self.test_data_btn = None
+
+        # tkinter components for builder app
+        self.var_name_frame = None
+        self.word_bound_frame = None
+
+        # datastore
+        self.snapshot = Snapshot()
+        self.snapshot.update(test_data=None)
+        self.snapshot.update(test_result='')
+
+        # variables
+        # variables: radio button
+        self.radio_line_or_multiline_btn_var = tk.StringVar()
+        self.radio_line_or_multiline_btn_var.set('multiline')
+
+        self.test_data_btn_var = tk.StringVar()
+        self.test_data_btn_var.set('Test Data')
+
+        # variables: for builder app
+        self.builder_chkbox_var = tk.BooleanVar()
+        self.var_name_var = tk.StringVar()
+        self.word_bound_var = tk.StringVar()
+        self.word_bound_var.set('none')
+        self.is_confirmed = True
+
+        # variables: pattern arguments
+        self.prepended_ws_var = tk.BooleanVar()
+        self.appended_ws_var = tk.BooleanVar()
+        self.ignore_case_var = tk.BooleanVar()
+
+        # variables: builder arguments
+        self.test_name_var = tk.StringVar()
+        self.test_cls_name_var = tk.StringVar()
+        self.test_cls_name_var.set('TestDynamicGenTestScript')
+        self.max_words_var = tk.IntVar()
+        self.max_words_var.set(6)
+        self.filename_var = tk.StringVar()
+        self.author_var = tk.StringVar()
+        self.email_var = tk.StringVar()
+        self.company_var = tk.StringVar()
+
+        # variables: preferences > user reference
+        self.new_pattern_name_var = tk.StringVar()
+
+        # method call
         self.set_title()
         self.build_menu()
         self.build_frame()
@@ -349,10 +380,8 @@ class Application:
             data = self.get_textarea(self.textarea)
             result = self.get_textarea(self.result_textarea)
             self.snapshot.update(
-                dict(
-                    regex_builder_app_data=data,
-                    regex_builder_app_result=result
-                )
+                regex_builder_app_data=data,
+                regex_builder_app_result=result
             )
             data = self.snapshot.get('pattern_builder_app_data', '')
             result = self.snapshot.get('pattern_builder_app_result', '')
@@ -365,8 +394,9 @@ class Application:
             self.snippet_btn.grid_remove()
             self.unittest_btn.grid_remove()
             self.pytest_btn.grid_remove()
-            self.var_name_frame.grid(row=0, column=12)
-            self.word_bound_frame.grid(row=0, column=13)
+            self.test_data_btn.grid_remove()
+            self.var_name_frame.grid(row=0, column=13)
+            self.word_bound_frame.grid(row=0, column=14)
 
     def shift_to_regex_builder_app(self):
         if self.is_confirmed:
@@ -391,10 +421,8 @@ class Application:
             data = self.get_textarea(self.textarea)
             result = self.get_textarea(self.result_textarea)
             self.snapshot.update(
-                dict(
-                    pattern_builder_app_data=data,
-                    pattern_builder_app_result=result
-                )
+                pattern_builder_app_data=data,
+                pattern_builder_app_result=result
             )
             data = self.snapshot.get('regex_builder_app_data', '')
             result = self.snapshot.get('regex_builder_app_result', '')
@@ -407,25 +435,19 @@ class Application:
             self.snippet_btn.grid(row=0, column=8, pady=2)
             self.unittest_btn.grid(row=0, column=9, pady=2)
             self.pytest_btn.grid(row=0, column=10, pady=2)
+            self.test_data_btn.grid(row=0, column=11, pady=2)
             self.var_name_frame.grid_remove()
             self.word_bound_frame.grid_remove()
 
-    def get_pattern_args(self):
+    def get_regexbuilder_args(self):
         """return arguments of RegexBuilder class"""
         result = dict(
             ignore_case=self.ignore_case_var.get(),
             prepended_ws=self.prepended_ws_var.get(),
             appended_ws=self.appended_ws_var.get(),
-            is_line=self.radio_line_or_multiline_btn_var.get() == 'line'
-        )
-        return result
-
-    def get_builder_args(self):
-        """return arguments of DynamicGenTestScript class"""
-        result = dict(
+            is_line=self.radio_line_or_multiline_btn_var.get() == 'line',
             test_name=self.test_name_var.get(),
             test_cls_name=self.test_cls_name_var.get(),
-            is_minimal=self.is_minimal_var.get(),
             max_words=self.max_words_var.get(),
             filename=self.filename_var.get(),
             author=self.author_var.get(),
@@ -451,7 +473,6 @@ class Application:
         self.ignore_case_var.set(False)
         self.test_name_var.set('')
         self.test_cls_name_var.set('TestDynamicGenTestScript')
-        self.is_minimal_var.set(True)
         self.max_words_var.set(6)
         self.filename_var.set('')
         self.author_var.set('')
@@ -520,7 +541,10 @@ class Application:
             with open(filename) as stream:
                 content = stream.read()
                 if not self.is_pattern_builder_app:
-                    self.test_data = content
+                    self.test_data_btn.config(state=tk.NORMAL)
+                    self.test_data_btn_var.set('Test Data')
+                    self.set_textarea(self.result_textarea, '')
+                    self.snapshot.update(test_data=content)
                 self.set_textarea(self.textarea, content, title=filename)
 
     def callback_help_documentation(self):
@@ -615,8 +639,8 @@ class Application:
 
         settings = tk.Toplevel(self.root)
         self.set_title(node=settings, title='Settings')
-        width = 540 if self.is_macos else 490 if self.is_linux else 400
-        height = 370
+        width = 544 if self.is_macos else 500 if self.is_linux else 392
+        height = 320
         x, y = get_relative_center_location(self.root, width, height)
         settings.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         settings.resizable(False, False)
@@ -624,95 +648,82 @@ class Application:
         top_frame = self.Frame(settings)
         top_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Settings - Pattern Arguments
-        lframe_pattern_args = self.LabelFrame(
-            top_frame, height=80, width=380,
-            text='Pattern Arguments'
+        # Settings - Arguments
+        lframe_args = self.LabelFrame(
+            top_frame, height=360, width=380,
+            text='Arguments'
         )
-        lframe_pattern_args.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
+        lframe_args.grid(row=0, column=0, padx=10, pady=10, sticky=tk.W)
 
         # arguments checkboxes
         lst = [
             ['ignore_case', self.ignore_case_var, 0, 0],
-            ['prepended_ws', self.prepended_ws_var, 1, 0],
-            ['appended_ws', self.appended_ws_var, 1, 1]
+            ['prepended_ws', self.prepended_ws_var, 0, 3],
+            ['appended_ws', self.appended_ws_var, 0, 5]
         ]
         for text, variable, row, column in lst:
             self.CheckBox(
-                lframe_pattern_args, text=text, variable=variable,
+                lframe_args, text=text, variable=variable,
                 onvalue=True, offvalue=False
             ).grid(row=row, column=column, padx=2, pady=2, sticky=tk.W)
-
-        # Settings - Builder Arguments
-        lframe_builder_args = self.LabelFrame(
-            top_frame, height=280, width=380,
-            text='Builder Arguments'
-        )
-        # lframe_builder_args.place(x=10, y=95)
-        lframe_builder_args.grid(row=1, column=0, padx=10, pady=(0, 10), sticky=tk.W)
 
         pady = 0 if self.is_macos else 3
 
         self.Label(
-            lframe_builder_args, text='max_words'
-        ).grid(row=0, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
+            lframe_args, text='max_words'
+        ).grid(row=1, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
 
         self.TextBox(
-            lframe_builder_args, width=5, textvariable=self.max_words_var
-        ).grid(row=0, column=2, padx=2, pady=(5, pady), sticky=tk.W)
-
-        self.CheckBox(
-            lframe_builder_args, text='is_minimal',
-            variable=self.is_minimal_var, onvalue=True, offvalue=False
-        ).grid(row=0, column=3, columnspan=3, padx=2, pady=(5, pady), sticky=tk.W)
+            lframe_args, width=5, textvariable=self.max_words_var
+        ).grid(row=1, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
         self.Label(
-            lframe_builder_args, text='test_name'
-        ).grid(row=1, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
-        self.TextBox(
-            lframe_builder_args, width=45,
-            textvariable=self.test_name_var
-        ).grid(row=1, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
-
-        self.Label(
-            lframe_builder_args, text='test_cls_name'
+            lframe_args, text='test_name'
         ).grid(row=2, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
-            lframe_builder_args, width=45,
-            textvariable=self.test_cls_name_var
+            lframe_args, width=45,
+            textvariable=self.test_name_var
         ).grid(row=2, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_builder_args, text='filename'
+            lframe_args, text='test_cls_name'
         ).grid(row=3, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
-            lframe_builder_args, width=45,
-            textvariable=self.filename_var
+            lframe_args, width=45,
+            textvariable=self.test_cls_name_var
         ).grid(row=3, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_builder_args, text='author'
+            lframe_args, text='filename'
         ).grid(row=4, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
-            lframe_builder_args, width=45,
-            textvariable=self.author_var
+            lframe_args, width=45,
+            textvariable=self.filename_var
         ).grid(row=4, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_builder_args, text='email'
+            lframe_args, text='author'
         ).grid(row=5, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
-            lframe_builder_args, width=45,
-            textvariable=self.email_var
+            lframe_args, width=45,
+            textvariable=self.author_var
         ).grid(row=5, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_builder_args, text='company'
-        ).grid(row=6, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
+            lframe_args, text='email'
+        ).grid(row=6, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
-            lframe_builder_args, width=45,
+            lframe_args, width=45,
+            textvariable=self.email_var
+        ).grid(row=6, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
+
+        self.Label(
+            lframe_args, text='company'
+        ).grid(row=7, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
+        self.TextBox(
+            lframe_args, width=45,
             textvariable=self.company_var
-        ).grid(row=6, column=2, columnspan=4, padx=2, pady=(pady, 10), sticky=tk.W)
+        ).grid(row=7, column=2, columnspan=4, padx=2, pady=(pady, 10), sticky=tk.W)
 
         # OK and Default buttons
         frame = self.Frame(
@@ -995,12 +1006,13 @@ class Application:
                     pattern = PatternBuilder(user_data, **kwargs)
                     result = 'pattern = r{}'.format(enclose_string(pattern))
                     self.set_textarea(self.result_textarea, result)
+                    self.snapshot.update(test_result=result)
                 except Exception as ex:
                     error = '{}: {}'.format(type(ex).__name__, ex)
                     create_msgbox(title='PatternBuilder Error', error=error)
             else:
                 try:
-                    kwargs = self.get_pattern_args()
+                    kwargs = self.get_regexbuilder_args()
                     factory = RegexBuilder(user_data=user_data, **kwargs)
                     factory.build()
 
@@ -1015,6 +1027,7 @@ class Application:
                             for index, pattern in enumerate(patterns, 1):
                                 lst.append(fmt.format(index, enclose_string(pattern)))
                             result = '\n'.join(lst)
+                        self.test_data_btn_var.set('Test Data')
                         self.set_textarea(self.result_textarea, result)
                         self.save_as_btn.config(state=tk.NORMAL)
                         self.copy_text_btn.config(state=tk.NORMAL)
@@ -1037,7 +1050,10 @@ class Application:
             self.result_textarea.delete("1.0", "end")
             self.save_as_btn.config(state=tk.DISABLED)
             self.copy_text_btn.config(state=tk.DISABLED)
-            self.test_data = None
+            self.test_data_btn.config(state=tk.DISABLED)
+            self.snapshot.update(test_data=None)
+            self.snapshot.update(test_result='')
+            self.test_data_btn_var.set('Test Data')
             # self.root.clipboard_clear()
             self.set_title()
 
@@ -1054,7 +1070,10 @@ class Application:
                     return
 
                 if not self.is_pattern_builder_app:
-                    self.test_data = data
+                    self.test_data_btn.config(state=tk.NORMAL)
+                    self.test_data_btn_var.set('Test Data')
+                    self.set_textarea(self.result_textarea, '')
+                    self.snapshot.update(test_data=data)
 
                 title = '<<PASTE - Clipboard>>'
                 self.set_textarea(self.textarea, data, title=title)
@@ -1065,7 +1084,7 @@ class Application:
                 )
 
         def callback_snippet_btn():
-            if self.test_data is None:
+            if self.snapshot.test_data is None:     # noqa
                 create_msgbox(
                     title='No Test Data',
                     error=("Can NOT build Python test script without "
@@ -1083,14 +1102,17 @@ class Application:
                 return
 
             try:
-                kwargs = self.get_pattern_args()
+                kwargs = self.get_regexbuilder_args()
                 factory = RegexBuilder(
-                    user_data=user_data, test_data=self.test_data, **kwargs
+                    user_data=user_data,
+                    test_data=self.snapshot.test_data,      # noqa
+                    **kwargs
                 )
 
-                kwargs = self.get_builder_args()
-                script = factory.generate_python_test(**kwargs)
+                script = factory.create_python_test()
                 self.set_textarea(self.result_textarea, script)
+                self.test_data_btn_var.set('Test Data')
+                self.snapshot.update(test_result=script)
                 self.save_as_btn.config(state=tk.NORMAL)
                 self.copy_text_btn.config(state=tk.NORMAL)
             except Exception as ex:
@@ -1098,7 +1120,7 @@ class Application:
                 create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_unittest_btn():
-            if self.test_data is None:
+            if self.snapshot.test_data is None:     # noqa
                 create_msgbox(
                     title='No Test Data',
                     error=("Can NOT build Python Unittest script without "
@@ -1116,14 +1138,17 @@ class Application:
                 return
 
             try:
-                kwargs = self.get_pattern_args()
+                kwargs = self.get_regexbuilder_args()
                 factory = RegexBuilder(
-                    user_data=user_data, test_data=self.test_data, **kwargs
+                    user_data=user_data,
+                    test_data=self.snapshot.test_data,  # noqa
+                    **kwargs
                 )
 
-                kwargs = self.get_builder_args()
-                script = factory.generate_unittest(**kwargs)
+                script = factory.create_unittest()
                 self.set_textarea(self.result_textarea, script)
+                self.test_data_btn_var.set('Test Data')
+                self.snapshot.update(test_result=script)
                 self.save_as_btn.config(state=tk.NORMAL)
                 self.copy_text_btn.config(state=tk.NORMAL)
             except Exception as ex:
@@ -1131,7 +1156,7 @@ class Application:
                 create_msgbox(title='RegexBuilder Error', error=error)
 
         def callback_pytest_btn():
-            if self.test_data is None:
+            if self.snapshot.test_data is None:     # noqa
                 create_msgbox(
                     title='No Test Data',
                     error=("Can NOT build Python Pytest script without "
@@ -1149,19 +1174,44 @@ class Application:
                 return
 
             try:
-                kwargs = self.get_pattern_args()
+                kwargs = self.get_regexbuilder_args()
                 factory = RegexBuilder(
-                    user_data=user_data, test_data=self.test_data, **kwargs
+                    user_data=user_data,
+                    test_data=self.snapshot.test_data,  # noqa
+                    **kwargs
                 )
 
-                kwargs = self.get_builder_args()
-                script = factory.generate_pytest(**kwargs)
+                script = factory.create_pytest()
                 self.set_textarea(self.result_textarea, script)
+                self.test_data_btn_var.set('Test Data')
+                self.snapshot.update(test_result=script)
                 self.save_as_btn.config(state=tk.NORMAL)
                 self.copy_text_btn.config(state=tk.NORMAL)
             except Exception as ex:
                 error = '{}: {}'.format(type(ex).__name__, ex)
                 create_msgbox(title='RegexBuilder Error', error=error)
+
+        def callback_test_data_btn():
+            if self.snapshot.test_data is None:     # noqa
+                create_msgbox(
+                    title='No Test Data',
+                    error="Please use Open or Paste button to load test data"
+                )
+                return
+
+            name = self.test_data_btn_var.get()
+            if name == 'Test Data':
+                self.test_data_btn_var.set('Hide')
+                self.set_textarea(
+                    self.result_textarea,
+                    self.snapshot.test_data     # noqa
+                )
+            else:
+                self.test_data_btn_var.set('Test Data')
+                self.set_textarea(
+                    self.result_textarea,
+                    self.snapshot.test_result   # noqa
+                )
 
         def callback_builder_chkbox():
             if self.is_pattern_builder_app:
@@ -1247,13 +1297,21 @@ class Application:
                                       width=btn_width)
         self.pytest_btn.grid(row=0, column=10)
 
+        # test_data button
+        self.test_data_btn = self.Button(self.entry_frame,
+                                         command=callback_test_data_btn,
+                                         textvariable=self.test_data_btn_var,
+                                         width=btn_width)
+        self.test_data_btn.grid(row=0, column=11)
+        self.test_data_btn.config(state=tk.DISABLED)
+
         # builder checkbox
         builder_chkbox = self.CheckBox(
             self.entry_frame, text='Builder', variable=self.builder_chkbox_var,
             onvalue=True, offvalue=False,
             command=callback_builder_chkbox
         )
-        builder_chkbox.grid(row=0, column=11)
+        builder_chkbox.grid(row=0, column=12)
 
         self.var_name_frame = self.Frame(self.entry_frame)
         self.Label(self.var_name_frame, text='var_name').pack(padx=(10, 4), side=tk.LEFT)

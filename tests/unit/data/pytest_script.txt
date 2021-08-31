@@ -10,11 +10,9 @@ import pytest
 import re
 
 class TestDynamicGenTestScript:
-
     @pytest.mark.parametrize(
         ('test_data', 'pattern'),
         (
-
             (
                 "today temperature is 75 degrees fahrenheit.",    # test data
                 r"(?P<subject>\w+( \w+)+) is (?P<degree>\d+) degrees (?P<unit>\w+)\."   # pattern

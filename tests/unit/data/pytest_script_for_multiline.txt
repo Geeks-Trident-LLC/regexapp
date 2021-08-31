@@ -10,11 +10,9 @@ import pytest
 import re
 
 class TestDynamicGenTestScript:
-
     @pytest.mark.parametrize(
         ('test_data', 'pattern'),
         (
-
             (
                 """First line
 I have computer.
