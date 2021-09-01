@@ -1085,8 +1085,17 @@ class ElementPattern(str):
         if name:
             cls._variable.name = name
             cls._variable.pattern = pattern
-            if pattern.startswith('(') and pattern.endswith('|)'):
-                new_pattern = '(?P<{}>{})'.format(name, pattern[1:-1])
+            if pattern.startswith('(') and pattern.endswith(')'):
+                sub_pat = pattern[1:-1]
+                if pattern.endswith('|)'):
+                    new_pattern = '(?P<{}>{})'.format(name, sub_pat)
+                else:
+                    try:
+                        re.compile(sub_pat)
+                        cls._variable.pattern = sub_pat
+                        new_pattern = '(?P<{}>{})'.format(name, sub_pat)
+                    except Exception as ex:     # noqa
+                        new_pattern = '(?P<{}>{})'.format(name, pattern)
             else:
                 new_pattern = '(?P<{}>{})'.format(name, pattern)
             return new_pattern
