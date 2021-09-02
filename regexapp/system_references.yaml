@@ -12,6 +12,13 @@ everything:
   positive test:
     pattern matches all characters: "abc"
 
+empty_or_something:
+  group: character
+  description: a pattern to match zero or some characters.
+  pattern: ".*"
+  positive test:
+    pattern matches zero or some characters: "abc"
+
 space:
   group: tabulation
   description: a pattern to match a blank space character.
