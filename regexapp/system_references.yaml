@@ -1,38 +1,38 @@
 ws:
-  group: word
+  group: tabulation
   description: a pattern to match a character divider such as space, tab, newline, and more.
   pattern: "\\s"
   positive test:
-    pattern matches a letter: " "
+    pattern matches white space: " "
   negative test:
-    the whitespace pattern can not match data: "."
+    the white space pattern can not match data: "."
 
 not_ws:
-  group: word
-  description: a pattern to match a character which is not a whitespace character.
+  group: character
+  description: a pattern to match a character which is not a white space character.
   pattern: "\\S"
   positive test:
-    pattern matches a letter: "a"
+    pattern matches non-white space: "a"
   negative test:
-    the notwhitespace pattern can not match data: " "
+    the non-white space pattern can not match data: " "
 
 whitespace:
-  group: word
+  group: tabulation
   description: a pattern to match a word divider such as space, tab, newline, and more.
   pattern: "\\s+"
   positive test:
-    pattern matches a letter: " "
+    pattern matches white space: " "
   negative test:
-    the whitespace pattern can not match data: "."
+    the white space pattern can not match data: "."
 
 not_whitespace:
-  group: word
-  description: a pattern to match any character which is not a whitespace character.
+  group: character
+  description: a pattern to match any character which is not a white space character.
   pattern: "\\S+"
   positive test:
     pattern matches a letter: "a"
   negative test:
-    the notwhitespace pattern can not match data: " "
+    the non-white space pattern can not match data: " "
 
 letter:
   group: word
@@ -48,7 +48,7 @@ letters:
   description: a pattern to match letters.
   pattern: "[a-zA-Z]+"
   positive test:
-    pattern matches a letters: "abc"
+    pattern matches letters: "abc"
   negative test:
     the letters pattern can not match data: "..."
 
