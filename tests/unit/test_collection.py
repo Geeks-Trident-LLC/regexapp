@@ -13,7 +13,7 @@ from regexapp import MultilinePattern
 class TestPatternReference:
     def test_initialization(self):
         obj = PatternReference()
-        assert obj.get('word').get('pattern') == r'\w+'
+        assert obj.get('word').get('pattern') == r'[a-zA-Z0-9]+'
 
 
 class TestTextPattern:
@@ -68,15 +68,27 @@ class TestElementPattern:
             ####################################################################
             # predefined keyword test                                          #
             ####################################################################
-            ('whitespace()', '\\s+'),
-            ('not_whitespace()', '\\S+'),
+            ('anything()', '.'),
+            ('everything()', '.+'),
+            ('space()', ' '),
+            ('spaces()', ' +'),
+            ('non_space()', '[^ ]'),
+            ('non_spaces()', '[^ ]+'),
+            ('whitespace()', '\\s'),
+            ('whitespaces()', '\\s+'),
+            ('non_whitespace()', '\\S'),
+            ('non_whitespaces()', '\\S+'),
+            ('punctuation()', r'[!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]'),
+            ('punctuations()', r'[!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]+'),
+            ('non_punctuation()', r'[^!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]'),
+            ('non_punctuations()', r'[^!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]+'),
             ('letter()', '[a-zA-Z]'),
             ('letters()', '[a-zA-Z]+'),
-            ('word()', '\\w+'),
-            ('words()', '\\w+( \\w+)*'),
+            ('word()', '[a-zA-Z0-9]+'),
+            ('words()', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)*'),
             ('mixed_word()', '\\S*[a-zA-Z0-9]\\S*'),
             ('mixed_words()', '\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)*'),
-            ('phrase()', '\\w+( \\w+)+'),
+            ('phrase()', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)+'),
             ('mixed_phrase()', '\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)+'),
             ('digit()', '\\d'),
             ('digits()', '\\d+'),
@@ -86,45 +98,45 @@ class TestElementPattern:
             ('datetime()', '[0-9]+/[0-9]+/[0-9]+'),
             ('datetime(format)', '[0-9]+/[0-9]+/[0-9]+'),
             ('datetime(format1)', '[0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+'),
-            ('datetime(format1, format3)', '([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)'),
+            ('datetime(format1, format3)', '(([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+))'),
             ('datetime(var_datetime, format1, format3)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+))'),
             ('datetime(var_datetime, format1, format3, n/a)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|n/a)'),
             ('mac_address()', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})'),
-            ('mac_address(or_n/a)', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a'),
+            ('mac_address(or_n/a)', '(([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a)'),
             ('mac_address(var_mac_addr, or_n/a)', '(?P<mac_addr>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a)'),
             ('ipv4_address()', '((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3}'),
             ('ipv6_address()', '(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))'),
             ####################################################################
             # predefined keyword test combining with other flags               #
             ####################################################################
-            ('word(var_v1, or_empty)', '(?P<v1>\\w+|)'),
-            ('word(var_v1, or_n/a, or_empty)', '(?P<v1>\\w+|n/a|)'),
-            ('word(var_v1, or_abc xyz, or_12.95 19.95, or_empty)', '(?P<v1>\\w+|(abc xyz)|(12.95 19.95)|)'),
-            ('word(var_v1, word_bound_left)', '(?P<v1>\\b\\w+)'),
-            ('word(var_v1, word_bound_right)', '(?P<v1>\\w+\\b)'),
-            ('word(var_v1, word_bound)', '(?P<v1>\\b\\w+\\b)'),
-            ('word(var_v1, word_bound_raw)', '(?P<v1>\\w+|word_bound)'),
-            ('word(var_v1, head)', '^(?P<v1>\\w+)'),
-            ('word(var_v1, head_ws)', '^\\s*(?P<v1>\\w+)'),
-            ('word(var_v1, head_ws_plus)', '^\\s+(?P<v1>\\w+)'),
-            ('word(var_v1, head_space)', '^ *(?P<v1>\\w+)'),
-            ('word(var_v1, head_space_plus)', '^ +(?P<v1>\\w+)'),
-            ('word(var_v1, head_raw)', '(?P<v1>\\w+|head)'),
-            ('word(var_v1, tail)', '(?P<v1>\\w+)$'),
-            ('word(var_v1, tail_ws)', '(?P<v1>\\w+)\\s*$'),
-            ('word(var_v1, tail_ws_plus)', '(?P<v1>\\w+)\\s+$'),
-            ('word(var_v1, tail_space)', '(?P<v1>\\w+) *$'),
-            ('word(var_v1, tail_space_plus)', '(?P<v1>\\w+) +$'),
-            ('word(var_v1, tail_raw)', '(?P<v1>\\w+|tail)'),
+            ('word(var_v1, or_empty)', '(?P<v1>[a-zA-Z0-9]+|)'),
+            ('word(var_v1, or_n/a, or_empty)', '(?P<v1>[a-zA-Z0-9]+|n/a|)'),
+            ('word(var_v1, or_abc xyz, or_12.95 19.95, or_empty)', '(?P<v1>[a-zA-Z0-9]+|(abc xyz)|(12.95 19.95)|)'),
+            ('word(var_v1, word_bound_left)', '(?P<v1>\\b[a-zA-Z0-9]+)'),
+            ('word(var_v1, word_bound_right)', '(?P<v1>[a-zA-Z0-9]+\\b)'),
+            ('word(var_v1, word_bound)', '(?P<v1>\\b[a-zA-Z0-9]+\\b)'),
+            ('word(var_v1, word_bound_raw)', '(?P<v1>[a-zA-Z0-9]+|word_bound)'),
+            ('word(var_v1, head)', '^(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_ws)', '^\\s*(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_ws_plus)', '^\\s+(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_space)', '^ *(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_space_plus)', '^ +(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_raw)', '(?P<v1>[a-zA-Z0-9]+|head)'),
+            ('word(var_v1, tail)', '(?P<v1>[a-zA-Z0-9]+)$'),
+            ('word(var_v1, tail_ws)', '(?P<v1>[a-zA-Z0-9]+)\\s*$'),
+            ('word(var_v1, tail_ws_plus)', '(?P<v1>[a-zA-Z0-9]+)\\s+$'),
+            ('word(var_v1, tail_space)', '(?P<v1>[a-zA-Z0-9]+) *$'),
+            ('word(var_v1, tail_space_plus)', '(?P<v1>[a-zA-Z0-9]+) +$'),
+            ('word(var_v1, tail_raw)', '(?P<v1>[a-zA-Z0-9]+|tail)'),
             ('letter(var_word, repetition_3)', '(?P<word>[a-zA-Z]{3})'),
             ('letter(var_word, repetition_3_8)', '(?P<word>[a-zA-Z]{3,8})'),
             ('letter(var_word, repetition_3_)', '(?P<word>[a-zA-Z]{3,})'),
             ('letter(var_word, repetition__8)', '(?P<word>[a-zA-Z]{,8})'),
-            ('word(var_v1, N/A, repetition_3, word_bound)', '(?P<v1>\\b((\\w+){3}|N/A)\\b)'),
+            ('word(var_v1, N/A, repetition_3, word_bound)', '(?P<v1>\\b(([a-zA-Z0-9]+){3}|N/A)\\b)'),
             ####################################################################
             # choice keyword test                                              #
             ####################################################################
-            ('choice(up, down, administratively down)', 'up|down|(administratively down)'),
+            ('choice(up, down, administratively down)', '(up|down|(administratively down))'),
             ('choice(up, down, administratively down, var_v2)', '(?P<v2>up|down|(administratively down))'),
             ('choice(up, down, administratively down, var_v2, or_empty)', '(?P<v2>up|down|(administratively down)|)'),
             ('choice(up, down, administratively down, var_v2, or_empty, or_digits)', '(?P<v2>up|down|(administratively down)|\\d+|)'),
@@ -187,35 +199,35 @@ class TestLinePattern:
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)',   # expected pattern
+                '\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))',   # expected pattern
                 False, False, False,
                 True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)',               # expected pattern
+                '\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))',               # expected pattern
                 False, False, False,
                 True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '(?i)\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)',           # expected pattern
+                '(?i)\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))',           # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '(?i)^\\s*\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)',        # expected pattern
+                '(?i)^\\s*\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))',        # expected pattern
                 True, False, True,
                 True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '(?i)^\\s*\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)\\s*$',     # expected pattern
+                '(?i)^\\s*\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))\\s*$',     # expected pattern
                 True, True, True,
                 True
             ),
@@ -229,7 +241,7 @@ class TestLinePattern:
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                                                      # test data
                 'mixed_word(var_interface_name) is words(var_interface_status), line protocol is words(var_protocol_status)',                                           # user prepared data
-                '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) is (?P<interface_status>\\w+( \\w+)*), line protocol is (?P<protocol_status>\\w+( \\w+)*)',    # expected pattern
+                '(?i)(?P<interface_name>\\S*[a-zA-Z0-9]\\S*) is (?P<interface_status>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*), line protocol is (?P<protocol_status>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)',    # expected pattern
                 False, False, True,
                 True
             ),
@@ -285,49 +297,49 @@ class TestLinePattern:
             (
                 'today is Friday.',                         # test data
                 'today is word(var_day, word_bound).',      # user prepared data
-                '(?i)today is (?P<day>\\b\\w+\\b)\\.',    # expected pattern
+                '(?i)today is (?P<day>\\b[a-zA-Z0-9]+\\b)\\.',    # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'cherry is delicious.',                     # test data
                 'word(var_fruit, head) is delicious.',      # user prepared data
-                '(?i)^(?P<fruit>\\w+) is delicious\\.',     # expected pattern
+                '(?i)^(?P<fruit>[a-zA-Z0-9]+) is delicious\\.',     # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'cherry is delicious.',                             # test data
                 'word(var_fruit, head_ws) is delicious.',        # user prepared data
-                '(?i)^\\s*(?P<fruit>\\w+) is delicious\\.',     # expected pattern
+                '(?i)^\\s*(?P<fruit>[a-zA-Z0-9]+) is delicious\\.',     # expected pattern
                 False, False, True,
                 True
             ),
             (
                 '\r\n cherry is delicious.',                        # test data
                 'word(var_fruit, head_ws) is delicious.',        # user prepared data
-                '(?i)^\\s*(?P<fruit>\\w+) is delicious\\.',     # expected pattern
+                '(?i)^\\s*(?P<fruit>[a-zA-Z0-9]+) is delicious\\.',     # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'I live in ABC',                                        # test data
                 'I live in words(var_city, tail)',                     # user prepared data
-                '(?i)I live in (?P<city>\\w+( \\w+)*)$',        # expected pattern
+                '(?i)I live in (?P<city>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)$',        # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'I live in ABC',                                        # test data
                 'I live in words(var_city, tail_ws)',                  # user prepared data
-                '(?i)I live in (?P<city>\\w+( \\w+)*)\\s*$',    # expected pattern
+                '(?i)I live in (?P<city>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)\\s*$',    # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'I live in ABC \r\n',                                   # test data
                 'I live in words(var_city, tail_ws)',                  # user prepared data
-                '(?i)I live in (?P<city>\\w+( \\w+)*)\\s*$',    # expected pattern
+                '(?i)I live in (?P<city>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)\\s*$',    # expected pattern
                 False, False, True,
                 True
             ),
@@ -356,35 +368,35 @@ class TestLinePattern:
             (
                 '1::a is IPv6 address',  # test data
                 'ipv6_address(var_addr) is IPv6 address',  # user prepared data
-                '(?i)(?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) is IPv6 address',    # expected pattern
+                '(?i)(?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) is IPv6 address',    # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'Is 1:::a an IPv6 address',  # test data
                 'Is ipv6_address(var_addr) an IPv6 address',  # user prepared data
-                '(?i)Is (?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) an IPv6 address',    # expected pattern
+                '(?i)Is (?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) an IPv6 address',    # expected pattern
                 False, False, True,
                 False
             ),
             (
                 'Is 1:2:3:4:55555:a an IPv6 address',  # test data
                 'Is ipv6_address(var_addr) an IPv6 address',  # user prepared data
-                '(?i)Is (?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) an IPv6 address',    # expected pattern
+                '(?i)Is (?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) an IPv6 address',    # expected pattern
                 False, False, True,
                 False
             ),
             (
                 'Is 1:2:3:4:5:abgd an IPv6 address',  # test data
                 'Is ipv6_address(var_addr) an IPv6 address',  # user prepared data
-                '(?i)Is (?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) an IPv6 address',    # expected pattern
+                '(?i)Is (?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) an IPv6 address',    # expected pattern
                 False, False, True,
                 False
             ),
             (
                 'Is 1::3:4::a an IPv6 address',  # test data
                 'Is ipv6_address(var_addr) an IPv6 address',  # user prepared data
-                '(?i)Is (?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) an IPv6 address',    # expected pattern
+                '(?i)Is (?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) an IPv6 address',    # expected pattern
                 False, False, True,
                 False
             ),
@@ -405,14 +417,14 @@ class TestLinePattern:
             (
                 'cherry is delicious.',  # test data
                 'start(space)word(var_fruit) is delicious.',  # user prepared data
-                '(?i)^ *(?P<fruit>\\w+) is delicious\\.',  # expected pattern
+                '(?i)^ *(?P<fruit>[a-zA-Z0-9]+) is delicious\\.',  # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'cherry is delicious.',  # test data
                 'start(space) word(var_fruit) is delicious.',  # user prepared data
-                '(?i)^ *(?P<fruit>\\w+) is delicious\\.',  # expected pattern
+                '(?i)^ *(?P<fruit>[a-zA-Z0-9]+) is delicious\\.',  # expected pattern
                 False, False, True,
                 True
             ),
@@ -426,14 +438,14 @@ class TestLinePattern:
             (
                 'this box is green',  # test data
                 'this box is word(var_color)end()',  # user prepared data
-                '(?i)this box is (?P<color>\\w+)$',  # expected pattern
+                '(?i)this box is (?P<color>[a-zA-Z0-9]+)$',  # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'this box is green',  # test data
                 'this box is word(var_color) end()',  # user prepared data
-                '(?i)this box is (?P<color>\\w+)$',  # expected pattern
+                '(?i)this box is (?P<color>[a-zA-Z0-9]+)$',  # expected pattern
                 False, False, True,
                 True
             ),
@@ -484,14 +496,14 @@ class TestLinePattern:
             (
                 ['cherry is good for health'],  # test data
                 'word() is words()',  # user prepared data
-                '^\\s*\\w+ is \\w+( \\w+)*',  # expected pattern
-                '^\\s*\\w+ is \\w+( \\w+)*',  # expected statement
+                '^\\s*[a-zA-Z0-9]+ is [a-zA-Z0-9]+( [a-zA-Z0-9]+)*',  # expected pattern
+                '^\\s*[a-zA-Z0-9]+ is [a-zA-Z0-9]+( [a-zA-Z0-9]+)*',  # expected statement
                 True, False, False,
             ),
             (
                 ['cherry is good for health'],  # test data
                 'word(var_fruit) is words(var_desc)',  # user prepared data
-                '^\\s*(?P<fruit>\\w+) is (?P<desc>\\w+( \\w+)*)',  # expected pattern
+                '^\\s*(?P<fruit>[a-zA-Z0-9]+) is (?P<desc>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)',  # expected pattern
                 '^\\s*${fruit} is ${desc}',     # expected statement
                 True, False, False,
             ),
@@ -564,7 +576,7 @@ class TestPatternBuilder:
                     'Friday, April  9, 2021 8:43:15 PM',
                     '12/06/2010 08:56:45'
                 ],
-                '([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)',
+                '(([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+))',
                 '',     # var_name
                 '',     # word_bound
             ),
