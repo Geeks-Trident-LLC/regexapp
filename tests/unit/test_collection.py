@@ -86,11 +86,11 @@ class TestElementPattern:
             ('datetime()', '[0-9]+/[0-9]+/[0-9]+'),
             ('datetime(format)', '[0-9]+/[0-9]+/[0-9]+'),
             ('datetime(format1)', '[0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+'),
-            ('datetime(format1, format3)', '([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)'),
+            ('datetime(format1, format3)', '(([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+))'),
             ('datetime(var_datetime, format1, format3)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+))'),
             ('datetime(var_datetime, format1, format3, n/a)', '(?P<datetime>([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)|([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|n/a)'),
             ('mac_address()', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})'),
-            ('mac_address(or_n/a)', '([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a'),
+            ('mac_address(or_n/a)', '(([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a)'),
             ('mac_address(var_mac_addr, or_n/a)', '(?P<mac_addr>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a)'),
             ('ipv4_address()', '((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3}'),
             ('ipv6_address()', '(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))'),
@@ -124,7 +124,7 @@ class TestElementPattern:
             ####################################################################
             # choice keyword test                                              #
             ####################################################################
-            ('choice(up, down, administratively down)', 'up|down|(administratively down)'),
+            ('choice(up, down, administratively down)', '(up|down|(administratively down))'),
             ('choice(up, down, administratively down, var_v2)', '(?P<v2>up|down|(administratively down))'),
             ('choice(up, down, administratively down, var_v2, or_empty)', '(?P<v2>up|down|(administratively down)|)'),
             ('choice(up, down, administratively down, var_v2, or_empty, or_digits)', '(?P<v2>up|down|(administratively down)|\\d+|)'),
@@ -187,35 +187,35 @@ class TestLinePattern:
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)',   # expected pattern
+                '\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))',   # expected pattern
                 False, False, False,
                 True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)',               # expected pattern
+                '\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))',               # expected pattern
                 False, False, False,
                 True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '(?i)\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)',           # expected pattern
+                '(?i)\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))',           # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '(?i)^\\s*\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)',        # expected pattern
+                '(?i)^\\s*\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))',        # expected pattern
                 True, False, True,
                 True
             ),
             (
                 'TenGigE0/0/0/1 is administratively down, line protocol is administratively down',                                              # test data
                 'mixed_word() is choice(up, down, administratively down), line protocol is choice(up, down, administratively down)',            # user prepared data
-                '(?i)^\\s*\\S*[a-zA-Z0-9]\\S* is up|down|(administratively down), line protocol is up|down|(administratively down)\\s*$',     # expected pattern
+                '(?i)^\\s*\\S*[a-zA-Z0-9]\\S* is (up|down|(administratively down)), line protocol is (up|down|(administratively down))\\s*$',     # expected pattern
                 True, True, True,
                 True
             ),
@@ -356,35 +356,35 @@ class TestLinePattern:
             (
                 '1::a is IPv6 address',  # test data
                 'ipv6_address(var_addr) is IPv6 address',  # user prepared data
-                '(?i)(?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) is IPv6 address',    # expected pattern
+                '(?i)(?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) is IPv6 address',    # expected pattern
                 False, False, True,
                 True
             ),
             (
                 'Is 1:::a an IPv6 address',  # test data
                 'Is ipv6_address(var_addr) an IPv6 address',  # user prepared data
-                '(?i)Is (?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) an IPv6 address',    # expected pattern
+                '(?i)Is (?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) an IPv6 address',    # expected pattern
                 False, False, True,
                 False
             ),
             (
                 'Is 1:2:3:4:55555:a an IPv6 address',  # test data
                 'Is ipv6_address(var_addr) an IPv6 address',  # user prepared data
-                '(?i)Is (?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) an IPv6 address',    # expected pattern
+                '(?i)Is (?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) an IPv6 address',    # expected pattern
                 False, False, True,
                 False
             ),
             (
                 'Is 1:2:3:4:5:abgd an IPv6 address',  # test data
                 'Is ipv6_address(var_addr) an IPv6 address',  # user prepared data
-                '(?i)Is (?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) an IPv6 address',    # expected pattern
+                '(?i)Is (?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) an IPv6 address',    # expected pattern
                 False, False, True,
                 False
             ),
             (
                 'Is 1::3:4::a an IPv6 address',  # test data
                 'Is ipv6_address(var_addr) an IPv6 address',  # user prepared data
-                '(?i)Is (?P<addr>(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))) an IPv6 address',    # expected pattern
+                '(?i)Is (?P<addr>([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4})) an IPv6 address',    # expected pattern
                 False, False, True,
                 False
             ),
@@ -564,7 +564,7 @@ class TestPatternBuilder:
                     'Friday, April  9, 2021 8:43:15 PM',
                     '12/06/2010 08:56:45'
                 ],
-                '([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+)',
+                '(([a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+)|([0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+))',
                 '',     # var_name
                 '',     # word_bound
             ),
