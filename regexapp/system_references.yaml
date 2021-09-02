@@ -96,9 +96,18 @@ non_whitespace:
   description: a pattern to match any character which is not a white space character.
   pattern: "\\S"
   positive test:
-    pattern matches a letter: "a"
+    pattern matches non-whitespace: "a"
   negative test:
     the non-white space pattern can not match data: " "
+
+non_whitespaces:
+  group: character
+  description: a pattern to match multiple characters which is not a white space character.
+  pattern: "\\S+"
+  positive test:
+    pattern matches multiple non-white space: "ab"
+  negative test:
+    the multiple non-white space pattern can not match data: " "
 
 letter:
   group: word
