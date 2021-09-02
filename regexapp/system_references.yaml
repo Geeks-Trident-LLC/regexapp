@@ -1,3 +1,10 @@
+anything:
+  group: character
+  description: a pattern to match any character.
+  pattern: "."
+  positive test:
+    pattern matches any character: "a"
+
 space:
   group: tabulation
   description: a pattern to match a blank space character.
