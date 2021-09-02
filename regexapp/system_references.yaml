@@ -112,6 +112,16 @@ punctuation:
   negative test:
     the punctuation pattern can not match data: "a"
 
+punctuations:
+  group: punctuation
+  description: a pattern to match multiple punctuation.
+  pattern: |-
+    [!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]+
+  positive test:
+    pattern match multiple punctuations: "."
+  negative test:
+    the punctuations pattern can not match data: "a"
+
 letter:
   group: word
   description: a pattern to match a letter.
