@@ -33,18 +33,27 @@ spaces:
   description: a pattern to match multiple spaces.
   pattern: " +"
   positive test:
-    pattern matches a blank space: " +"
+    pattern matches multiple blank space: "  "
   negative test:
     the multiple spaces pattern can not match data: "."
 
 non_space:
   group: character
-  description: a pattern to match a blank space character.
+  description: a pattern to match a non-blank space character.
   pattern: "[^ ]"
   positive test:
     pattern matches a non-blank space: "\n"
   negative test:
     the non-blank space pattern can not match data: "a"
+
+non_spaces:
+  group: character
+  description: a pattern to match multiple non-blank space characters.
+  pattern: "[^ ]+"
+  positive test:
+    pattern matches multiple non-blank spaces: "\n"
+  negative test:
+    the multiple non-blank space pattern can not match data: "a"
 
 ws:
   group: tabulation

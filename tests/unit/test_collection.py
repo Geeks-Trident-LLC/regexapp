@@ -74,6 +74,7 @@ class TestElementPattern:
             ('space()', ' '),
             ('spaces()', ' +'),
             ('non_space()', '[^ ]'),
+            ('non_spaces()', '[^ ]+'),
             ('whitespace()', '\\s'),
             ('non_whitespace()', '\\S'),
             ('letter()', '[a-zA-Z]'),
