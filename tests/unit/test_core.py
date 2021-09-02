@@ -367,7 +367,6 @@ class TestDynamicGenTestScript:
             author=tc_info.author,
             email=tc_info.email,
             company=tc_info.company,
-            filename='abc.txt'
         )
         test_script = factory.create_unittest()
         assert test_script == tc_info.expected_unittest_script
