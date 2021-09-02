@@ -7,7 +7,7 @@ ws:
   negative test:
     the white space pattern can not match data: "."
 
-not_ws:
+non_ws:
   group: character
   description: a pattern to match a character which is not a white space character.
   pattern: "\\S"
@@ -19,16 +19,16 @@ not_ws:
 whitespace:
   group: tabulation
   description: a pattern to match a word divider such as space, tab, newline, and more.
-  pattern: "\\s+"
+  pattern: "\\s"
   positive test:
     pattern matches white space: " "
   negative test:
     the white space pattern can not match data: "."
 
-not_whitespace:
+non_whitespace:
   group: character
   description: a pattern to match any character which is not a white space character.
-  pattern: "\\S+"
+  pattern: "\\S"
   positive test:
     pattern matches a letter: "a"
   negative test:
