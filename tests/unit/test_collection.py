@@ -78,6 +78,7 @@ class TestElementPattern:
             ('whitespaces()', '\\s+'),
             ('non_whitespace()', '\\S'),
             ('non_whitespaces()', '\\S+'),
+            ('punctuation()', r'[!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]'),
             ('letter()', '[a-zA-Z]'),
             ('letters()', '[a-zA-Z]+'),
             ('word()', '[a-zA-Z0-9]+'),

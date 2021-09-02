@@ -10,7 +10,7 @@ everything:
   description: a pattern to match all characters.
   pattern: ".+"
   positive test:
-    pattern matches all characters: "abc"
+    pattern match all characters: "abc"
 
 space:
   group: tabulation
@@ -26,7 +26,7 @@ spaces:
   description: a pattern to match multiple spaces.
   pattern: " +"
   positive test:
-    pattern matches multiple blank space: "  "
+    pattern match multiple blank space: "  "
   negative test:
     the multiple spaces pattern can not match data: "."
 
@@ -44,7 +44,7 @@ non_spaces:
   description: a pattern to match multiple non-blank space characters.
   pattern: "[^ ]+"
   positive test:
-    pattern matches multiple non-blank spaces: "\n"
+    pattern match multiple non-blank spaces: "\n"
   negative test:
     the multiple non-blank space pattern can not match data: "a"
 
@@ -80,7 +80,7 @@ whitespaces:
   description: a pattern to match multiple word divider such as space, tab, newline, and more.
   pattern: "\\s+"
   positive test:
-    pattern matches multiple white spaces: " "
+    pattern match multiple white spaces: " "
   negative test:
     the multiple white space pattern can not match data: "."
 
@@ -98,9 +98,19 @@ non_whitespaces:
   description: a pattern to match multiple characters which is not a white space character.
   pattern: "\\S+"
   positive test:
-    pattern matches multiple non-white space: "ab"
+    pattern match multiple non-white space: "ab"
   negative test:
     the multiple non-white space pattern can not match data: " "
+
+punctuation:
+  group: punctuation
+  description: a pattern to match a punctuation.
+  pattern: |-
+    [!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]
+  positive test:
+    pattern matches a punctuation: "."
+  negative test:
+    the punctuation pattern can not match data: "a"
 
 letter:
   group: word
