@@ -55,7 +55,7 @@ letters:
 word:
   group: word
   description: a pattern to match a word.
-  pattern: "\\w+"
+  pattern: "[a-zA-Z0-9]+"
   positive test:
     pattern matches a word: "abc"
   negative test:
@@ -64,7 +64,7 @@ word:
 words:
   group: word
   description: a pattern to match at least one word.
-  pattern: "\\w+( \\w+)*"
+  pattern: "[a-zA-Z0-9]+( [a-zA-Z0-9]+)*"
   positive test:
     pattern match words: "abc xyz"
   negative test:
@@ -91,7 +91,7 @@ mixed_words:
 phrase:
   group: word
   description: a pattern to match a phrase, i.e. at least two words.
-  pattern: "\\w+( \\w+)+"
+  pattern: "[a-zA-Z0-9]+( [a-zA-Z0-9]+)+"
   positive test:
     pattern match a pharse: "abc xyz"
   negative test:
