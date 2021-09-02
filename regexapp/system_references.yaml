@@ -5,6 +5,13 @@ anything:
   positive test:
     pattern matches any character: "a"
 
+everything:
+  group: character
+  description: a pattern to match all characters.
+  pattern: ".+"
+  positive test:
+    pattern matches all characters: "abc"
+
 space:
   group: tabulation
   description: a pattern to match a blank space character.
