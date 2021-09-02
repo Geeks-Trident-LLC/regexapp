@@ -82,6 +82,15 @@ whitespace:
   negative test:
     the white space pattern can not match data: "."
 
+whitespaces:
+  group: tabulation
+  description: a pattern to match multiple word divider such as space, tab, newline, and more.
+  pattern: "\\s+"
+  positive test:
+    pattern matches multiple white spaces: " "
+  negative test:
+    the multiple white space pattern can not match data: "."
+
 non_whitespace:
   group: character
   description: a pattern to match any character which is not a white space character.
