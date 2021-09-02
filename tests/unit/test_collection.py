@@ -70,7 +70,6 @@ class TestElementPattern:
             ####################################################################
             ('anything()', '.'),
             ('everything()', '.+'),
-            ('empty_or_something()', '.*'),
             ('space()', ' '),
             ('spaces()', ' +'),
             ('non_space()', '[^ ]'),
