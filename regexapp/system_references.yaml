@@ -28,6 +28,15 @@ space:
   negative test:
     the blank space pattern can not match data: "."
 
+spaces:
+  group: tabulation
+  description: a pattern to match multiple spaces.
+  pattern: " +"
+  positive test:
+    pattern matches a blank space: " +"
+  negative test:
+    the multiple spaces pattern can not match data: "."
+
 non_space:
   group: character
   description: a pattern to match a blank space character.

@@ -72,6 +72,7 @@ class TestElementPattern:
             ('everything()', '.+'),
             ('empty_or_something()', '.*'),
             ('space()', ' '),
+            ('spaces()', ' +'),
             ('non_space()', '[^ ]'),
             ('whitespace()', '\\s'),
             ('non_whitespace()', '\\S'),
