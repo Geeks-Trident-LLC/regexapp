@@ -15,7 +15,7 @@ You will meet a lot of nice people.
 People enjoy fishing during weekend."""
 
 # regex pattern
-pattern = r"(?m)(?P<subject1>\w+( \w+)*) live in (?P<object1>\w+( \w+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*^(?P<subject2>\w+( \w+)*) will meet (?P<object2>\w+( \w+)*)\."
+pattern = r"(?m)(?P<subject1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*) live in (?P<object1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)\.[^\r\n]*[\r\n]+([^\r\n]*[\r\n]+)*^(?P<subject2>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*) will meet (?P<object2>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)\."
 
 def test_regex(test_data, pattern):
     """test regular expression
