@@ -20,10 +20,10 @@ from regexapp.core import DynamicTestScriptBuilder
 from regexapp.core import add_reference
 from regexapp.core import remove_reference
 
-__version__ = '0.2.2'
-version = __version__
-__edition__ = 'Community'
-edition = __edition__
+from regexapp.config import version
+from regexapp.config import edition
+__version__ = version
+__edition__ = edition
 
 __all__ = [
     'TextPattern',

@@ -1043,9 +1043,11 @@ class ElementPattern(str):
         str: a string data.
         """
         new_lst = []
+        has_ws = False
         if len(lst) > 1:
             for item in lst:
                 if ' ' in item or r'\s' in item:
+                    has_ws = True
                     if item.startswith('(') and item.endswith(')'):
                         v = item
                     else:
@@ -1062,7 +1064,7 @@ class ElementPattern(str):
         result = '|'.join(new_lst)
 
         has_empty = bool([True for i in new_lst if i == ''])
-        if has_empty:
+        if has_empty or len(new_lst) > 1 and has_ws:
             result = '({})'.format(result)
 
         return result
@@ -1083,8 +1085,17 @@ class ElementPattern(str):
         if name:
             cls._variable.name = name
             cls._variable.pattern = pattern
-            if pattern.startswith('(') and pattern.endswith('|)'):
-                new_pattern = '(?P<{}>{})'.format(name, pattern[1:-1])
+            if pattern.startswith('(') and pattern.endswith(')'):
+                sub_pat = pattern[1:-1]
+                if pattern.endswith('|)'):
+                    new_pattern = '(?P<{}>{})'.format(name, sub_pat)
+                else:
+                    try:
+                        re.compile(sub_pat)
+                        cls._variable.pattern = sub_pat
+                        new_pattern = '(?P<{}>{})'.format(name, sub_pat)
+                    except Exception as ex:     # noqa
+                        new_pattern = '(?P<{}>{})'.format(name, pattern)
             else:
                 new_pattern = '(?P<{}>{})'.format(name, pattern)
             return new_pattern
