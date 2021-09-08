@@ -242,7 +242,6 @@ class Application:
     set_textarea(node, data, title='') -> None
     set_title(node=None, title='') -> None
     callback_file_open() -> None
-    callback_file_exit() -> None
     callback_help_documentation() -> None
     callback_help_view_licenses() -> None
     callback_help_about() -> None
@@ -525,10 +524,6 @@ class Application:
         btitle = self._base_title
         title = '{} - {}'.format(title, btitle) if title else btitle
         node.title(title)
-
-    def callback_file_exit(self):
-        """Callback for Menu File > Exit."""
-        self.root.quit()
 
     def callback_file_open(self):
         """Callback for Menu File > Open."""
@@ -928,7 +923,7 @@ class Application:
 
         file.add_command(label='Open', command=lambda: self.callback_file_open())
         file.add_separator()
-        file.add_command(label='Quit', command=lambda: self.callback_file_exit())
+        file.add_command(label='Quit', command=lambda: self.root.quit())
 
         preferences.add_command(
             label='Settings',
