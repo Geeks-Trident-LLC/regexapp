@@ -240,7 +240,7 @@ class Application:
     set_default_setting() -> None
     Application.get_textarea(node) -> str
     set_textarea(node, data, title='') -> None
-    set_title(node=None, title='') -> None
+    set_title(widget=None, title='') -> None
     callback_file_open() -> None
     callback_help_documentation() -> None
     callback_help_view_licenses() -> None
@@ -512,18 +512,18 @@ class Application:
         node.delete("1.0", "end")
         node.insert(tk.INSERT, data)
 
-    def set_title(self, node=None, title=''):
-        """Set a new title for tkinter component.
+    def set_title(self, widget=None, title=''):
+        """Set a new title for tkinter widget.
 
         Parameters
         ----------
-        node (tkinter): a tkinter component.
+        widget (tkinter): a tkinter widget.
         title (str): a title.  Default is empty.
         """
-        node = node or self.root
+        widget = widget or self.root
         btitle = self._base_title
         title = '{} - {}'.format(title, btitle) if title else btitle
-        node.title(title)
+        widget.title(title)
 
     def callback_file_open(self):
         """Callback for Menu File > Open."""
@@ -564,7 +564,7 @@ class Application:
             self.browser.open_new_tab(url_lbl.link)
 
         about = tk.Toplevel(self.root)
-        self.set_title(node=about, title='About')
+        self.set_title(widget=about, title='About')
         width, height = 440, 400
         x, y = get_relative_center_location(self.root, width, height)
         about.geometry('{}x{}+{}+{}'.format(width, height, x, y))
@@ -633,7 +633,7 @@ class Application:
         """Callback for Menu Preferences > Settings"""
 
         settings = tk.Toplevel(self.root)
-        self.set_title(node=settings, title='Settings')
+        self.set_title(widget=settings, title='Settings')
         width = 544 if self.is_macos else 500 if self.is_linux else 392
         height = 320
         x, y = get_relative_center_location(self.root, width, height)
@@ -742,7 +742,7 @@ class Application:
         """Callback for Menu Preferences > System References"""
 
         sys_ref = tk.Toplevel(self.root)
-        self.set_title(node=sys_ref, title='System References')
+        self.set_title(widget=sys_ref, title='System References')
         width, height = 600, 500
         x, y = get_relative_center_location(self.root, width, height)
         sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
@@ -848,7 +848,7 @@ class Application:
 
         user_ref = tk.Toplevel(self.root)
         # user_ref.bind("<FocusOut>", lambda event: user_ref.destroy())
-        self.set_title(node=user_ref, title='User References ({})'.format(fn))
+        self.set_title(widget=user_ref, title='User References ({})'.format(fn))
         width, height = 600, 500
         x, y = get_relative_center_location(self.root, width, height)
         user_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
