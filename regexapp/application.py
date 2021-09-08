@@ -30,7 +30,7 @@ def get_relative_center_location(parent, width, height):
 
     Parameters
     ----------
-    parent (tkinter): tkinter component instance.
+    parent (tkinter): tkinter widget instance.
     width (int): a width of a child window.
     height (int): a height of a child window..
 
@@ -180,10 +180,10 @@ class Application:
     root (tkinter.Tk): a top tkinter app.
 
     panedwindow (ttk.Panedwindow): a panedwindow for main layout.
-    text_frame (ttk.Frame): a frame to contain test data component.
+    text_frame (ttk.Frame): a frame to contain test data widget.
     entry_frame (ttk.Frame): a frame to contain any action button such as
             open, paste, build, snippet, unittest, pytest, ...
-    result_frame (ttk.Frame): a frame to contain test result component.
+    result_frame (ttk.Frame): a frame to contain test result widget.
     var_name_frame (ttk.Frame): a frame to contain var_name textbox
     word_bound_frame (ttk.Frame): a frame to contain word_bound combobox
     save_as_btn (ttk.Button): a Save As button.
@@ -222,8 +222,8 @@ class Application:
     new_pattern_name_var (tk.StringVar): a variable for creating new pattern
             reference.  Default is empty string.
 
-    textarea (tk.Text): a TextArea component for test data.
-    result_textarea (tk.Text): a TextArea component for test result.
+    input textarea (tk.Text): a TextArea widget for test data.
+    result_textarea (tk.Text): a TextArea widget for test result.
     line_radio_btn (tk.RadioButton): a selection for enabling LinePattern.
     multiline_radio_btn (tk.RadioButton): a selection for enabling MultilinePattern.
 
@@ -264,7 +264,7 @@ class Application:
         self.is_linux = platform.system() == 'Linux'
         self.is_window = platform.system() == 'Windows'
 
-        # standardize tkinter component for macOS, Linux, and Window operating system
+        # standardize tkinter widget for macOS, Linux, and Window operating system
         self.RadioButton = tk.Radiobutton if self.is_linux else ttk.Radiobutton
         self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
         self.Label = ttk.Label
@@ -282,13 +282,13 @@ class Application:
         self.root.minsize(200, 200)
         self.root.option_add('*tearOff', False)
 
-        # tkinter components for main layout
+        # tkinter widgets for main layout
         self.panedwindow = None
         self.text_frame = None
         self.entry_frame = None
         self.result_frame = None
 
-        self.textarea = None
+        self.input_textarea = None
         self.result_textarea = None
         self.line_radio_btn = None
         self.multiline_radio_btn = None
@@ -300,7 +300,7 @@ class Application:
         self.pytest_btn = None
         self.test_data_btn = None
 
-        # tkinter components for builder app
+        # tkinter widgets for builder app
         self.var_name_frame = None
         self.word_bound_frame = None
 
@@ -376,7 +376,7 @@ class Application:
             result = self.is_confirmed
 
         if result is not None:
-            data = self.get_textarea(self.textarea)
+            data = self.get_textarea(self.input_textarea)
             result = self.get_textarea(self.result_textarea)
             self.snapshot.update(
                 regex_builder_app_data=data,
@@ -385,7 +385,7 @@ class Application:
             data = self.snapshot.get('pattern_builder_app_data', '')
             result = self.snapshot.get('pattern_builder_app_result', '')
 
-            self.set_textarea(self.textarea, data)
+            self.set_textarea(self.input_textarea, data)
             self.set_textarea(self.result_textarea, result)
 
             self.line_radio_btn.grid_remove()
@@ -417,7 +417,7 @@ class Application:
             result = self.is_confirmed
 
         if result is not None:
-            data = self.get_textarea(self.textarea)
+            data = self.get_textarea(self.input_textarea)
             result = self.get_textarea(self.result_textarea)
             self.snapshot.update(
                 pattern_builder_app_data=data,
@@ -426,7 +426,7 @@ class Application:
             data = self.snapshot.get('regex_builder_app_data', '')
             result = self.snapshot.get('regex_builder_app_result', '')
 
-            self.set_textarea(self.textarea, data)
+            self.set_textarea(self.input_textarea, data)
             self.set_textarea(self.result_textarea, result)
 
             self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
@@ -480,13 +480,13 @@ class Application:
 
     @classmethod
     def get_textarea(cls, node):
-        """Get data from TextArea component
+        """Get data from TextArea widget
         Parameters
         ----------
-        node (tk.Text): a tk.Text component
+        node (tk.Text): a tk.Text widget
         Returns
         -------
-        str: a text from TextArea component
+        str: a text from TextArea widget
         """
         text = node.get('1.0', 'end')
         last_char = text[-1]
@@ -499,10 +499,10 @@ class Application:
             return text
 
     def set_textarea(self, node, data, title=''):
-        """set data for TextArea component
+        """set data for TextArea widget
         Parameters
         ----------
-        node (tk.Text): a tk.Text component
+        node (tk.Text): a tk.Text widget
         data (any): a data
         title (str): a title of window
         """
@@ -540,7 +540,7 @@ class Application:
                     self.test_data_btn_var.set('Test Data')
                     self.set_textarea(self.result_textarea, '')
                     self.snapshot.update(test_data=content)
-                self.set_textarea(self.textarea, content, title=filename)
+                self.set_textarea(self.input_textarea, content, title=filename)
 
     def callback_help_documentation(self):
         """Callback for Menu Help > Getting Started."""
@@ -970,24 +970,24 @@ class Application:
 
         self.text_frame.rowconfigure(0, weight=1)
         self.text_frame.columnconfigure(0, weight=1)
-        self.textarea = self.TextArea(self.text_frame, width=20, height=5, wrap='none')
-        self.textarea.grid(row=0, column=0, sticky='nswe')
+        self.input_textarea = self.TextArea(self.text_frame, width=20, height=5, wrap='none')
+        self.input_textarea.grid(row=0, column=0, sticky='nswe')
         vscrollbar = ttk.Scrollbar(
-            self.text_frame, orient=tk.VERTICAL, command=self.textarea.yview
+            self.text_frame, orient=tk.VERTICAL, command=self.input_textarea.yview
         )
         vscrollbar.grid(row=0, column=1, sticky='ns')
         hscrollbar = ttk.Scrollbar(
-            self.text_frame, orient=tk.HORIZONTAL, command=self.textarea.xview
+            self.text_frame, orient=tk.HORIZONTAL, command=self.input_textarea.xview
         )
         hscrollbar.grid(row=1, column=0, sticky='ew')
-        self.textarea.config(
+        self.input_textarea.config(
             yscrollcommand=vscrollbar.set, xscrollcommand=hscrollbar.set
         )
 
     def build_entry(self):
         """Build input entry for regex GUI."""
         def callback_build_btn():
-            user_data = Application.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.input_textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
@@ -1041,7 +1041,7 @@ class Application:
                     stream.write(content)
 
         def callback_clear_text_btn():
-            self.textarea.delete("1.0", "end")
+            self.input_textarea.delete("1.0", "end")
             self.result_textarea.delete("1.0", "end")
             self.save_as_btn.config(state=tk.DISABLED)
             self.copy_text_btn.config(state=tk.DISABLED)
@@ -1071,7 +1071,7 @@ class Application:
                     self.snapshot.update(test_data=data)
 
                 title = '<<PASTE - Clipboard>>'
-                self.set_textarea(self.textarea, data, title=title)
+                self.set_textarea(self.input_textarea, data, title=title)
             except Exception as ex:     # noqa
                 create_msgbox(
                     title='Empty Clipboard',
@@ -1088,7 +1088,7 @@ class Application:
                 )
                 return
 
-            user_data = Application.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.input_textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
@@ -1124,7 +1124,7 @@ class Application:
                 )
                 return
 
-            user_data = Application.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.input_textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
@@ -1160,7 +1160,7 @@ class Application:
                 )
                 return
 
-            user_data = Application.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.input_textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
