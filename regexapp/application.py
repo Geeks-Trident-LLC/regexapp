@@ -582,9 +582,8 @@ class Application:
         frame = self.Frame(paned_window, width=450, height=20)
         paned_window.add(frame, weight=4)
 
-        fmt = 'RegexApp v{} ({} Edition)'
         self.create_custom_label(
-            frame, text=fmt.format(version, edition),
+            frame, text=Data.main_app_text,
             increased_size=2, bold=True
         ).grid(row=0, column=0, columnspan=2, sticky=tk.W)
 
