@@ -354,6 +354,7 @@ class TextPattern(str):
     Parameters
     ----------
     text (str): a text.
+    as_is (bool): keeping text an AS-IS pattern.
 
     Properties
     ----------
@@ -369,15 +370,19 @@ class TextPattern(str):
     ------
     TextPatternError: raise an exception if pattern is invalid.
     """
-    def __new__(cls, text):
+    def __new__(cls, text, as_is=False):
         data = str(text)
+
+        if as_is:
+            return str.__new__(cls, data)
+
         if data:
             text_pattern = cls.get_pattern(data)
         else:
             text_pattern = ''
         return str.__new__(cls, text_pattern)
 
-    def __init__(self, text):
+    def __init__(self, text, as_is=False):
         self.text = text
 
     @property
@@ -504,6 +509,7 @@ class ElementPattern(str):
     Parameters
     ----------
     text (str): a text.
+    as_is (bool): keeping text an AS-IS pattern.
 
     Methods
     -------
@@ -528,10 +534,14 @@ class ElementPattern(str):
     ------
     ElementPatternError: raise an exception if pattern is invalid.
     """
-    def __new__(cls, text):
+    def __new__(cls, text, as_is=False):
         cls._variable = VarCls()
         cls._or_empty = False
         data = str(text)
+
+        if as_is:
+            return str.__new__(cls, data)
+
         if data:
             pattern = cls.get_pattern(data)
         else:
