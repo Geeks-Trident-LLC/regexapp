@@ -134,6 +134,7 @@ class PatternReference(dict):
     user_ref_loc = str(PurePath(Path.home(), '.regexapp', 'user_references.yaml'))
 
     def __init__(self):
+        super().__init__()
         self.load_reference(self.sys_ref_loc)
         self.load_reference(self.user_ref_loc)
         self.test_result = ''
@@ -384,24 +385,25 @@ class TextPattern(str):
 
     def __init__(self, text, as_is=False):
         self.text = text
+        self.as_is = as_is
 
     @property
     def is_empty(self):
         if self == '':
             return True
         else:
-            result = re.match(self, '')
+            result = re.match(self, '')     # noqa
             return bool(result)
 
     @property
     def is_empty_or_whitespace(self):
         is_empty = self.is_empty
-        is_ws = bool(re.match(self, ' '))
+        is_ws = bool(re.match(self, ' '))   # noqa
         return is_empty or is_ws
 
     @property
     def is_whitespace(self):
-        is_ws = bool(re.match(self, ' '))
+        is_ws = bool(re.match(self, ' '))   # noqa
         return is_ws
 
     @classmethod
@@ -548,7 +550,9 @@ class ElementPattern(str):
             pattern = ''
         return str.__new__(cls, pattern)
 
-    def __init__(self, text):
+    def __init__(self, text, as_is=False):
+        self.text = text
+        self.as_is = as_is
         self.variable = self._variable
         self.or_empty = self._or_empty
 
@@ -690,7 +694,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')
+                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -787,7 +791,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')
+                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -864,7 +868,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')
+                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -941,7 +945,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')
+                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1100,8 +1104,8 @@ class ElementPattern(str):
         str: new pattern with variable name.
         """
         if name:
-            cls._variable.name = name
-            cls._variable.pattern = pattern
+            cls._variable.name = name       # noqa
+            cls._variable.pattern = pattern     # noqa
             if pattern.startswith('(') and pattern.endswith(')'):
                 sub_pat = pattern[1:-1]
                 if pattern.endswith('|)'):
@@ -1109,7 +1113,7 @@ class ElementPattern(str):
                 else:
                     try:
                         re.compile(sub_pat)
-                        cls._variable.pattern = sub_pat
+                        cls._variable.pattern = sub_pat     # noqa
                         new_pattern = '(?P<{}>{})'.format(name, sub_pat)
                     except Exception as ex:     # noqa
                         new_pattern = '(?P<{}>{})'.format(name, pattern)
@@ -1416,6 +1420,11 @@ class LinePattern(str):
     def __init__(self, text,
                  prepended_ws=False, appended_ws=False,
                  ignore_case=False):
+        self.text = text
+        self.prepended_ws = prepended_ws
+        self.appended_ws = appended_ws
+        self.ignore_case = ignore_case
+
         self.variables = self._variables
         self.items = self._items
 
@@ -1470,12 +1479,12 @@ class LinePattern(str):
                 lst.append(TextPattern(pre_match))
             elm_pat = ElementPattern(m.group())
             if not elm_pat.variable.is_empty:
-                cls._variables.append(elm_pat.variable)
+                cls._variables.append(elm_pat.variable)     # noqa
             lst.append(elm_pat)
             start = m.end()
         else:
             if start:
-                after_match = m.string[start:]
+                after_match = m.string[start:]      # noqa
                 if after_match:
                     lst.append(TextPattern(after_match))
 
