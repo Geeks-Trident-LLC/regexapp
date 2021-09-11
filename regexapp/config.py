@@ -3,6 +3,9 @@
 from os import path
 from textwrap import dedent
 
+from pathlib import Path
+from pathlib import PurePath
+
 import yaml
 
 __version__ = '0.2.2'
@@ -18,6 +21,17 @@ __all__ = [
 
 
 class Data:
+    # app yaml files
+    system_reference_filename = str(
+        PurePath(Path(__file__).parent, 'system_references.yaml')
+    )
+    symbol_reference_filename = str(
+        PurePath(Path(__file__).parent, 'symbols.yaml')
+    )
+    user_reference_filename = str(
+        PurePath(Path.home(), '.regexapp', 'user_references.yaml')
+    )
+
     # main app
     main_app_text = 'RegexApp {} ({} Edition)'.format(version, edition)
 
