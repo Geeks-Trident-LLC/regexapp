@@ -676,7 +676,7 @@ class Application:
         pady = 0 if self.is_macos else 3
 
         self.Label(
-            lframe_args, text='max_words'
+            lframe_args, text='Max Words'
         ).grid(row=1, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
 
         self.TextBox(
@@ -684,7 +684,7 @@ class Application:
         ).grid(row=1, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
         self.Label(
-            lframe_args, text='test_name'
+            lframe_args, text='Test Name'
         ).grid(row=2, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -692,7 +692,7 @@ class Application:
         ).grid(row=2, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='test_cls_name'
+            lframe_args, text='Class Name'
         ).grid(row=3, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -700,7 +700,7 @@ class Application:
         ).grid(row=3, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='filename'
+            lframe_args, text='Filename'
         ).grid(row=4, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -708,7 +708,7 @@ class Application:
         ).grid(row=4, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='author'
+            lframe_args, text='Author'
         ).grid(row=5, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -716,7 +716,7 @@ class Application:
         ).grid(row=5, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='email'
+            lframe_args, text='Email'
         ).grid(row=6, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -724,7 +724,7 @@ class Application:
         ).grid(row=6, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='company'
+            lframe_args, text='Company'
         ).grid(row=7, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -749,11 +749,17 @@ class Application:
 
         set_modal_dialog(settings)
 
-    def callback_preferences_system_reference(self):
-        """Callback for Menu Preferences > System References"""
+    def do_show_system_references_or_symbol_references(self, title='', filename=''):
+        """Show dialog for Menu Preferences > System References or
+        Menu Preferences > Symbol References
 
+        Parameters
+        ----------
+        title (str): a title of dialog.
+        filename (str): a file name.
+        """
         sys_ref = tk.Toplevel(self.root)
-        self.set_title(widget=sys_ref, title='System References')
+        self.set_title(widget=sys_ref, title=title)
         width, height = 600, 500
         x, y = get_relative_center_location(self.root, width, height)
         sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
@@ -773,7 +779,7 @@ class Application:
         text_frame.columnconfigure(0, weight=1)
 
         textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
-        with open(REF.sys_ref_loc) as stream:
+        with open(filename) as stream:
             content = stream.read()
             self.set_textarea(textarea, content)
 
@@ -798,10 +804,24 @@ class Application:
 
         set_modal_dialog(sys_ref)
 
+    def callback_preferences_system_reference(self):
+        """Callback for Menu Preferences > System References"""
+        self.do_show_system_references_or_symbol_references(
+            title="System References",
+            filename=Data.system_reference_filename
+        )
+
+    def callback_preferences_symbol_reference(self):
+        """Callback for Menu Preferences > System References"""
+        self.do_show_system_references_or_symbol_references(
+            title="Symbol References",
+            filename=Data.symbol_reference_filename
+        )
+
     def callback_preferences_user_reference(self):
         """Callback for Menu Preferences > User References"""
         def save(node):
-            fn_ = REF.user_ref_loc
+            fn_ = Data.user_reference_filename
             origin_content = open(fn_).read()
             new_content = node.get('1.0', 'end')
             if new_content.strip() == origin_content.strip():
@@ -846,7 +866,7 @@ class Application:
             node.delete("1.0", "end")
             node.insert(tk.INSERT, new_content_)
 
-        fn = REF.user_ref_loc
+        fn = Data.user_reference_filename
         file_obj = Path(fn)
         if not file_obj.exists():
             question = '{!r} IS NOT EXISTED.\nDo you want to create?'.format(fn)
@@ -880,7 +900,7 @@ class Application:
 
         textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
 
-        with open(REF.user_ref_loc) as stream:
+        with open(Data.user_reference_filename) as stream:
             content = stream.read()
             self.set_textarea(textarea, content)
 
@@ -944,6 +964,10 @@ class Application:
         preferences.add_command(
             label='System References',
             command=lambda: self.callback_preferences_system_reference()
+        )
+        preferences.add_command(
+            label='Symbol References',
+            command=lambda: self.callback_preferences_symbol_reference()
         )
         preferences.add_separator()
         preferences.add_command(
