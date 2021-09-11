@@ -214,6 +214,24 @@ mixed_phrase:
   negative test:
     the mixed phrase pattern can not match data: "email:"
 
+hexadecimal:
+  group: number
+  description: a pattern to match a hexadecimal.
+  pattern: "[0-9a-fA-F]"
+  positive test:
+    pattern match a hexadecimal: "5"
+  negative test:
+    the hexadecimal pattern can not match data: "x"
+
+hex:
+  group: number
+  description: a pattern to match a hexadecimal.
+  pattern: "[0-9a-fA-F]"
+  positive test:
+    pattern match a hexadecimal: "5"
+  negative test:
+    the hexadecimal pattern can not match data: "x"
+
 digit:
   group: number
   description: a pattern to match a single digit.
