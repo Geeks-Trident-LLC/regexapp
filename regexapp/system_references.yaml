@@ -1,3 +1,5 @@
+# version: 2021.09.10
+
 anything:
   group: character
   description: a pattern to match any character.
@@ -213,6 +215,42 @@ mixed_phrase:
     pattern match a mixed phrase: "email: abc@xyz.com"
   negative test:
     the mixed phrase pattern can not match data: "email:"
+
+hexadecimal:
+  group: number
+  description: a pattern to match a hexadecimal.
+  pattern: "[0-9a-fA-F]"
+  positive test:
+    pattern match a hexadecimal: "5"
+  negative test:
+    the hexadecimal pattern can not match data: "x"
+
+hex:
+  group: number
+  description: a pattern to match a hexadecimal.
+  pattern: "[0-9a-fA-F]"
+  positive test:
+    pattern match a hexadecimal: "5"
+  negative test:
+    the hexadecimal pattern can not match data: "x"
+
+octal:
+  group: number
+  description: a pattern to match an octal number.
+  pattern: "[0-7]"
+  positive test:
+    pattern match an octal number: "5"
+  negative test:
+    the octal pattern can not match data: "9"
+
+binary:
+  group: number
+  description: a pattern to match a binary number.
+  pattern: "[01]"
+  positive test:
+    pattern match a binary number: "0"
+  negative test:
+    the binary pattern can not match data: "2"
 
 digit:
   group: number
