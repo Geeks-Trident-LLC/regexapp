@@ -1238,12 +1238,9 @@ class ElementPattern(str):
 
         new_lst = lst[:]
         item = new_lst[0]
-        if ' ' in item or r'\s' in item:
-            if ' ' != item or r'\s' != item:
-                item = '(%s)' % item
 
-        if item.endswith('+') or item.endswith('*'):
-            item = '(%s)' % item
+        is_singular = ElementPattern.is_singular_pattern(item)
+        item = item if is_singular else '({})'.format(item)
 
         _, m, *last = repetition.split('_', 2)
         if last:
