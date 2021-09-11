@@ -232,6 +232,15 @@ hex:
   negative test:
     the hexadecimal pattern can not match data: "x"
 
+octal:
+  group: number
+  description: a pattern to match an octal number.
+  pattern: "[0-7]"
+  positive test:
+    pattern match an octal number: "5"
+  negative test:
+    the octal pattern can not match data: "9"
+
 digit:
   group: number
   description: a pattern to match a single digit.
