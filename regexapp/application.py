@@ -811,6 +811,13 @@ class Application:
             filename=Data.system_reference_filename
         )
 
+    def callback_preferences_symbol_reference(self):
+        """Callback for Menu Preferences > System References"""
+        self.do_show_system_references_or_symbol_references(
+            title="Symbol References",
+            filename=Data.symbol_reference_filename
+        )
+
     def callback_preferences_user_reference(self):
         """Callback for Menu Preferences > User References"""
         def save(node):
@@ -957,6 +964,10 @@ class Application:
         preferences.add_command(
             label='System References',
             command=lambda: self.callback_preferences_system_reference()
+        )
+        preferences.add_command(
+            label='Symbol References',
+            command=lambda: self.callback_preferences_symbol_reference()
         )
         preferences.add_separator()
         preferences.add_command(
