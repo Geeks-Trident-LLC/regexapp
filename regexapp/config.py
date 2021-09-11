@@ -26,7 +26,7 @@ class Data:
         PurePath(Path(__file__).parent, 'system_references.yaml')
     )
     symbol_reference_filename = str(
-        PurePath(Path(__file__).parent, 'symbols.yaml.yaml')
+        PurePath(Path(__file__).parent, 'symbols.yaml')
     )
     user_reference_filename = str(
         PurePath(Path.home(), '.regexapp', 'user_references.yaml')
