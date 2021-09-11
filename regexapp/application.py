@@ -749,11 +749,17 @@ class Application:
 
         set_modal_dialog(settings)
 
-    def callback_preferences_system_reference(self):
-        """Callback for Menu Preferences > System References"""
+    def do_show_system_references_or_symbol_references(self, title='', filename=''):
+        """Show dialog for Menu Preferences > System References or
+        Menu Preferences > Symbol References
 
+        Parameters
+        ----------
+        title (str): a title of dialog.
+        filename (str): a file name.
+        """
         sys_ref = tk.Toplevel(self.root)
-        self.set_title(widget=sys_ref, title='System References')
+        self.set_title(widget=sys_ref, title=title)
         width, height = 600, 500
         x, y = get_relative_center_location(self.root, width, height)
         sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
@@ -773,7 +779,7 @@ class Application:
         text_frame.columnconfigure(0, weight=1)
 
         textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
-        with open(REF.sys_ref_loc) as stream:
+        with open(filename) as stream:
             content = stream.read()
             self.set_textarea(textarea, content)
 
@@ -797,6 +803,13 @@ class Application:
                     ).pack(side=tk.RIGHT, padx=padx, pady=pady)
 
         set_modal_dialog(sys_ref)
+
+    def callback_preferences_system_reference(self):
+        """Callback for Menu Preferences > System References"""
+        self.do_show_system_references_or_symbol_references(
+            title="System References",
+            filename=REF.sys_ref_loc
+        )
 
     def callback_preferences_user_reference(self):
         """Callback for Menu Preferences > User References"""
