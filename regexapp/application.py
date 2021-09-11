@@ -808,7 +808,7 @@ class Application:
         """Callback for Menu Preferences > System References"""
         self.do_show_system_references_or_symbol_references(
             title="System References",
-            filename=REF.sys_ref_loc
+            filename=Data.system_reference_filename
         )
 
     def callback_preferences_user_reference(self):
