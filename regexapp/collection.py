@@ -655,6 +655,9 @@ class ElementPattern(str):
         head = ''
         tail = ''
         is_repeated = False
+        is_occurrence = False
+        occurrence_pat = (r'((\d+_or_\d+)|(\d+_or_more)|(at_(least|most)_\d+)'
+                          r'|\d+)(_phrase)?_occurrences?$')
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
@@ -676,9 +679,13 @@ class ElementPattern(str):
                 else:
                     tail = arg
             elif re.match(r'repetition_\d*(_\d*)?$', arg):
-                if not is_repeated:
+                if not is_repeated or not is_occurrence:
                     lst = cls.add_repetition(lst, repetition=arg)
                     is_repeated = True
+            elif re.match(occurrence_pat, arg):
+                if not is_repeated or not is_occurrence:
+                    lst = cls.add_occurrence(lst, occurrence=arg)
+                    is_occurrence = True
             elif re.match(r'^meta_data_\w+', arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
@@ -1241,6 +1248,119 @@ class ElementPattern(str):
         else:
             new_lst[0] = '%s{%s}' % (item, m)
         return new_lst
+
+    @classmethod
+    def add_occurrence(cls, lst, occurrence=''):
+        """insert regex occurrence for a first item of list
+
+        Parameters
+        ----------
+        lst (lst): a list of sub pattens
+        repetition (str): a occurrence expression.  Default is empty.
+
+        Returns
+        -------
+        list: a new list if repetition is required.
+        """
+        if not occurrence:
+            return lst
+
+        occurrence_pat = r'({})(?P<is_phrase>_phrase)?_occurrences?$'.format(
+            '|'.join([
+                r'((?P<fda>\d+)_or_(?P<lda>\d+))',
+                r'((?P<fdb>\d+)_or_(?P<ldb>more))',
+                r'(at_(?P<fdc>least|most)_(?P<ldc>\d+))',
+                r'(?P<fdd>\d+)'
+            ])
+        )
+
+        new_lst = lst[:]
+        m = re.match(occurrence_pat, occurrence)
+        is_phrase = bool(m.group('is_phrase'))
+
+        fda, lda = m.group('fda') or '', m.group('lda') or ''
+        fdb, ldb = m.group('fdb') or '', m.group('ldb') or ''
+        fdc, ldc = m.group('fdc') or '', m.group('ldc') or ''
+        fdd, ldd = m.group('fdd') or '', m.group('fdd') or ''
+
+        func = ElementPattern.add_case_occurrence
+
+        is_case_a = func(new_lst, fda, lda, is_phrase)
+        is_case_b = is_case_a or func(new_lst, fdb, ldb, is_phrase)
+        is_case_c = is_case_b or func(new_lst, fdc, ldc, is_phrase)
+        is_case_c or func(new_lst, fdd, ldd, is_phrase)
+
+        return new_lst
+
+    @classmethod
+    def add_case_occurrence(cls, lst, first, last, is_phrase):
+        """check if pattern is a singular pattern
+
+        Parameters
+        ----------
+        lst (str): a list.
+        first (str): a first digit or option of case.
+        last (str): a last digit or option of case.
+        is_phrase (bool): a flag for matching a group of occurrences.
+
+        Returns
+        -------
+        bool: True if occurrence happened, otherwise False.
+        """
+        if not first and not last:
+            return False
+
+        item = lst[0]
+        if is_phrase:
+            item = '{0}( {0})'.format(item)
+        else:
+            is_singular = ElementPattern.is_singular_pattern(item)
+            item = item if is_singular else '({})'.format(item)
+
+        first = int(first) if first.isdigit() else first
+        last = int(last) if last.isdigit() else last
+
+        if first == 'least' or first == 'most':
+            if last == 0:
+                fmt = '%s*' if first == 'least' else '%s?'
+            else:
+                fmt = '%%s{%s,}' if first == 'least' else '%%s{,%s}'
+                fmt = fmt % last
+        elif last == 'more':
+            fmt = '%s*' if first == 0 else '%s+' if first == 1 else '%%s{%s,}' % first
+        elif first == last:
+            fmt = '%s' if first == 1 else '%%s{%s}' % first if first else '%s?'
+        else:
+            first, last = min(first, last), max(first, last)
+            fmt = '%s?' if first == 0 and last == 1 else '%%s{%s,%s}' % (first, last)
+
+        if fmt:
+            lst[0] = fmt % item
+            return True
+        else:
+            return False
+
+    @classmethod
+    def is_singular_pattern(cls, pattern):
+        """check if pattern is a singular pattern
+
+        Parameters
+        ----------
+        pattern (str): a pattern.
+
+        Returns
+        -------
+        bool: True if pattern is a singular pattern, otherwise False.
+        """
+        left_bracket, right_bracket = '[', ']'
+        pattern = str(pattern)
+        first, last = pattern[:1], pattern[-1:]
+        total = len(pattern)
+        is_singular = total <= 1
+        is_escape = total == 2 and first == '\\'
+        is_char_set = pattern.count(first) == 1 and first == left_bracket
+        is_char_set &= pattern.count(last) == 1 and last == right_bracket
+        return is_singular or is_escape or is_char_set
 
 
 class LinePattern(str):
