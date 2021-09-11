@@ -27,7 +27,6 @@ equal_sign: "="
 equal: "="
 
 hyphen: "-"
-hyphen_minus: "-"
 minus: "-"
 minus_sign: "-"
 
@@ -82,8 +81,16 @@ grave_accent: "`"
 backtick: "`"
 
 space: " "
+non_space: "[^ ]"
+
+whitespace: "\\s"
+non_whitespace: "\\S"
 
 hex: "[0-9a-fA-F]"
 hexadecimal: "[0-9a-fA-F]"
 octal: "[0-7]"
 binary: "[01]"
+
+letter: "[a-zA-Z]"
+digit: "[0-9]"
+alphanum: "[0-9a-zA-Z]"
