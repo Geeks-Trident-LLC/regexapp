@@ -182,6 +182,16 @@ class TestElementPattern:
             ('data(->)', '->'),
             ('data(->, or_empty)', '(->|)'),
             ####################################################################
+            # symbol keyword test                                              #
+            ####################################################################
+            ('symbol(name=hyphen)', '-'),
+            ('symbol(name=hyphen, 3_or_more_occurrence)', '-{3,}'),
+            ('symbol(name=question_mark, 3_or_more_occurrence)', '\\?{3,}'),
+            ('symbol(name=hexadecimal, 1_or_2_occurrence)', '[0-9a-fA-F]{1,2}'),
+            ('symbol(var_v1, name=hexadecimal, 1_or_2_occurrence)', '(?P<v1>[0-9a-fA-F]{1,2})'),
+            ('symbol(var_v1, name=hex, 1_or_2_occurrence, word_bound)', '(?P<v1>\\b[0-9a-fA-F]{1,2}\\b)'),
+            ('symbol(var_v1, name=hex, 1_or_2_occurrence, word_bound, N/A)', '(?P<v1>\\b([0-9a-fA-F]{1,2}|N/A)\\b)'),
+            ####################################################################
             # start keyword test                                               #
             ####################################################################
             ('start()', '^'),
