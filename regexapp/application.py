@@ -814,7 +814,7 @@ class Application:
     def callback_preferences_user_reference(self):
         """Callback for Menu Preferences > User References"""
         def save(node):
-            fn_ = REF.user_ref_loc
+            fn_ = Data.user_reference_filename
             origin_content = open(fn_).read()
             new_content = node.get('1.0', 'end')
             if new_content.strip() == origin_content.strip():
@@ -859,7 +859,7 @@ class Application:
             node.delete("1.0", "end")
             node.insert(tk.INSERT, new_content_)
 
-        fn = REF.user_ref_loc
+        fn = Data.user_reference_filename
         file_obj = Path(fn)
         if not file_obj.exists():
             question = '{!r} IS NOT EXISTED.\nDo you want to create?'.format(fn)
@@ -893,7 +893,7 @@ class Application:
 
         textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
 
-        with open(REF.user_ref_loc) as stream:
+        with open(Data.user_reference_filename) as stream:
             content = stream.read()
             self.set_textarea(textarea, content)
 
