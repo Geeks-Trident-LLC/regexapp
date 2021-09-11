@@ -1384,11 +1384,11 @@ class ElementPattern(str):
         Parameters
         ----------
         lst (lst): a list of sub pattens
-        repetition (str): a occurrence expression.  Default is empty.
+        occurrence (str): a occurrence expression.  Default is empty.
 
         Returns
         -------
-        list: a new list if repetition is required.
+        list: a new list if occurrence is happened.
         """
         if not occurrence:
             return lst
