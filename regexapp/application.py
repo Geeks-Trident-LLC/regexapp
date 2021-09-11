@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
-from os import path
+from tkinter.font import Font
 from pathlib import Path
 import webbrowser
 from textwrap import dedent
@@ -15,6 +15,8 @@ from regexapp import version
 from regexapp import edition
 from regexapp.core import enclose_string
 from regexapp import PatternBuilder
+
+from regexapp.config import Data
 
 import yaml
 import re
@@ -30,7 +32,7 @@ def get_relative_center_location(parent, width, height):
 
     Parameters
     ----------
-    parent (tkinter): tkinter component instance.
+    parent (tkinter): tkinter widget instance.
     width (int): a width of a child window.
     height (int): a height of a child window..
 
@@ -112,51 +114,6 @@ def set_modal_dialog(dialog):
     dialog.wait_window()
 
 
-class Data:
-    license_name = 'BSD 3-Clause License'
-    repo_url = 'https://github.com/Geeks-Trident-LLC/regexapp'
-    license_url = path.join(repo_url, 'blob/main/LICENSE')
-    # TODO: Need to update wiki page for documentation_url instead of README.md.
-    documentation_url = path.join(repo_url, 'blob/develop/README.md')
-    copyright_text = 'Copyright @ 2021-2030 Geeks Trident LLC.  All rights reserved.'
-
-    @classmethod
-    def get_license(cls):
-        license_ = """
-            BSD 3-Clause License
-
-            Copyright (c) 2021, Geeks Trident LLC
-            All rights reserved.
-
-            Redistribution and use in source and binary forms, with or without
-            modification, are permitted provided that the following conditions are met:
-
-            1. Redistributions of source code must retain the above copyright notice, this
-               list of conditions and the following disclaimer.
-
-            2. Redistributions in binary form must reproduce the above copyright notice,
-               this list of conditions and the following disclaimer in the documentation
-               and/or other materials provided with the distribution.
-
-            3. Neither the name of the copyright holder nor the names of its
-               contributors may be used to endorse or promote products derived from
-               this software without specific prior written permission.
-
-            THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-            AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-            IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-            DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-            FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-            DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-            SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-            CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-            OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-            OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        """
-        license_ = dedent(license_).strip()
-        return license_
-
-
 class Snapshot(dict):
     """Snapshot for storing data."""
     def __init__(self, *args, **kwargs):
@@ -180,10 +137,10 @@ class Application:
     root (tkinter.Tk): a top tkinter app.
 
     panedwindow (ttk.Panedwindow): a panedwindow for main layout.
-    text_frame (ttk.Frame): a frame to contain test data component.
+    text_frame (ttk.Frame): a frame to contain test data widget.
     entry_frame (ttk.Frame): a frame to contain any action button such as
             open, paste, build, snippet, unittest, pytest, ...
-    result_frame (ttk.Frame): a frame to contain test result component.
+    result_frame (ttk.Frame): a frame to contain test result widget.
     var_name_frame (ttk.Frame): a frame to contain var_name textbox
     word_bound_frame (ttk.Frame): a frame to contain word_bound combobox
     save_as_btn (ttk.Button): a Save As button.
@@ -222,8 +179,8 @@ class Application:
     new_pattern_name_var (tk.StringVar): a variable for creating new pattern
             reference.  Default is empty string.
 
-    textarea (tk.Text): a TextArea component for test data.
-    result_textarea (tk.Text): a TextArea component for test result.
+    input textarea (tk.Text): a TextArea widget for test data.
+    result_textarea (tk.Text): a TextArea widget for test result.
     line_radio_btn (tk.RadioButton): a selection for enabling LinePattern.
     multiline_radio_btn (tk.RadioButton): a selection for enabling MultilinePattern.
 
@@ -240,9 +197,8 @@ class Application:
     set_default_setting() -> None
     Application.get_textarea(node) -> str
     set_textarea(node, data, title='') -> None
-    set_title(node=None, title='') -> None
+    set_title(widget=None, title='') -> None
     callback_file_open() -> None
-    callback_file_exit() -> None
     callback_help_documentation() -> None
     callback_help_view_licenses() -> None
     callback_help_about() -> None
@@ -265,7 +221,7 @@ class Application:
         self.is_linux = platform.system() == 'Linux'
         self.is_window = platform.system() == 'Windows'
 
-        # standardize tkinter component for macOS, Linux, and Window operating system
+        # standardize tkinter widget for macOS, Linux, and Window operating system
         self.RadioButton = tk.Radiobutton if self.is_linux else ttk.Radiobutton
         self.CheckBox = tk.Checkbutton if self.is_linux else ttk.Checkbutton
         self.Label = ttk.Label
@@ -283,13 +239,13 @@ class Application:
         self.root.minsize(200, 200)
         self.root.option_add('*tearOff', False)
 
-        # tkinter components for main layout
+        # tkinter widgets for main layout
         self.panedwindow = None
         self.text_frame = None
         self.entry_frame = None
         self.result_frame = None
 
-        self.textarea = None
+        self.input_textarea = None
         self.result_textarea = None
         self.line_radio_btn = None
         self.multiline_radio_btn = None
@@ -301,7 +257,7 @@ class Application:
         self.pytest_btn = None
         self.test_data_btn = None
 
-        # tkinter components for builder app
+        # tkinter widgets for builder app
         self.var_name_frame = None
         self.word_bound_frame = None
 
@@ -377,7 +333,7 @@ class Application:
             result = self.is_confirmed
 
         if result is not None:
-            data = self.get_textarea(self.textarea)
+            data = self.get_textarea(self.input_textarea)
             result = self.get_textarea(self.result_textarea)
             self.snapshot.update(
                 regex_builder_app_data=data,
@@ -386,7 +342,7 @@ class Application:
             data = self.snapshot.get('pattern_builder_app_data', '')
             result = self.snapshot.get('pattern_builder_app_result', '')
 
-            self.set_textarea(self.textarea, data)
+            self.set_textarea(self.input_textarea, data)
             self.set_textarea(self.result_textarea, result)
 
             self.line_radio_btn.grid_remove()
@@ -418,7 +374,7 @@ class Application:
             result = self.is_confirmed
 
         if result is not None:
-            data = self.get_textarea(self.textarea)
+            data = self.get_textarea(self.input_textarea)
             result = self.get_textarea(self.result_textarea)
             self.snapshot.update(
                 pattern_builder_app_data=data,
@@ -427,7 +383,7 @@ class Application:
             data = self.snapshot.get('regex_builder_app_data', '')
             result = self.snapshot.get('regex_builder_app_result', '')
 
-            self.set_textarea(self.textarea, data)
+            self.set_textarea(self.input_textarea, data)
             self.set_textarea(self.result_textarea, result)
 
             self.line_radio_btn.grid(row=0, column=0, padx=(4, 0))
@@ -481,13 +437,13 @@ class Application:
 
     @classmethod
     def get_textarea(cls, node):
-        """Get data from TextArea component
+        """Get data from TextArea widget
         Parameters
         ----------
-        node (tk.Text): a tk.Text component
+        node (tk.Text): a tk.Text widget
         Returns
         -------
-        str: a text from TextArea component
+        str: a text from TextArea widget
         """
         text = node.get('1.0', 'end')
         last_char = text[-1]
@@ -500,10 +456,10 @@ class Application:
             return text
 
     def set_textarea(self, node, data, title=''):
-        """set data for TextArea component
+        """set data for TextArea widget
         Parameters
         ----------
-        node (tk.Text): a tk.Text component
+        node (tk.Text): a tk.Text widget
         data (any): a data
         title (str): a title of window
         """
@@ -513,22 +469,73 @@ class Application:
         node.delete("1.0", "end")
         node.insert(tk.INSERT, data)
 
-    def set_title(self, node=None, title=''):
-        """Set a new title for tkinter component.
+    def set_title(self, widget=None, title=''):
+        """Set a new title for tkinter widget.
 
         Parameters
         ----------
-        node (tkinter): a tkinter component.
+        widget (tkinter): a tkinter widget.
         title (str): a title.  Default is empty.
         """
-        node = node or self.root
+        widget = widget or self.root
         btitle = self._base_title
         title = '{} - {}'.format(title, btitle) if title else btitle
-        node.title(title)
+        widget.title(title)
 
-    def callback_file_exit(self):
-        """Callback for Menu File > Exit."""
-        self.root.quit()
+    def create_custom_label(self, parent, text='', link='',
+                            increased_size=0, bold=False, underline=False,
+                            italic=False):
+        """create custom label
+
+        Parameters
+        ----------
+        parent (tkinter): a parent of widget.
+        text (str): a text of widget.
+        link (str): a label hyperlink.
+        increased_size (int): a increased size for font.
+        bold (bool): True will set bold font.
+        underline (bool): True will set to underline font.
+        italic (bool): True will set to italic font.
+
+        Returns
+        -------
+        tkinter.Label: a label widget.
+        """
+
+        def mouse_over(event):
+            if 'underline' not in event.widget.font:
+                event.widget.configure(
+                    font=event.widget.font + ['underline'],
+                    cursor='hand2'
+                )
+
+        def mouse_out(event):
+            event.widget.config(
+                font=event.widget.font,
+                cursor='arrow'
+            )
+
+        def mouse_press(event):
+            self.browser.open_new_tab(event.widget.link)
+
+        style = ttk.Style()
+        style.configure("Blue.TLabel", foreground="blue")
+        if link:
+            label = self.Label(parent, text=text, style='Blue.TLabel')
+            label.bind('<Enter>', mouse_over)
+            label.bind('<Leave>', mouse_out)
+            label.bind('<Button-1>', mouse_press)
+        else:
+            label = self.Label(parent, text=text)
+        font = Font(name='TkDefaultFont', exists=True, root=label)
+        font = [font.cget('family'), font.cget('size') + increased_size]
+        bold and font.append('bold')
+        underline and font.append('underline')
+        italic and font.append('italic')
+        label.configure(font=font)
+        label.font = font
+        label.link = link
+        return label
 
     def callback_file_open(self):
         """Callback for Menu File > Open."""
@@ -545,7 +552,7 @@ class Application:
                     self.test_data_btn_var.set('Test Data')
                     self.set_textarea(self.result_textarea, '')
                     self.snapshot.update(test_data=content)
-                self.set_textarea(self.textarea, content, title=filename)
+                self.set_textarea(self.input_textarea, content, title=filename)
 
     def callback_help_documentation(self):
         """Callback for Menu Help > Getting Started."""
@@ -557,20 +564,10 @@ class Application:
 
     def callback_help_about(self):
         """Callback for Menu Help > About"""
-        def mouse_over(event):      # noqa
-            url_lbl.config(font=url_lbl.default_font + ('underline',))
-            url_lbl.config(cursor='hand2')
-
-        def mouse_out(event):       # noqa
-            url_lbl.config(font=url_lbl.default_font)
-            url_lbl.config(cursor='arrow')
-
-        def mouse_press(event):     # noqa
-            self.browser.open_new_tab(url_lbl.link)
 
         about = tk.Toplevel(self.root)
-        self.set_title(node=about, title='About')
-        width, height = 440, 400
+        self.set_title(widget=about, title='About')
+        width, height = 460, 460
         x, y = get_relative_center_location(self.root, width, height)
         about.geometry('{}x{}+{}+{}'.format(width, height, x, y))
         about.resizable(False, False)
@@ -578,59 +575,68 @@ class Application:
         top_frame = self.Frame(about)
         top_frame.pack(fill=tk.BOTH, expand=True)
 
-        panedwindow = self.PanedWindow(top_frame, orient=tk.VERTICAL)
-        panedwindow.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
+        paned_window = self.PanedWindow(top_frame, orient=tk.VERTICAL)
+        paned_window.pack(fill=tk.BOTH, expand=True, padx=8, pady=12)
 
         # company
-        frame = self.Frame(panedwindow, width=420, height=20)
-        panedwindow.add(frame, weight=1)
+        frame = self.Frame(paned_window, width=450, height=20)
+        paned_window.add(frame, weight=4)
 
-        fmt = 'Regex GUI v{} ({} Edition)'
-        company_lbl = self.Label(frame, text=fmt.format(version, edition))
-        company_lbl.pack(side=tk.LEFT)
+        self.create_custom_label(
+            frame, text=Data.main_app_text,
+            increased_size=2, bold=True
+        ).grid(row=0, column=0, columnspan=2, sticky=tk.W)
 
         # URL
-        frame = self.Frame(panedwindow, width=420, height=20)
-        panedwindow.add(frame, weight=1)
+        cell_frame = self.Frame(frame, width=450, height=5)
+        cell_frame.grid(row=1, column=0, sticky=tk.W, columnspan=2)
 
         url = Data.repo_url
-        self.Label(frame, text='URL:').pack(side=tk.LEFT)
-        font_size = 12 if self.is_macos else 10
-        style = ttk.Style()
-        style.configure("Blue.TLabel", foreground="blue")
-        url_lbl = self.Label(frame, text=url, font=('sans-serif', font_size))
-        url_lbl.config(style='Blue.TLabel')
-        url_lbl.default_font = ('sans-serif', font_size)
-        url_lbl.pack(side=tk.LEFT)
-        url_lbl.link = url
+        self.Label(cell_frame, text='URL:').pack(side=tk.LEFT)
 
-        url_lbl.bind('<Enter>', mouse_over)
-        url_lbl.bind('<Leave>', mouse_out)
-        url_lbl.bind('<Button-1>', mouse_press)
+        self.create_custom_label(
+            cell_frame, text=url, link=url
+        ).pack(side=tk.LEFT)
+
+        # dependencies
+        self.create_custom_label(
+            frame, text='Pypi.com Dependencies:', bold=True
+        ).grid(row=2, column=0, sticky=tk.W)
+
+        # PyYAML package
+        self.create_custom_label(
+            frame, text=Data.pyyaml_text,
+            link=Data.pyyaml_link
+        ).grid(row=3, column=0, padx=(20, 0), pady=(0, 10), sticky=tk.W)
 
         # license textbox
         lframe = self.LabelFrame(
-            panedwindow, height=300, width=420,
+            paned_window, height=200, width=450,
             text=Data.license_name
         )
-        panedwindow.add(lframe, weight=7)
+        paned_window.add(lframe, weight=7)
 
-        width = 55 if self.is_macos else 48
-        height = 19 if self.is_macos else 15 if self.is_linux else 16
+        width = 58 if self.is_macos else 51
+        height = 18 if self.is_macos else 14 if self.is_linux else 15
         txtbox = self.TextArea(lframe, width=width, height=height, wrap='word')
         txtbox.grid(row=0, column=0, padx=5, pady=5)
         scrollbar = ttk.Scrollbar(lframe, orient=tk.VERTICAL, command=txtbox.yview)
         scrollbar.grid(row=0, column=1, sticky='nsew')
         txtbox.config(yscrollcommand=scrollbar.set)
-        txtbox.insert(tk.INSERT, Data.get_license())
+        txtbox.insert(tk.INSERT, Data.license)
         txtbox.config(state=tk.DISABLED)
 
         # footer - copyright
-        frame = self.Frame(panedwindow, width=380, height=20)
-        panedwindow.add(frame, weight=1)
+        frame = self.Frame(paned_window, width=450, height=20)
+        paned_window.add(frame, weight=1)
 
-        footer = self.Label(frame, text=Data.copyright_text)
-        footer.pack(side=tk.LEFT)
+        self.Label(frame, text=Data.copyright_text).pack(side=tk.LEFT, pady=(10, 10))
+
+        self.create_custom_label(
+            frame, text=Data.company, link=Data.company_url
+        ).pack(side=tk.LEFT, pady=(10, 10))
+
+        self.Label(frame, text='.  All right reserved.').pack(side=tk.LEFT, pady=(10, 10))
 
         set_modal_dialog(about)
 
@@ -638,7 +644,7 @@ class Application:
         """Callback for Menu Preferences > Settings"""
 
         settings = tk.Toplevel(self.root)
-        self.set_title(node=settings, title='Settings')
+        self.set_title(widget=settings, title='Settings')
         width = 544 if self.is_macos else 500 if self.is_linux else 392
         height = 320
         x, y = get_relative_center_location(self.root, width, height)
@@ -747,7 +753,7 @@ class Application:
         """Callback for Menu Preferences > System References"""
 
         sys_ref = tk.Toplevel(self.root)
-        self.set_title(node=sys_ref, title='System References')
+        self.set_title(widget=sys_ref, title='System References')
         width, height = 600, 500
         x, y = get_relative_center_location(self.root, width, height)
         sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
@@ -853,7 +859,7 @@ class Application:
 
         user_ref = tk.Toplevel(self.root)
         # user_ref.bind("<FocusOut>", lambda event: user_ref.destroy())
-        self.set_title(node=user_ref, title='User References ({})'.format(fn))
+        self.set_title(widget=user_ref, title='User References ({})'.format(fn))
         width, height = 600, 500
         x, y = get_relative_center_location(self.root, width, height)
         user_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
@@ -928,7 +934,7 @@ class Application:
 
         file.add_command(label='Open', command=lambda: self.callback_file_open())
         file.add_separator()
-        file.add_command(label='Quit', command=lambda: self.callback_file_exit())
+        file.add_command(label='Quit', command=lambda: self.root.quit())
 
         preferences.add_command(
             label='Settings',
@@ -975,24 +981,24 @@ class Application:
 
         self.text_frame.rowconfigure(0, weight=1)
         self.text_frame.columnconfigure(0, weight=1)
-        self.textarea = self.TextArea(self.text_frame, width=20, height=5, wrap='none')
-        self.textarea.grid(row=0, column=0, sticky='nswe')
+        self.input_textarea = self.TextArea(self.text_frame, width=20, height=5, wrap='none')
+        self.input_textarea.grid(row=0, column=0, sticky='nswe')
         vscrollbar = ttk.Scrollbar(
-            self.text_frame, orient=tk.VERTICAL, command=self.textarea.yview
+            self.text_frame, orient=tk.VERTICAL, command=self.input_textarea.yview
         )
         vscrollbar.grid(row=0, column=1, sticky='ns')
         hscrollbar = ttk.Scrollbar(
-            self.text_frame, orient=tk.HORIZONTAL, command=self.textarea.xview
+            self.text_frame, orient=tk.HORIZONTAL, command=self.input_textarea.xview
         )
         hscrollbar.grid(row=1, column=0, sticky='ew')
-        self.textarea.config(
+        self.input_textarea.config(
             yscrollcommand=vscrollbar.set, xscrollcommand=hscrollbar.set
         )
 
     def build_entry(self):
         """Build input entry for regex GUI."""
         def callback_build_btn():
-            user_data = Application.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.input_textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
@@ -1046,7 +1052,7 @@ class Application:
                     stream.write(content)
 
         def callback_clear_text_btn():
-            self.textarea.delete("1.0", "end")
+            self.input_textarea.delete("1.0", "end")
             self.result_textarea.delete("1.0", "end")
             self.save_as_btn.config(state=tk.DISABLED)
             self.copy_text_btn.config(state=tk.DISABLED)
@@ -1076,7 +1082,7 @@ class Application:
                     self.snapshot.update(test_data=data)
 
                 title = '<<PASTE - Clipboard>>'
-                self.set_textarea(self.textarea, data, title=title)
+                self.set_textarea(self.input_textarea, data, title=title)
             except Exception as ex:     # noqa
                 create_msgbox(
                     title='Empty Clipboard',
@@ -1093,7 +1099,7 @@ class Application:
                 )
                 return
 
-            user_data = Application.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.input_textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
@@ -1129,7 +1135,7 @@ class Application:
                 )
                 return
 
-            user_data = Application.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.input_textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',
@@ -1165,7 +1171,7 @@ class Application:
                 )
                 return
 
-            user_data = Application.get_textarea(self.textarea)
+            user_data = Application.get_textarea(self.input_textarea)
             if not user_data:
                 create_msgbox(
                     title='Empty Data',

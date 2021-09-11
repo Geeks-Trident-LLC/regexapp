@@ -17,8 +17,8 @@ value99    N/A"""
 
 # list of regex pattern
 patterns = [
-    r"^(?P<v1>\w+( \w+)*) +(?P<v2>\w+( \w+)*)$",
-    r"^(?P<v3>\w+( \w+)*) +(?P<v4>(\d+)?[.]?\d+)$"
+    r"^(?P<v1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*) +(?P<v2>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)$",
+    r"^(?P<v3>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*) +(?P<v4>(\d+)?[.]?\d+)$"
 ]
 
 def test_regex(test_data, patterns):

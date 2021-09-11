@@ -1,38 +1,148 @@
+# version: 2021.09.10
+
+anything:
+  group: character
+  description: a pattern to match any character.
+  pattern: "."
+  positive test:
+    pattern matches any character: "a"
+
+everything:
+  group: character
+  description: a pattern to match all characters.
+  pattern: ".+"
+  positive test:
+    pattern match all characters: "abc"
+
+space:
+  group: tabulation
+  description: a pattern to match a blank space character.
+  pattern: " "
+  positive test:
+    pattern matches a blank space: " "
+  negative test:
+    the blank space pattern can not match data: "."
+
+spaces:
+  group: tabulation
+  description: a pattern to match multiple spaces.
+  pattern: " +"
+  positive test:
+    pattern match multiple blank space: "  "
+  negative test:
+    the multiple spaces pattern can not match data: "."
+
+non_space:
+  group: character
+  description: a pattern to match a non-blank space character.
+  pattern: "[^ ]"
+  positive test:
+    pattern matches a non-blank space: "\n"
+  negative test:
+    the non-blank space pattern can not match data: "a"
+
+non_spaces:
+  group: character
+  description: a pattern to match multiple non-blank space characters.
+  pattern: "[^ ]+"
+  positive test:
+    pattern match multiple non-blank spaces: "\n"
+  negative test:
+    the multiple non-blank space pattern can not match data: "a"
+
 ws:
-  group: word
+  group: tabulation
   description: a pattern to match a character divider such as space, tab, newline, and more.
   pattern: "\\s"
   positive test:
-    pattern matches a letter: " "
+    pattern matches white space: " "
   negative test:
-    the whitespace pattern can not match data: "."
+    the white space pattern can not match data: "."
 
-not_ws:
-  group: word
-  description: a pattern to match a character which is not a whitespace character.
+non_ws:
+  group: character
+  description: a pattern to match a character which is not a white space character.
   pattern: "\\S"
   positive test:
-    pattern matches a letter: "a"
+    pattern matches non-white space: "a"
   negative test:
-    the notwhitespace pattern can not match data: " "
+    the non-white space pattern can not match data: " "
 
 whitespace:
-  group: word
+  group: tabulation
   description: a pattern to match a word divider such as space, tab, newline, and more.
+  pattern: "\\s"
+  positive test:
+    pattern matches white space: " "
+  negative test:
+    the white space pattern can not match data: "."
+
+whitespaces:
+  group: tabulation
+  description: a pattern to match multiple word divider such as space, tab, newline, and more.
   pattern: "\\s+"
   positive test:
-    pattern matches a letter: " "
+    pattern match multiple white spaces: " "
   negative test:
-    the whitespace pattern can not match data: "."
+    the multiple white space pattern can not match data: "."
 
-not_whitespace:
-  group: word
-  description: a pattern to match any character which is not a whitespace character.
+non_whitespace:
+  group: character
+  description: a pattern to match any character which is not a white space character.
+  pattern: "\\S"
+  positive test:
+    pattern matches non-whitespace: "a"
+  negative test:
+    the non-white space pattern can not match data: " "
+
+non_whitespaces:
+  group: character
+  description: a pattern to match multiple characters which is not a white space character.
   pattern: "\\S+"
   positive test:
-    pattern matches a letter: "a"
+    pattern match multiple non-white space: "ab"
   negative test:
-    the notwhitespace pattern can not match data: " "
+    the multiple non-white space pattern can not match data: " "
+
+punctuation:
+  group: punctuation
+  description: a pattern to match a punctuation.
+  pattern: |-
+    [!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]
+  positive test:
+    pattern matches a punctuation: "."
+  negative test:
+    the punctuation pattern can not match data: "a"
+
+punctuations:
+  group: punctuation
+  description: a pattern to match multiple punctuation.
+  pattern: |-
+    [!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]+
+  positive test:
+    pattern match multiple punctuations: "."
+  negative test:
+    the punctuations pattern can not match data: "a"
+
+non_punctuation:
+  group: punctuation
+  description: a pattern to match a non-punctuation.
+  pattern: |-
+    [^!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]
+  positive test:
+    pattern matches a non-punctuation: "a"
+  negative test:
+    the non-punctuation pattern can not match data: "."
+
+non_punctuations:
+  group: punctuation
+  description: a pattern to match multiple non-punctuation.
+  pattern: |-
+    [^!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]+
+  positive test:
+    pattern match multiple non-punctuation: "a"
+  negative test:
+    the multiple non-punctuation pattern can not match data: "."
 
 letter:
   group: word
@@ -48,14 +158,14 @@ letters:
   description: a pattern to match letters.
   pattern: "[a-zA-Z]+"
   positive test:
-    pattern matches a letters: "abc"
+    pattern matches letters: "abc"
   negative test:
     the letters pattern can not match data: "..."
 
 word:
   group: word
   description: a pattern to match a word.
-  pattern: "\\w+"
+  pattern: "[a-zA-Z0-9]+"
   positive test:
     pattern matches a word: "abc"
   negative test:
@@ -64,7 +174,7 @@ word:
 words:
   group: word
   description: a pattern to match at least one word.
-  pattern: "\\w+( \\w+)*"
+  pattern: "[a-zA-Z0-9]+( [a-zA-Z0-9]+)*"
   positive test:
     pattern match words: "abc xyz"
   negative test:
@@ -91,7 +201,7 @@ mixed_words:
 phrase:
   group: word
   description: a pattern to match a phrase, i.e. at least two words.
-  pattern: "\\w+( \\w+)+"
+  pattern: "[a-zA-Z0-9]+( [a-zA-Z0-9]+)+"
   positive test:
     pattern match a pharse: "abc xyz"
   negative test:
@@ -105,6 +215,42 @@ mixed_phrase:
     pattern match a mixed phrase: "email: abc@xyz.com"
   negative test:
     the mixed phrase pattern can not match data: "email:"
+
+hexadecimal:
+  group: number
+  description: a pattern to match a hexadecimal.
+  pattern: "[0-9a-fA-F]"
+  positive test:
+    pattern match a hexadecimal: "5"
+  negative test:
+    the hexadecimal pattern can not match data: "x"
+
+hex:
+  group: number
+  description: a pattern to match a hexadecimal.
+  pattern: "[0-9a-fA-F]"
+  positive test:
+    pattern match a hexadecimal: "5"
+  negative test:
+    the hexadecimal pattern can not match data: "x"
+
+octal:
+  group: number
+  description: a pattern to match an octal number.
+  pattern: "[0-7]"
+  positive test:
+    pattern match an octal number: "5"
+  negative test:
+    the octal pattern can not match data: "9"
+
+binary:
+  group: number
+  description: a pattern to match a binary number.
+  pattern: "[01]"
+  positive test:
+    pattern match a binary number: "0"
+  negative test:
+    the binary pattern can not match data: "2"
 
 digit:
   group: number
