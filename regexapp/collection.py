@@ -346,7 +346,25 @@ class PatternReference(dict):
         return True
 
 
+class SymbolCls(dict):
+    """Use to load symbols.yaml
+
+    Attribute
+    ---------
+    filename (str): a system references file name.
+    """
+
+    filename = str(PurePath(Path(__file__).parent, 'symbols.yaml'))
+
+    def __init__(self):
+        stream = open(self.filename)
+        obj = yaml.load(stream, Loader=yaml.SafeLoader)
+        super().__init__(obj)
+
+
 REF = PatternReference()
+
+SYMBOL = SymbolCls()
 
 
 class TextPattern(str):
@@ -613,6 +631,10 @@ class ElementPattern(str):
         if is_built:
             return end_pattern
 
+        is_built, symbol_pattern = cls.build_symbol_pattern(keyword, params)
+        if is_built:
+            return symbol_pattern
+
         is_built, datetime_pattern = cls.build_datetime_pattern(keyword, params)
         if is_built:
             return datetime_pattern
@@ -695,6 +717,111 @@ class ElementPattern(str):
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
                     cls._variable.option = arg.lstrip('meta_data_')     # noqa
+            else:
+                match = re.match(or_pat, arg, flags=re.I)
+                if match:
+                    case = match.group('case')
+                    if case == 'empty':
+                        is_empty = True
+                        cls._or_empty = is_empty
+                    else:
+                        if case in REF:
+                            pat = REF.get(case).get('pattern')
+                            pat not in lst and lst.append(pat)
+                        else:
+                            pat = case
+                            pat not in lst and lst.append(pat)
+                else:
+                    pat = do_soft_regex_escape(arg)
+                    pat not in lst and lst.append(pat)
+
+        is_empty and lst.append('')
+        is_multiple = len(lst) > 1
+        pattern = cls.join_list(lst)
+        pattern = cls.add_word_bound(
+            pattern, word_bound=word_bound, added_parentheses=is_multiple
+        )
+        pattern = cls.add_var_name(pattern, name=name)
+        pattern = cls.add_head_of_string(pattern, head=head)
+        pattern = cls.add_tail_of_string(pattern, tail=tail)
+        pattern = pattern.replace('__comma__', ',')
+        return True, pattern
+
+    @classmethod
+    def build_symbol_pattern(cls, keyword, params):
+        """build a symbol over given keyword, params
+
+        Parameters
+        ----------
+        keyword (str): a symbol keyword
+        params (str): a list of parameters
+
+        Returns
+        -------
+        tuple: status, a regex pattern.
+        """
+        if keyword != 'symbol' or not params.strip():
+            return False, ''
+
+        arguments = re.split(r' *, *', params) if params else []
+        symbol_name, removed_items = '', []
+        for arg in arguments:
+            if arg.startswith('name='):
+                symbol_name = arg[5:]
+                removed_items.append(arg)
+
+        if not removed_items:
+            return False, ''
+        else:
+            for item in removed_items:
+                item in arguments and arguments.remove(item)
+
+        val = SYMBOL.get(symbol_name, do_soft_regex_escape(symbol_name))
+        lst = [val]
+
+        name, vpat = '', r'var_(?P<name>\w+)$'
+        or_pat = r'or_(?P<case>[^,]+)'
+        is_empty = False
+        word_bound = ''
+        head = ''
+        tail = ''
+        is_repeated = False
+        is_occurrence = False
+        occurrence_pat = (r'((\d+_or_\d+)|(\d+_or_more)|(at_(least|most)_\d+)'
+                          r'|\d+)(_phrase)?_occurrences?$')
+
+        for arg in arguments:
+            match = re.match(vpat, arg, flags=re.I)
+            if match:
+                name = match.group('name') if not name else name
+            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+                if arg == 'word_bound_raw':
+                    'word_bound' not in lst and lst.append('word_bound')
+                else:
+                    word_bound = arg
+            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'head_raw':
+                    'head' not in lst and lst.append('head')
+                else:
+                    head = arg
+            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+                if arg == 'tail_raw':
+                    'tail' not in lst and lst.append('tail')
+                else:
+                    tail = arg
+            elif re.match(r'repetition_\d*(_\d*)?$', arg):
+                if not is_repeated or not is_occurrence:
+                    lst = cls.add_repetition(lst, repetition=arg)
+                    is_repeated = True
+            elif re.match(occurrence_pat, arg):
+                if not is_repeated or not is_occurrence:
+                    lst = cls.add_occurrence(lst, occurrence=arg)
+                    is_occurrence = True
+            elif re.match(r'^meta_data_\w+', arg):
+                if arg == 'meta_data_raw':
+                    'meta_data' not in lst and lst.append('meta_data')
+                else:
+                    cls._variable.option = arg.lstrip('meta_data_')  # noqa
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
