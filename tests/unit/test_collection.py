@@ -93,6 +93,7 @@ class TestElementPattern:
             ('hexadecimal()', '[0-9a-fA-F]'),
             ('hex()', '[0-9a-fA-F]'),
             ('octal()', '[0-7]'),
+            ('binary()', '[01]'),
             ('digit()', '\\d'),
             ('digits()', '\\d+'),
             ('number()', '(\\d+)?[.]?\\d+'),

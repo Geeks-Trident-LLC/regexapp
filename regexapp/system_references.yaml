@@ -241,6 +241,15 @@ octal:
   negative test:
     the octal pattern can not match data: "9"
 
+binary:
+  group: number
+  description: a pattern to match a binary number.
+  pattern: "[01]"
+  positive test:
+    pattern match a binary number: "0"
+  negative test:
+    the binary pattern can not match data: "2"
+
 digit:
   group: number
   description: a pattern to match a single digit.
