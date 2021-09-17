@@ -872,7 +872,9 @@ class Application:
             question = '{!r} IS NOT EXISTED.\nDo you want to create?'.format(fn)
             result = create_msgbox(question=question)
             if result == 'yes':
-                not file_obj.parent.exists() and file_obj.parent.mkdir()
+                parent = file_obj.parent
+                if not parent.exists():
+                    parent.mkdir(parents=True, exist_ok=True)
                 file_obj.touch()
             else:
                 return
