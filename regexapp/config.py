@@ -37,7 +37,7 @@ class Data:
     user_reference_filename = str(
         PurePath(
             Path.home(),
-            'geekstrident',
+            '.geekstrident',
             'regexapp',
             'user_references.yaml'
         )
