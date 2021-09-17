@@ -2,7 +2,7 @@
 
 - support TextPattern, ElementPattern, LinePattern, MultilinePattern, and PatternBuilder
 - support predefine pattern reference on system_references.yaml
-- allow end-user to customize pattern on /home/.regexapp/user_references.yaml
+- allow end-user to customize pattern on /home/.geekstrident/regexapp/user_references.yaml
 - allow end-user to generate test script or pattern on GUI application.
 - dynamically generate Python snippet script
 - dynamically generate Python unittest script
