@@ -556,7 +556,7 @@ class ElementPattern(str):
     """
     # patterns
     word_bound_pattern = r'word_bound(_left|_right|_raw)?$'
-    head_pattern = r'head(_raw|(_(ws|space)(_plus)?))?$'
+    head_pattern = r'head(_raw|((_just)?_(whitespace|ws|space)(_plus)?))?$'
     tail_pattern = r'tail(_raw|(_(ws|space)(_plus)?))?$'
     repetition_pattern = r'repetition_\d*(_\d*)?$'
     occurrence_pattern = r'({})(?P<is_phrase>_phrase)?_occurrences?$'.format(
@@ -1311,6 +1311,12 @@ class ElementPattern(str):
             case3, case4 = r'^ *', r'^ +'
             case5 = r'^'
 
+            case6, case7 = r'\s*', r'\s+'
+            case8, case9 = r' *', r' +'
+
+            case10, case11 = r'^\s*', r'^\s+'
+            case12, case13 = r'\s*', r'\s+'
+
             if head == 'head_ws' and not pattern.startswith(case1):
                 new_pattern = '{}{}'.format(case1, pattern)
             elif head == 'head_ws_plus' and not pattern.startswith(case2):
@@ -1321,6 +1327,22 @@ class ElementPattern(str):
                 new_pattern = '{}{}'.format(case4, pattern)
             elif head == 'head' and not pattern.startswith(case5):
                 new_pattern = '{}{}'.format(case5, pattern)
+            elif head == 'head_just_ws' and not pattern.startswith(case6):
+                new_pattern = '{}{}'.format(case6, pattern)
+            elif head == 'head_just_ws_plus' and not pattern.startswith(case7):
+                new_pattern = '{}{}'.format(case7, pattern)
+            elif head == 'head_just_space' and not pattern.startswith(case8):
+                new_pattern = '{}{}'.format(case8, pattern)
+            elif head == 'head_just_space_plus' and not pattern.startswith(case9):
+                new_pattern = '{}{}'.format(case9, pattern)
+            elif head == 'head_whitespace' and not pattern.startswith(case10):
+                new_pattern = '{}{}'.format(case10, pattern)
+            elif head == 'head_whitespace_plus' and not pattern.startswith(case11):
+                new_pattern = '{}{}'.format(case11, pattern)
+            elif head == 'head_just_whitespace' and not pattern.startswith(case12):
+                new_pattern = '{}{}'.format(case12, pattern)
+            elif head == 'head_just_whitespace_plus' and not pattern.startswith(case13):
+                new_pattern = '{}{}'.format(case13, pattern)
             else:
                 new_pattern = pattern
             return new_pattern
