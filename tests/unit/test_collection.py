@@ -239,6 +239,31 @@ class TestElementPattern:
         pattern = ElementPattern(data)
         assert pattern == expected_result
 
+    @pytest.mark.parametrize(
+        (
+            'data', 'expected_pattern', 'expected_pattern_after_removed'
+        ),
+        [
+            (
+                'words(head)',
+                '^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*',
+                '[a-zA-Z0-9]+( [a-zA-Z0-9]+)*'
+            ),
+            (
+                'words(var_v1, head_whitespace)',
+                '^\\s*(?P<v1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)',
+                '(?P<v1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)'
+            ),
+        ]
+    )
+    def test_remove_start_of_pattern(self, data, expected_pattern,
+                                     expected_pattern_after_removed):
+        pattern = ElementPattern(data)
+        assert pattern == expected_pattern
+
+        removed_head_of_str_pattern = pattern.remove_head_of_string()
+        assert removed_head_of_str_pattern == expected_pattern_after_removed
+
 
 class TestLinePattern:
     @pytest.mark.parametrize(
