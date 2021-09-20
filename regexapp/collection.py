@@ -5,6 +5,8 @@ import yaml
 import string
 from textwrap import dedent
 from pathlib import Path, PurePath
+from copy import copy
+
 from regexapp.exceptions import EscapePatternError
 from regexapp.exceptions import PatternReferenceError
 from regexapp.exceptions import TextPatternError
@@ -549,6 +551,10 @@ class ElementPattern(str):
     ElementPattern.add_start_of_string(pattern, head='') -> str
     ElementPattern.add_end_of_string(pattern, tail='') -> str
     ElementPattern.add_repetition(lst, repetition='') -> list
+    ElementPattern.add_occurrence(lst, occurrence='') -> list
+    ElementPattern.add_case_occurrence(lst, first, last, is_phrase) -> bool
+    ElementPattern.is_singular_pattern(pattern) -> bool
+    remove_head_of_string() -> ElementPattern
 
     Raises
     ------
@@ -1568,6 +1574,26 @@ class ElementPattern(str):
         is_char_set = pattern.count(first) == 1 and first == left_bracket
         is_char_set &= pattern.count(last) == 1 and last == right_bracket
         return is_singular or is_escape or is_char_set
+
+    def remove_head_of_string(self):
+        """remove a start of string pattern i.e ^ or ^\\s* or ^\\s+ or ^ * or ^ +
+
+        Returns
+        -------
+        ElementPattern: new ElementPattern
+        """
+        if self.prepended_pattern and self.startswith('^'):
+            pattern = str(self)[len(self.prepended_pattern):]
+            new_instance = ElementPattern(pattern, as_is=True)
+            new_instance.as_is = False
+            new_instance.variable = copy(self.variable)
+            new_instance.or_empty = self.or_empty
+            new_instance.prepended_pattern = ''
+            new_instance.appended_pattern = self.appended_pattern
+        else:
+            new_instance = copy(self)
+
+        return new_instance
 
 
 class LinePattern(str):
