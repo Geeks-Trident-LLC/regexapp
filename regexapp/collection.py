@@ -572,6 +572,7 @@ class ElementPattern(str):
     def __new__(cls, text, as_is=False):
         cls._variable = VarCls()
         cls._or_empty = False
+        cls._prepended_pattern = ''
         data = str(text)
 
         if as_is:
@@ -588,10 +589,12 @@ class ElementPattern(str):
         self.as_is = as_is
         self.variable = self._variable
         self.or_empty = self._or_empty
+        self.prepended_pattern = self._prepended_pattern
 
         # clear class variable after initialization
         self._variable = VarCls()
         self._or_empty = False
+        self._prepended_pattern = ''
 
     @classmethod
     def get_pattern(cls, text):
@@ -1319,30 +1322,43 @@ class ElementPattern(str):
 
             if head == 'head_ws' and not pattern.startswith(case1):
                 new_pattern = '{}{}'.format(case1, pattern)
+                cls._prepended_pattern = case1
             elif head == 'head_ws_plus' and not pattern.startswith(case2):
                 new_pattern = '{}{}'.format(case2, pattern)
+                cls._prepended_pattern = case2
             elif head == 'head_space' and not pattern.startswith(case3):
                 new_pattern = '{}{}'.format(case3, pattern)
+                cls._prepended_pattern = case3
             elif head == 'head_space_plus' and not pattern.startswith(case4):
                 new_pattern = '{}{}'.format(case4, pattern)
+                cls._prepended_pattern = case4
             elif head == 'head' and not pattern.startswith(case5):
                 new_pattern = '{}{}'.format(case5, pattern)
+                cls._prepended_pattern = case5
             elif head == 'head_just_ws' and not pattern.startswith(case6):
                 new_pattern = '{}{}'.format(case6, pattern)
+                cls._prepended_pattern = case6
             elif head == 'head_just_ws_plus' and not pattern.startswith(case7):
                 new_pattern = '{}{}'.format(case7, pattern)
+                cls._prepended_pattern = case7
             elif head == 'head_just_space' and not pattern.startswith(case8):
                 new_pattern = '{}{}'.format(case8, pattern)
+                cls._prepended_pattern = case8
             elif head == 'head_just_space_plus' and not pattern.startswith(case9):
                 new_pattern = '{}{}'.format(case9, pattern)
+                cls._prepended_pattern = case9
             elif head == 'head_whitespace' and not pattern.startswith(case10):
                 new_pattern = '{}{}'.format(case10, pattern)
+                cls._prepended_pattern = case10
             elif head == 'head_whitespace_plus' and not pattern.startswith(case11):
                 new_pattern = '{}{}'.format(case11, pattern)
+                cls._prepended_pattern = case11
             elif head == 'head_just_whitespace' and not pattern.startswith(case12):
                 new_pattern = '{}{}'.format(case12, pattern)
+                cls._prepended_pattern = case12
             elif head == 'head_just_whitespace_plus' and not pattern.startswith(case13):
                 new_pattern = '{}{}'.format(case13, pattern)
+                cls._prepended_pattern = case13
             else:
                 new_pattern = pattern
             return new_pattern
