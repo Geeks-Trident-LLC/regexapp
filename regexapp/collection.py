@@ -554,6 +554,21 @@ class ElementPattern(str):
     ------
     ElementPatternError: raise an exception if pattern is invalid.
     """
+    # patterns
+    word_bound_pattern = r'word_bound(_left|_right|_raw)?$'
+    head_pattern = r'head(_raw|(_(ws|space)(_plus)?))?$'
+    tail_pattern = r'tail(_raw|(_(ws|space)(_plus)?))?$'
+    repetition_pattern = r'repetition_\d*(_\d*)?$'
+    occurrence_pattern = r'({})(?P<is_phrase>_phrase)?_occurrences?$'.format(
+        '|'.join([
+            r'((?P<fda>\d+)_or_(?P<lda>\d+))',
+            r'((?P<fdb>\d+)_or_(?P<ldb>more))',
+            r'(at_(?P<fdc>least|most)_(?P<ldc>\d+))',
+            r'(?P<fdd>\d+)'
+        ])
+    )
+    meta_data_pattern = r'^meta_data_\w+'
+
     def __new__(cls, text, as_is=False):
         cls._variable = VarCls()
         cls._or_empty = False
@@ -682,37 +697,35 @@ class ElementPattern(str):
         tail = ''
         is_repeated = False
         is_occurrence = False
-        occurrence_pat = (r'((\d+_or_\d+)|(\d+_or_more)|(at_(least|most)_\d+)'
-                          r'|\d+)(_phrase)?_occurrences?$')
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
-            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+            elif re.match(cls.word_bound_pattern, arg):
                 if arg == 'word_bound_raw':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.head_pattern, arg):
                 if arg == 'head_raw':
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.tail_pattern, arg):
                 if arg == 'tail_raw':
                     'tail' not in lst and lst.append('tail')
                 else:
                     tail = arg
-            elif re.match(r'repetition_\d*(_\d*)?$', arg):
+            elif re.match(cls.repetition_pattern, arg):
                 if not is_repeated or not is_occurrence:
                     lst = cls.add_repetition(lst, repetition=arg)
                     is_repeated = True
-            elif re.match(occurrence_pat, arg):
+            elif re.match(cls.occurrence_pattern, arg):
                 if not is_repeated or not is_occurrence:
                     lst = cls.add_occurrence(lst, occurrence=arg)
                     is_occurrence = True
-            elif re.match(r'^meta_data_\w+', arg):
+            elif re.match(cls.meta_data_pattern, arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
@@ -787,37 +800,35 @@ class ElementPattern(str):
         tail = ''
         is_repeated = False
         is_occurrence = False
-        occurrence_pat = (r'((\d+_or_\d+)|(\d+_or_more)|(at_(least|most)_\d+)'
-                          r'|\d+)(_phrase)?_occurrences?$')
 
         for arg in arguments:
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
-            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+            elif re.match(cls.word_bound_pattern, arg):
                 if arg == 'word_bound_raw':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.head_pattern, arg):
                 if arg == 'head_raw':
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.tail_pattern, arg):
                 if arg == 'tail_raw':
                     'tail' not in lst and lst.append('tail')
                 else:
                     tail = arg
-            elif re.match(r'repetition_\d*(_\d*)?$', arg):
+            elif re.match(cls.repetition_pattern, arg):
                 if not is_repeated or not is_occurrence:
                     lst = cls.add_repetition(lst, repetition=arg)
                     is_repeated = True
-            elif re.match(occurrence_pat, arg):
+            elif re.match(cls.occurrence_pattern, arg):
                 if not is_repeated or not is_occurrence:
                     lst = cls.add_occurrence(lst, occurrence=arg)
                     is_occurrence = True
-            elif re.match(r'^meta_data_\w+', arg):
+            elif re.match(cls.meta_data_pattern, arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
@@ -899,22 +910,22 @@ class ElementPattern(str):
             match = re.match(vpat, arg, flags=re.I)
             if match or arg.startswith('format'):
                 continue
-            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+            elif re.match(cls.word_bound_pattern, arg):
                 if arg == 'word_bound_raw':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.head_pattern, arg):
                 if arg == 'head_raw':
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.tail_pattern, arg):
                 if arg == 'tail_raw':
                     'tail' not in lst and lst.append('tail')
                 else:
                     tail = arg
-            elif re.match(r'^meta_data_\w+', arg):
+            elif re.match(cls.meta_data_pattern, arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
@@ -976,22 +987,22 @@ class ElementPattern(str):
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
-            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+            elif re.match(cls.word_bound_pattern, arg):
                 if arg == 'word_bound_raw':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.head_pattern, arg):
                 if arg == 'head_raw':
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.tail_pattern, arg):
                 if arg == 'tail_raw':
                     'tail' not in lst and lst.append('tail')
                 else:
                     tail = arg
-            elif re.match(r'^meta_data_\w+', arg):
+            elif re.match(cls.meta_data_pattern, arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
@@ -1053,22 +1064,22 @@ class ElementPattern(str):
             match = re.match(vpat, arg, flags=re.I)
             if match:
                 name = match.group('name') if not name else name
-            elif re.match('word_bound(_left|_right|_raw)?$', arg):
+            elif re.match(cls.word_bound_pattern, arg):
                 if arg == 'word_bound_raw':
                     'word_bound' not in lst and lst.append('word_bound')
                 else:
                     word_bound = arg
-            elif re.match('head(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.head_pattern, arg):
                 if arg == 'head_raw':
                     'head' not in lst and lst.append('head')
                 else:
                     head = arg
-            elif re.match('tail(_raw|(_(ws|space)(_plus)?))?$', arg):
+            elif re.match(cls.tail_pattern, arg):
                 if arg == 'tail_raw':
                     'tail' not in lst and lst.append('tail')
                 else:
                     tail = arg
-            elif re.match(r'^meta_data_\w+', arg):
+            elif re.match(cls.meta_data_pattern, arg):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
@@ -1393,17 +1404,8 @@ class ElementPattern(str):
         if not occurrence:
             return lst
 
-        occurrence_pat = r'({})(?P<is_phrase>_phrase)?_occurrences?$'.format(
-            '|'.join([
-                r'((?P<fda>\d+)_or_(?P<lda>\d+))',
-                r'((?P<fdb>\d+)_or_(?P<ldb>more))',
-                r'(at_(?P<fdc>least|most)_(?P<ldc>\d+))',
-                r'(?P<fdd>\d+)'
-            ])
-        )
-
         new_lst = lst[:]
-        m = re.match(occurrence_pat, occurrence)
+        m = re.match(cls.occurrence_pattern, occurrence)
         is_phrase = bool(m.group('is_phrase'))
 
         fda, lda = m.group('fda') or '', m.group('lda') or ''
