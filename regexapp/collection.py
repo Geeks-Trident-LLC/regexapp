@@ -573,6 +573,7 @@ class ElementPattern(str):
         cls._variable = VarCls()
         cls._or_empty = False
         cls._prepended_pattern = ''
+        cls._appended_pattern = ''
         data = str(text)
 
         if as_is:
@@ -590,11 +591,13 @@ class ElementPattern(str):
         self.variable = self._variable
         self.or_empty = self._or_empty
         self.prepended_pattern = self._prepended_pattern
+        self.appended_pattern = self._appended_pattern
 
         # clear class variable after initialization
         self._variable = VarCls()
         self._or_empty = False
         self._prepended_pattern = ''
+        self._appended_pattern = ''
 
     @classmethod
     def get_pattern(cls, text):
@@ -1390,30 +1393,43 @@ class ElementPattern(str):
 
             if tail == 'tail_ws' and not pattern.endswith(case1):
                 new_pattern = '{}{}'.format(pattern, case1)
+                cls._appended_pattern = case1
             elif tail == 'tail_ws_plus' and not pattern.endswith(case2):
                 new_pattern = '{}{}'.format(pattern, case2)
+                cls._appended_pattern = case2
             elif tail == 'tail_space' and not pattern.endswith(case3):
                 new_pattern = '{}{}'.format(pattern, case3)
+                cls._appended_pattern = case3
             elif tail == 'tail_space_plus' and not pattern.endswith(case4):
                 new_pattern = '{}{}'.format(pattern, case4)
+                cls._appended_pattern = case4
             elif tail == 'tail' and not pattern.endswith(case5):
                 new_pattern = '{}{}'.format(pattern, case5)
+                cls._appended_pattern = case5
             elif tail == 'tail_just_ws' and not pattern.startswith(case6):
                 new_pattern = '{}{}'.format(pattern, case6)
+                cls._appended_pattern = case6
             elif tail == 'tail_just_ws_plus' and not pattern.startswith(case7):
                 new_pattern = '{}{}'.format(pattern, case7)
+                cls._appended_pattern = case7
             elif tail == 'tail_just_space' and not pattern.startswith(case8):
                 new_pattern = '{}{}'.format(pattern, case8)
+                cls._appended_pattern = case8
             elif tail == 'tail_just_space_plus' and not pattern.startswith(case9):
                 new_pattern = '{}{}'.format(pattern, case9)
+                cls._appended_pattern = case9
             elif tail == 'tail_whitespace' and not pattern.startswith(case10):
                 new_pattern = '{}{}'.format(pattern, case10)
+                cls._appended_pattern = case10
             elif tail == 'tail_whitespace_plus' and not pattern.startswith(case11):
                 new_pattern = '{}{}'.format(pattern, case11)
+                cls._appended_pattern = case11
             elif tail == 'tail_just_whitespace' and not pattern.startswith(case12):
                 new_pattern = '{}{}'.format(pattern, case12)
+                cls._appended_pattern = case12
             elif tail == 'tail_just_whitespace_plus' and not pattern.startswith(case13):
                 new_pattern = '{}{}'.format(pattern, case13)
+                cls._appended_pattern = case13
             else:
                 new_pattern = pattern
             return new_pattern
