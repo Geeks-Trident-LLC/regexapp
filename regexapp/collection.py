@@ -555,6 +555,7 @@ class ElementPattern(str):
     ElementPattern.add_case_occurrence(lst, first, last, is_phrase) -> bool
     ElementPattern.is_singular_pattern(pattern) -> bool
     remove_head_of_string() -> ElementPattern
+    remove_tail_of_string() -> ElementPattern
 
     Raises
     ------
@@ -1590,6 +1591,26 @@ class ElementPattern(str):
             new_instance.or_empty = self.or_empty
             new_instance.prepended_pattern = ''
             new_instance.appended_pattern = self.appended_pattern
+        else:
+            new_instance = copy(self)
+
+        return new_instance
+
+    def remove_tail_of_string(self):
+        """remove an end of string pattern i.e $ or \\s*$ or \\s+$ or  *$ or  +$
+
+        Returns
+        -------
+        ElementPattern: new ElementPattern
+        """
+        if self.appended_pattern and self.endswith('$'):
+            pattern = str(self)[:-len(self.appended_pattern)]
+            new_instance = ElementPattern(pattern, as_is=True)
+            new_instance.as_is = False
+            new_instance.variable = copy(self.variable)
+            new_instance.or_empty = self.or_empty
+            new_instance.prepended_pattern = self.prepended_pattern
+            new_instance.appended_pattern = ''
         else:
             new_instance = copy(self)
 
