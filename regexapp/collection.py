@@ -557,7 +557,7 @@ class ElementPattern(str):
     # patterns
     word_bound_pattern = r'word_bound(_left|_right|_raw)?$'
     head_pattern = r'head(_raw|((_just)?_(whitespace|ws|space)(_plus)?))?$'
-    tail_pattern = r'tail(_raw|(_(ws|space)(_plus)?))?$'
+    tail_pattern = r'tail(_raw|((_just)?_(whitespace|ws|space)(_plus)?))?$'
     repetition_pattern = r'repetition_\d*(_\d*)?$'
     occurrence_pattern = r'({})(?P<is_phrase>_phrase)?_occurrences?$'.format(
         '|'.join([
@@ -1365,6 +1365,13 @@ class ElementPattern(str):
             case1, case2 = r'\s*$', r'\s+$'
             case3, case4 = r' *$', r' +$'
             case5 = r'$'
+
+            case6, case7 = r'\s*', r'\s+'
+            case8, case9 = r' *', r' +'
+
+            case10, case11 = r'\s*$', r'\s+$'
+            case12, case13 = r'\s*', r'\s+'
+
             if tail == 'tail_ws' and not pattern.endswith(case1):
                 new_pattern = '{}{}'.format(pattern, case1)
             elif tail == 'tail_ws_plus' and not pattern.endswith(case2):
@@ -1375,6 +1382,22 @@ class ElementPattern(str):
                 new_pattern = '{}{}'.format(pattern, case4)
             elif tail == 'tail' and not pattern.endswith(case5):
                 new_pattern = '{}{}'.format(pattern, case5)
+            elif tail == 'tail_just_ws' and not pattern.startswith(case6):
+                new_pattern = '{}{}'.format(pattern, case6)
+            elif tail == 'tail_just_ws_plus' and not pattern.startswith(case7):
+                new_pattern = '{}{}'.format(pattern, case7)
+            elif tail == 'tail_just_space' and not pattern.startswith(case8):
+                new_pattern = '{}{}'.format(pattern, case8)
+            elif tail == 'tail_just_space_plus' and not pattern.startswith(case9):
+                new_pattern = '{}{}'.format(pattern, case9)
+            elif tail == 'tail_whitespace' and not pattern.startswith(case10):
+                new_pattern = '{}{}'.format(pattern, case10)
+            elif tail == 'tail_whitespace_plus' and not pattern.startswith(case11):
+                new_pattern = '{}{}'.format(pattern, case11)
+            elif tail == 'tail_just_whitespace' and not pattern.startswith(case12):
+                new_pattern = '{}{}'.format(pattern, case12)
+            elif tail == 'tail_just_whitespace_plus' and not pattern.startswith(case13):
+                new_pattern = '{}{}'.format(pattern, case13)
             else:
                 new_pattern = pattern
             return new_pattern
