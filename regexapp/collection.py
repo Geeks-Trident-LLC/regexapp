@@ -407,6 +407,9 @@ class TextPattern(str):
         self.text = text
         self.as_is = as_is
 
+    def __add__(self, other):
+        return super().__add__(other)
+
     @property
     def is_empty(self):
         if self == '':
