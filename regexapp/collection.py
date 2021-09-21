@@ -1767,14 +1767,24 @@ class LinePattern(str):
         if len(lst) < 2:
             return
 
+        total = len(lst)
+
         ws_pat = r'\s*'
-        for index, item in enumerate(lst[:-1]):
-            next_item = lst[index+1]
-            is_item_text_pat = isinstance(item, TextPattern)
-            is_next_item_elm_pat = isinstance(next_item, ElementPattern)
-            if is_item_text_pat and is_next_item_elm_pat:
-                if item.is_whitespace and next_item.or_empty:
-                    lst[index] = ws_pat
+        for index, item in enumerate(lst[1:], 1):
+            prev_item = lst[index-1]
+            is_prev_item_text_pat = isinstance(prev_item, TextPattern)
+            is_item_elm_pat = isinstance(item, ElementPattern)
+            if is_prev_item_text_pat and is_item_elm_pat:
+                if item.or_empty:
+                    if prev_item.endswith(' '):
+                        lst[index-1] = prev_item.rstrip() + ws_pat
+                    elif prev_item.endswith(r'\s'):
+                        lst[index-1] = prev_item + '*'
+                    elif index == total - 1:
+                        if prev_item.endswith(' +'):
+                            lst[index-1] = prev_item[:-2] + ws_pat
+                        elif prev_item.endswith(r'\s+'):
+                            lst[index-1] = prev_item[:-3] + ws_pat
 
     @classmethod
     def ensure_start_of_line_pattern(cls, lst):
