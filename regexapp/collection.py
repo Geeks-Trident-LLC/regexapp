@@ -410,6 +410,9 @@ class TextPattern(str):
     def __add__(self, other):
         return super().__add__(other)
 
+    def __radd__(self, other):
+        return super().__radd__(other)
+
     @property
     def is_empty(self):
         if self == '':
