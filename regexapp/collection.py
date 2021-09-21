@@ -1810,7 +1810,7 @@ class LinePattern(str):
 
         # clean up any invalid a start of string pattern
         for index, node in enumerate(lst[1:], 1):
-            if isinstance(node, ElementPattern) and node.startswith('^'):
+            if isinstance(node, ElementPattern) and node.prepended_pattern:
                 lst[index] = node.remove_head_of_string()
 
     @classmethod
