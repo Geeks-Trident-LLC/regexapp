@@ -1808,6 +1808,11 @@ class LinePattern(str):
                 else:
                     lst[1] = new_val
 
+        # clean up any invalid a start of string pattern
+        for index, node in enumerate(lst[1:], 1):
+            if isinstance(node, ElementPattern) and node.startswith('^'):
+                lst[index] = node.remove_head_of_string()
+
     @classmethod
     def ensure_end_of_line_pattern(cls, lst):
         """Ensure an end pattern does not contain duplicate whitespace
