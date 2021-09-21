@@ -257,7 +257,7 @@ class TestElementPattern:
         ]
     )
     def test_remove_head_of_pattern(self, data, expected_pattern,
-                                     expected_pattern_after_removed):
+                                    expected_pattern_after_removed):
         pattern = ElementPattern(data)
         assert pattern == expected_pattern
 

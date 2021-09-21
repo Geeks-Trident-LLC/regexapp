@@ -1845,6 +1845,11 @@ class LinePattern(str):
                 else:
                     lst[-2] = new_val
 
+        # clean up any invalid a start of string pattern
+        for index, node in enumerate(lst[:-1]):
+            if isinstance(node, ElementPattern) and node.appended_pattern:
+                lst[index] = node.remove_tail_of_string()
+
     @classmethod
     def prepend_whitespace(cls, lst):
         """prepend whitespace pattern to list
