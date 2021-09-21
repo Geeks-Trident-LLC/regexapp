@@ -60,6 +60,62 @@ class TestTextPattern:
         chk = text_pat.is_empty_or_whitespace
         assert chk
 
+    @pytest.mark.parametrize(
+        ('data', 'chars', 'expected_result'),
+        [
+            ('  abc  123  xyz  ', None, 'abc +123 +xyz +'),
+            ('  abc  123  xyz  ', ' a', 'bc +123 +xyz +'),
+            ('  abc  123  xyz  abc  ', ' abc', '123 +xyz +abc +'),
+        ]
+    )
+    def test_lstrip(self, data, chars, expected_result):
+        text_pat = TextPattern(data)
+        result = text_pat.lstrip(chars=chars)
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        ('data', 'chars', 'expected_result'),
+        [
+            ('  abc  123  xyz  ', None, ' +abc +123 +xyz'),
+            ('  abc  123  xyz  ', ' z', ' +abc +123 +xy'),
+            ('  abc  123  xyz  ', ' xyz', ' +abc +123'),
+        ]
+    )
+    def test_lstrip(self, data, chars, expected_result):
+        text_pat = TextPattern(data)
+        result = text_pat.rstrip(chars=chars)
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        ('data', 'chars', 'expected_result'),
+        [
+            ('  abc  123  xyz  ', None, 'abc +123 +xyz'),
+            ('  abc  123  xyz  ', ' a', 'bc +123 +xyz'),
+            ('  abc  123  xyz  ', ' abc', '123 +xyz'),
+            ('  abc  123  xyz  ', ' abcxyz', '123'),
+        ]
+    )
+    def test_strip(self, data, chars, expected_result):
+        text_pat = TextPattern(data)
+        result = text_pat.strip(chars=chars)
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        ('data', 'other', 'as_is', 'expected_result'),
+        [
+            ('a', 'b', True, 'ab'),
+            ('a', '*', True, 'a*'),
+            ('a ', '+ b', False, 'a \\+ b'),
+            ('a ', TextPattern('+ b'), False, 'a \\+ b'),
+            ('a ', TextPattern('+ b'), True, 'a \\+ b'),
+            ('a', ['(b', 'c)', '*'], True, 'a(bc)*'),
+        ]
+    )
+    def test_add(self, data, other, as_is, expected_result):
+        text_pat = TextPattern(data)
+        result = text_pat.add(other, as_is=as_is)
+        assert result == expected_result
+
 
 class TestElementPattern:
     @pytest.mark.parametrize(

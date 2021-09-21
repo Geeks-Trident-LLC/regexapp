@@ -386,6 +386,10 @@ class TextPattern(str):
     Methods
     -------
     TextPattern.get_pattern(text) -> str
+    lstrip(chars=None) -> TextPattern
+    rstrip(chars=None) -> TextPattern
+    strip(chars=None) -> TextPattern
+    add(other, as_is=True) -> TextPattern
 
     Raises
     ------
@@ -408,10 +412,16 @@ class TextPattern(str):
         self.as_is = as_is
 
     def __add__(self, other):
-        return super().__add__(other)
+        result = super().__add__(other)
+        result_pat = TextPattern(result, as_is=True)
+        return result_pat
 
     def __radd__(self, other):
-        return super().__radd__(other)
+        if isinstance(other, TextPattern):
+            return other.__add__(self)
+        else:
+            other_pat = TextPattern(other, as_is=True)
+            return other_pat.__add__(self)
 
     @property
     def is_empty(self):
@@ -523,6 +533,35 @@ class TextPattern(str):
         new_text = self.text.strip() if chars is None else self.text.strip(chars)
         pattern = TextPattern(new_text)
         return pattern
+
+    def add(self, other, as_is=True):
+        """return a concatenated TextPattern.
+
+        Parameters
+        ----------
+        other (str, TextElement): other
+        as_is (bool): a flag to keep adding other AS-IS condition.
+
+        Returns
+        -------
+        TextPattern: a concatenated TextPattern instance.
+        """
+        if isinstance(other, TextPattern):
+            result = self + other
+        else:
+            if isinstance(other, list):
+                result = self
+                for item in other:
+                    if isinstance(item, TextPattern):
+                        result = result + item
+                    else:
+                        item_pat = TextPattern(str(item), as_is=as_is)
+                        result = result + item_pat
+            else:
+                other_pat = TextPattern(str(other), as_is=as_is)
+                result = self + other_pat
+
+        return result
 
 
 class ElementPattern(str):
