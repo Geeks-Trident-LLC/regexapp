@@ -123,14 +123,30 @@ class TestElementPattern:
             ('word(var_v1, head)', '^(?P<v1>[a-zA-Z0-9]+)'),
             ('word(var_v1, head_ws)', '^\\s*(?P<v1>[a-zA-Z0-9]+)'),
             ('word(var_v1, head_ws_plus)', '^\\s+(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_whitespace)', '^\\s*(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_whitespace_plus)', '^\\s+(?P<v1>[a-zA-Z0-9]+)'),
             ('word(var_v1, head_space)', '^ *(?P<v1>[a-zA-Z0-9]+)'),
             ('word(var_v1, head_space_plus)', '^ +(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_just_ws)', '\\s*(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_just_ws_plus)', '\\s+(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_just_whitespace)', '\\s*(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_just_whitespace_plus)', '\\s+(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_just_space)', ' *(?P<v1>[a-zA-Z0-9]+)'),
+            ('word(var_v1, head_just_space_plus)', ' +(?P<v1>[a-zA-Z0-9]+)'),
             ('word(var_v1, head_raw)', '(?P<v1>[a-zA-Z0-9]+|head)'),
             ('word(var_v1, tail)', '(?P<v1>[a-zA-Z0-9]+)$'),
             ('word(var_v1, tail_ws)', '(?P<v1>[a-zA-Z0-9]+)\\s*$'),
             ('word(var_v1, tail_ws_plus)', '(?P<v1>[a-zA-Z0-9]+)\\s+$'),
+            ('word(var_v1, tail_whitespace)', '(?P<v1>[a-zA-Z0-9]+)\\s*$'),
+            ('word(var_v1, tail_whitespace_plus)', '(?P<v1>[a-zA-Z0-9]+)\\s+$'),
             ('word(var_v1, tail_space)', '(?P<v1>[a-zA-Z0-9]+) *$'),
             ('word(var_v1, tail_space_plus)', '(?P<v1>[a-zA-Z0-9]+) +$'),
+            ('word(var_v1, tail_just_ws)', '(?P<v1>[a-zA-Z0-9]+)\\s*'),
+            ('word(var_v1, tail_just_ws_plus)', '(?P<v1>[a-zA-Z0-9]+)\\s+'),
+            ('word(var_v1, tail_just_whitespace)', '(?P<v1>[a-zA-Z0-9]+)\\s*'),
+            ('word(var_v1, tail_just_whitespace_plus)', '(?P<v1>[a-zA-Z0-9]+)\\s+'),
+            ('word(var_v1, tail_just_space)', '(?P<v1>[a-zA-Z0-9]+) *'),
+            ('word(var_v1, tail_just_space_plus)', '(?P<v1>[a-zA-Z0-9]+) +'),
             ('word(var_v1, tail_raw)', '(?P<v1>[a-zA-Z0-9]+|tail)'),
             ('letter(var_word, repetition_3)', '(?P<word>[a-zA-Z]{3})'),
             ('letter(var_word, repetition_3_8)', '(?P<word>[a-zA-Z]{3,8})'),
@@ -222,6 +238,56 @@ class TestElementPattern:
     def test_element_pattern(self, data, expected_result):
         pattern = ElementPattern(data)
         assert pattern == expected_result
+
+    @pytest.mark.parametrize(
+        (
+            'data', 'expected_pattern', 'expected_pattern_after_removed'
+        ),
+        [
+            (
+                'words(head)',
+                '^[a-zA-Z0-9]+( [a-zA-Z0-9]+)*',
+                '[a-zA-Z0-9]+( [a-zA-Z0-9]+)*'
+            ),
+            (
+                'words(var_v1, head_whitespace)',
+                '^\\s*(?P<v1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)',
+                '(?P<v1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)'
+            ),
+        ]
+    )
+    def test_remove_head_of_pattern(self, data, expected_pattern,
+                                    expected_pattern_after_removed):
+        pattern = ElementPattern(data)
+        assert pattern == expected_pattern
+
+        removed_head_of_str_pattern = pattern.remove_head_of_string()
+        assert removed_head_of_str_pattern == expected_pattern_after_removed
+
+    @pytest.mark.parametrize(
+        (
+            'data', 'expected_pattern', 'expected_pattern_after_removed'
+        ),
+        [
+            (
+                'words(tail)',
+                '[a-zA-Z0-9]+( [a-zA-Z0-9]+)*$',
+                '[a-zA-Z0-9]+( [a-zA-Z0-9]+)*'
+            ),
+            (
+                'words(var_v1, tail_whitespace)',
+                '(?P<v1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)\\s*$',
+                '(?P<v1>[a-zA-Z0-9]+( [a-zA-Z0-9]+)*)'
+            ),
+        ]
+    )
+    def test_remove_tail_of_pattern(self, data, expected_pattern,
+                                    expected_pattern_after_removed):
+        pattern = ElementPattern(data)
+        assert pattern == expected_pattern
+
+        removed_tail_of_str_pattern = pattern.remove_tail_of_string()
+        assert removed_tail_of_str_pattern == expected_pattern_after_removed
 
 
 class TestLinePattern:
@@ -562,8 +628,8 @@ class TestLinePattern:
                     '123   567'
                 ],  # test data
                 'digits(var_v1)   letters(var_v2, or_empty)     digits(var_v3)',  # user prepared data
-                '^\\s*(?P<v1>\\d+)\\s*(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
-                '^\\s*${v1}\\s*${v2} +${v3}',  # expected statement
+                '^\\s*(?P<v1>\\d+) +(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
+                '^\\s*${v1} +${v2} +${v3}',  # expected statement
                 True, False, False,
             ),
             (
@@ -572,8 +638,8 @@ class TestLinePattern:
                     '123   567'
                 ],  # test data
                 'digits(var_v1)   letters(var_v2, or_empty)   digits(var_v3)',  # user prepared data
-                '^\\s*(?P<v1>\\d+)\\s*(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
-                '^\\s*${v1}\\s*${v2} +${v3}',  # expected statement
+                '^\\s*(?P<v1>\\d+) +(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
+                '^\\s*${v1} +${v2} +${v3}',  # expected statement
                 True, False, False,
             ),
             (
@@ -591,6 +657,7 @@ class TestLinePattern:
     def test_line_statement(self, test_data, user_prepared_data,
                             expected_pattern, expected_statement,
                             prepended_ws, appended_ws, ignore_case):
+        # import pdb; pdb.set_trace()
         pattern = LinePattern(user_prepared_data,
                               prepended_ws=prepended_ws,
                               appended_ws=appended_ws, ignore_case=ignore_case)
