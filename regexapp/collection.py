@@ -386,6 +386,11 @@ class TextPattern(str):
     Methods
     -------
     TextPattern.get_pattern(text) -> str
+    lstrip(chars=None) -> TextPattern
+    rstrip(chars=None) -> TextPattern
+    strip(chars=None) -> TextPattern
+    add(other, as_is=True) -> TextPattern
+    concatenate(*other, as_is=True) -> TextPattern
 
     Raises
     ------
@@ -406,6 +411,18 @@ class TextPattern(str):
     def __init__(self, text, as_is=False):
         self.text = text
         self.as_is = as_is
+
+    def __add__(self, other):
+        result = super().__add__(other)
+        result_pat = TextPattern(result, as_is=True)
+        return result_pat
+
+    def __radd__(self, other):
+        if isinstance(other, TextPattern):
+            return other.__add__(self)
+        else:
+            other_pat = TextPattern(other, as_is=True)
+            return other_pat.__add__(self)
 
     @property
     def is_empty(self):
@@ -517,6 +534,52 @@ class TextPattern(str):
         new_text = self.text.strip() if chars is None else self.text.strip(chars)
         pattern = TextPattern(new_text)
         return pattern
+
+    def add(self, other, as_is=True):
+        """return a concatenated TextPattern.
+
+        Parameters
+        ----------
+        other (str, TextElement): other
+        as_is (bool): a flag to keep adding other AS-IS condition.
+
+        Returns
+        -------
+        TextPattern: a concatenated TextPattern instance.
+        """
+        if isinstance(other, TextPattern):
+            result = self + other
+        else:
+            if isinstance(other, (list, tuple)):
+                result = self
+                for item in other:
+                    if isinstance(item, TextPattern):
+                        result = result + item
+                    else:
+                        item_pat = TextPattern(str(item), as_is=as_is)
+                        result = result + item_pat
+            else:
+                other_pat = TextPattern(str(other), as_is=as_is)
+                result = self + other_pat
+
+        return result
+
+    def concatenate(self, *other, as_is=True):
+        """return a concatenated TextPattern.
+
+        Parameters
+        ----------
+        other (tuple): other
+        as_is (bool): a flag to keep adding other AS-IS condition.
+
+        Returns
+        -------
+        TextPattern: a concatenated TextPattern instance.
+        """
+        result = self
+        for item in other:
+            result = result.add(item, as_is=as_is)
+        return result
 
 
 class ElementPattern(str):
@@ -1772,7 +1835,7 @@ class LinePattern(str):
         ws_pat = r'\s*'
         for index, item in enumerate(lst[1:], 1):
             prev_item = lst[index-1]
-            is_prev_item_text_pat = isinstance(prev_item, TextPattern)
+            is_prev_item_text_pat = isinstance(prev_item, (TextPattern, str))
             is_item_elm_pat = isinstance(item, ElementPattern)
             if is_prev_item_text_pat and is_item_elm_pat:
                 if item.or_empty:
@@ -1785,6 +1848,46 @@ class LinePattern(str):
                             lst[index-1] = prev_item[:-2] + ws_pat
                         elif prev_item.endswith(r'\s+'):
                             lst[index-1] = prev_item[:-3] + ws_pat
+
+        index = len(lst) - 1
+        is_stopped = False
+        while index > 0 and not is_stopped:
+            prev_item, item = lst[index-1], lst[index]
+            is_prev_item_text_pat = isinstance(prev_item, (TextPattern, str))
+            is_item_elm_pat = isinstance(item, ElementPattern)
+            if is_prev_item_text_pat and is_item_elm_pat:
+                if item.or_empty:
+                    if prev_item.endswith(' '):
+                        lst[index - 1] = prev_item.rstrip() + ws_pat
+                    elif prev_item.endswith(r'\s'):
+                        lst[index - 1] = prev_item + '*'
+                    elif prev_item.endswith(' +'):
+                        lst[index - 1] = prev_item[:-2] + ws_pat
+                    elif prev_item.endswith(r'\s+'):
+                        lst[index - 1] = prev_item[:-3] + ws_pat
+            else:
+                is_stopped = True
+            index -= 2
+
+        index = len(lst) - 1
+        is_stopped = False
+        is_prev_containing_empty = False
+        while index > 0 and not is_stopped:
+            prev_item, item = lst[index-1], lst[index]
+            is_prev_item_elm_pat = isinstance(prev_item, ElementPattern)
+            is_item_text_pat = isinstance(item, (TextPattern, str))
+            if is_prev_item_elm_pat and is_item_text_pat:
+                if prev_item.or_empty:
+                    if item in [' ', ' +', r'\s', r'\s+']:
+                        lst[index] = ws_pat
+                    is_prev_containing_empty = True
+                else:
+                    if item in [' ', ' +', r'\s', r'\s+'] and is_prev_containing_empty:
+                        lst[index] = ws_pat
+                    is_prev_containing_empty = False
+            else:
+                is_stopped = True
+            index -= 2
 
     @classmethod
     def ensure_start_of_line_pattern(cls, lst):

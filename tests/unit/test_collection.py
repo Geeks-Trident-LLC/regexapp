@@ -60,6 +60,82 @@ class TestTextPattern:
         chk = text_pat.is_empty_or_whitespace
         assert chk
 
+    @pytest.mark.parametrize(
+        ('data', 'chars', 'expected_result'),
+        [
+            ('  abc  123  xyz  ', None, 'abc +123 +xyz +'),
+            ('  abc  123  xyz  ', ' a', 'bc +123 +xyz +'),
+            ('  abc  123  xyz  abc  ', ' abc', '123 +xyz +abc +'),
+        ]
+    )
+    def test_lstrip(self, data, chars, expected_result):
+        text_pat = TextPattern(data)
+        result = text_pat.lstrip(chars=chars)
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        ('data', 'chars', 'expected_result'),
+        [
+            ('  abc  123  xyz  ', None, ' +abc +123 +xyz'),
+            ('  abc  123  xyz  ', ' z', ' +abc +123 +xy'),
+            ('  abc  123  xyz  ', ' xyz', ' +abc +123'),
+        ]
+    )
+    def test_lstrip(self, data, chars, expected_result):
+        text_pat = TextPattern(data)
+        result = text_pat.rstrip(chars=chars)
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        ('data', 'chars', 'expected_result'),
+        [
+            ('  abc  123  xyz  ', None, 'abc +123 +xyz'),
+            ('  abc  123  xyz  ', ' a', 'bc +123 +xyz'),
+            ('  abc  123  xyz  ', ' abc', '123 +xyz'),
+            ('  abc  123  xyz  ', ' abcxyz', '123'),
+        ]
+    )
+    def test_strip(self, data, chars, expected_result):
+        text_pat = TextPattern(data)
+        result = text_pat.strip(chars=chars)
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        ('data', 'other', 'as_is', 'expected_result'),
+        [
+            ('a', 'b', True, 'ab'),
+            ('a', '*', True, 'a*'),
+            ('a ', '+ b', False, 'a \\+ b'),
+            ('a ', TextPattern('+ b'), False, 'a \\+ b'),
+            ('a ', TextPattern('+ b'), True, 'a \\+ b'),
+            ('a', ['(b', 'c)', '*'], True, 'a(bc)*'),
+        ]
+    )
+    def test_add(self, data, other, as_is, expected_result):
+        text_pat = TextPattern(data)
+        result = text_pat.add(other, as_is=as_is)
+        assert result == expected_result
+
+    @pytest.mark.parametrize(
+        ('data', 'other', 'as_is', 'expected_result'),
+        [
+            ('a', 'b', True, 'ab'),
+            ('a', '*', True, 'a*'),
+            ('a ', '+ b', False, 'a \\+ b'),
+            ('a ', TextPattern('+ b'), False, 'a \\+ b'),
+            ('a ', TextPattern('+ b'), True, 'a \\+ b'),
+            ('a', ['(b', 'c)', '*'], True, 'a(bc)*'),
+            ('a', ['(', ('b', 'c'), ')', '*'], True, 'a(bc)*'),
+        ]
+    )
+    def test_add(self, data, other, as_is, expected_result):
+        text_pat = TextPattern(data)
+        if isinstance(other, (list, tuple)):
+            result = text_pat.concatenate(*other, as_is=as_is)
+        else:
+            result = text_pat.concatenate(other, as_is=as_is)
+        assert result == expected_result
+
 
 class TestElementPattern:
     @pytest.mark.parametrize(
@@ -628,8 +704,8 @@ class TestLinePattern:
                     '123   567'
                 ],  # test data
                 'digits(var_v1)   letters(var_v2, or_empty)     digits(var_v3)',  # user prepared data
-                '^\\s*(?P<v1>\\d+) +(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
-                '^\\s*${v1} +${v2} +${v3}',  # expected statement
+                '^\\s*(?P<v1>\\d+)\\s*(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
+                '^\\s*${v1}\\s*${v2} +${v3}',  # expected statement
                 True, False, False,
             ),
             (
@@ -638,8 +714,8 @@ class TestLinePattern:
                     '123   567'
                 ],  # test data
                 'digits(var_v1)   letters(var_v2, or_empty)   digits(var_v3)',  # user prepared data
-                '^\\s*(?P<v1>\\d+) +(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
-                '^\\s*${v1} +${v2} +${v3}',  # expected statement
+                '^\\s*(?P<v1>\\d+)\\s*(?P<v2>[a-zA-Z]+|) +(?P<v3>\\d+)',  # expected pattern
+                '^\\s*${v1}\\s*${v2} +${v3}',  # expected statement
                 True, False, False,
             ),
             (
@@ -652,12 +728,33 @@ class TestLinePattern:
                 '^\\s*${v1} +${v2}\\s*${v3}',  # expected statement
                 True, False, False,
             ),
+            (
+                [
+                    '123   abc   567',
+                    '124   abd',
+                    '125'
+                ],  # test data
+                'digits(var_v1)   letters(var_v2, or_empty)     digits(var_v3, or_empty)',  # user prepared data
+                '^\\s*(?P<v1>\\d+)\\s*(?P<v2>[a-zA-Z]+|)\\s*(?P<v3>\\d+|)',  # expected pattern
+                '^\\s*${v1}\\s*${v2}\\s*${v3}',  # expected statement
+                True, False, False,
+            ),
+            (
+                [
+                    '123   abc   567  ',
+                    '124   abd        ',
+                    '125              '
+                ],  # test data
+                'digits(var_v1)   letters(var_v2, or_empty)     digits(var_v3, or_empty)  ',  # user prepared data
+                '^\\s*(?P<v1>\\d+)\\s*(?P<v2>[a-zA-Z]+|)\\s*(?P<v3>\\d+|)\\s*',  # expected pattern
+                '^\\s*${v1}\\s*${v2}\\s*${v3}\\s*',  # expected statement
+                True, False, False,
+            ),
         ]
     )
     def test_line_statement(self, test_data, user_prepared_data,
                             expected_pattern, expected_statement,
                             prepended_ws, appended_ws, ignore_case):
-        # import pdb; pdb.set_trace()
         pattern = LinePattern(user_prepared_data,
                               prepended_ws=prepended_ws,
                               appended_ws=appended_ws, ignore_case=ignore_case)
