@@ -7,7 +7,7 @@ from pathlib import PurePath
 from regexapp import LinePattern
 from regexapp.config import Data
 
-import pytest
+import pytest       # noqa
 
 
 def get_package_info(pkg_name):
@@ -18,7 +18,7 @@ def get_package_info(pkg_name):
     else:
         output = str(output)
 
-    found = [l.strip() for l in output.splitlines() if l.startswith(pkg_name)]
+    found = [l.strip() for l in output.splitlines() if l.startswith(pkg_name)]  # noqa
     if found:
         return found[0]
     else:
@@ -36,7 +36,7 @@ installed_pkg_check = pytest.mark.skipif(
 @installed_pkg_check
 def test_installed_version_synchronization():
     pattern = LinePattern('data(regexapp==)mixed_word(var_version)end()')
-    match = re.match(pattern, pkg_info.strip())
+    match = re.match(pattern, pkg_info.strip())     # noqa
     if match:
         installed_version = match.group('version')
         assert installed_version == expected_version, pkg_info
