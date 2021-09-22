@@ -390,6 +390,7 @@ class TextPattern(str):
     rstrip(chars=None) -> TextPattern
     strip(chars=None) -> TextPattern
     add(other, as_is=True) -> TextPattern
+    concatenate(*other, as_is=True) -> TextPattern
 
     Raises
     ------
@@ -549,7 +550,7 @@ class TextPattern(str):
         if isinstance(other, TextPattern):
             result = self + other
         else:
-            if isinstance(other, list):
+            if isinstance(other, (list, tuple)):
                 result = self
                 for item in other:
                     if isinstance(item, TextPattern):
@@ -561,6 +562,23 @@ class TextPattern(str):
                 other_pat = TextPattern(str(other), as_is=as_is)
                 result = self + other_pat
 
+        return result
+
+    def concatenate(self, *other, as_is=True):
+        """return a concatenated TextPattern.
+
+        Parameters
+        ----------
+        other (tuple): other
+        as_is (bool): a flag to keep adding other AS-IS condition.
+
+        Returns
+        -------
+        TextPattern: a concatenated TextPattern instance.
+        """
+        result = self
+        for item in other:
+            result = result.add(item, as_is=as_is)
         return result
 
 

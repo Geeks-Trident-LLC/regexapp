@@ -116,6 +116,26 @@ class TestTextPattern:
         result = text_pat.add(other, as_is=as_is)
         assert result == expected_result
 
+    @pytest.mark.parametrize(
+        ('data', 'other', 'as_is', 'expected_result'),
+        [
+            ('a', 'b', True, 'ab'),
+            ('a', '*', True, 'a*'),
+            ('a ', '+ b', False, 'a \\+ b'),
+            ('a ', TextPattern('+ b'), False, 'a \\+ b'),
+            ('a ', TextPattern('+ b'), True, 'a \\+ b'),
+            ('a', ['(b', 'c)', '*'], True, 'a(bc)*'),
+            ('a', ['(', ('b', 'c'), ')', '*'], True, 'a(bc)*'),
+        ]
+    )
+    def test_add(self, data, other, as_is, expected_result):
+        text_pat = TextPattern(data)
+        if isinstance(other, (list, tuple)):
+            result = text_pat.concatenate(*other, as_is=as_is)
+        else:
+            result = text_pat.concatenate(other, as_is=as_is)
+        assert result == expected_result
+
 
 class TestElementPattern:
     @pytest.mark.parametrize(
