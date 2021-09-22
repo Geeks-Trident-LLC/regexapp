@@ -1,4 +1,4 @@
-import pytest
+import pytest       # noqa
 import re
 from textwrap import dedent
 
