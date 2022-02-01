@@ -5,7 +5,6 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter.font import Font
-from os import path
 from pathlib import Path
 import webbrowser
 from textwrap import dedent
@@ -16,6 +15,8 @@ from regexapp import version
 from regexapp import edition
 from regexapp.core import enclose_string
 from regexapp import PatternBuilder
+
+from regexapp.config import Data
 
 import yaml
 import re
@@ -111,54 +112,6 @@ def set_modal_dialog(dialog):
     dialog.wait_visibility()
     dialog.grab_set()
     dialog.wait_window()
-
-
-class Data:
-    company = 'Geeks Trident LLC'
-    company_url = 'https://www.geekstrident.com/'
-    years = '2021-2040'
-    license_name = 'BSD 3-Clause License'
-    repo_url = 'https://github.com/Geeks-Trident-LLC/regexapp'
-    license_url = path.join(repo_url, 'blob/main/LICENSE')
-    # TODO: Need to update wiki page for documentation_url instead of README.md.
-    documentation_url = path.join(repo_url, 'blob/develop/README.md')
-    copyright_text = 'Copyright @ {}'.format(years)
-
-    @classmethod
-    def get_license(cls):
-        license_ = """
-            BSD 3-Clause License
-
-            Copyright (c) {}, {}
-            All rights reserved.
-
-            Redistribution and use in source and binary forms, with or without
-            modification, are permitted provided that the following conditions are met:
-
-            1. Redistributions of source code must retain the above copyright notice, this
-               list of conditions and the following disclaimer.
-
-            2. Redistributions in binary form must reproduce the above copyright notice,
-               this list of conditions and the following disclaimer in the documentation
-               and/or other materials provided with the distribution.
-
-            3. Neither the name of the copyright holder nor the names of its
-               contributors may be used to endorse or promote products derived from
-               this software without specific prior written permission.
-
-            THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-            AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-            IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-            DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-            FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-            DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-            SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-            CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-            OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-            OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-        """
-        license_ = dedent(license_.format(cls.years, cls.company)).strip()
-        return license_
 
 
 class Snapshot(dict):
@@ -629,9 +582,8 @@ class Application:
         frame = self.Frame(paned_window, width=450, height=20)
         paned_window.add(frame, weight=4)
 
-        fmt = 'RegexApp v{} ({} Edition)'
         self.create_custom_label(
-            frame, text=fmt.format(version, edition),
+            frame, text=Data.main_app_text,
             increased_size=2, bold=True
         ).grid(row=0, column=0, columnspan=2, sticky=tk.W)
 
@@ -652,10 +604,9 @@ class Application:
         ).grid(row=2, column=0, sticky=tk.W)
 
         # PyYAML package
-        from yaml import __version__ as ver
-        text = 'PyYAML v{}'.format(ver)
         self.create_custom_label(
-            frame, text=text, link='https://pypi.org/project/PyYAML/'
+            frame, text=Data.pyyaml_text,
+            link=Data.pyyaml_link
         ).grid(row=3, column=0, padx=(20, 0), pady=(0, 10), sticky=tk.W)
 
         # license textbox
@@ -672,7 +623,7 @@ class Application:
         scrollbar = ttk.Scrollbar(lframe, orient=tk.VERTICAL, command=txtbox.yview)
         scrollbar.grid(row=0, column=1, sticky='nsew')
         txtbox.config(yscrollcommand=scrollbar.set)
-        txtbox.insert(tk.INSERT, Data.get_license())
+        txtbox.insert(tk.INSERT, Data.license)
         txtbox.config(state=tk.DISABLED)
 
         # footer - copyright
@@ -725,7 +676,7 @@ class Application:
         pady = 0 if self.is_macos else 3
 
         self.Label(
-            lframe_args, text='max_words'
+            lframe_args, text='Max Words'
         ).grid(row=1, column=0, columnspan=2, padx=2, pady=(5, pady), sticky=tk.W)
 
         self.TextBox(
@@ -733,7 +684,7 @@ class Application:
         ).grid(row=1, column=2, padx=2, pady=(5, pady), sticky=tk.W)
 
         self.Label(
-            lframe_args, text='test_name'
+            lframe_args, text='Test Name'
         ).grid(row=2, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -741,7 +692,7 @@ class Application:
         ).grid(row=2, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='test_cls_name'
+            lframe_args, text='Class Name'
         ).grid(row=3, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -749,7 +700,7 @@ class Application:
         ).grid(row=3, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='filename'
+            lframe_args, text='Filename'
         ).grid(row=4, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -757,7 +708,7 @@ class Application:
         ).grid(row=4, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='author'
+            lframe_args, text='Author'
         ).grid(row=5, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -765,7 +716,7 @@ class Application:
         ).grid(row=5, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='email'
+            lframe_args, text='Email'
         ).grid(row=6, column=0, columnspan=2, padx=2, pady=pady, sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -773,7 +724,7 @@ class Application:
         ).grid(row=6, column=2, columnspan=4, padx=2, pady=pady, sticky=tk.W)
 
         self.Label(
-            lframe_args, text='company'
+            lframe_args, text='Company'
         ).grid(row=7, column=0, columnspan=2, padx=2, pady=(pady, 10), sticky=tk.W)
         self.TextBox(
             lframe_args, width=45,
@@ -798,11 +749,17 @@ class Application:
 
         set_modal_dialog(settings)
 
-    def callback_preferences_system_reference(self):
-        """Callback for Menu Preferences > System References"""
+    def do_show_system_references_or_symbol_references(self, title='', filename=''):
+        """Show dialog for Menu Preferences > System References or
+        Menu Preferences > Symbol References
 
+        Parameters
+        ----------
+        title (str): a title of dialog.
+        filename (str): a file name.
+        """
         sys_ref = tk.Toplevel(self.root)
-        self.set_title(widget=sys_ref, title='System References')
+        self.set_title(widget=sys_ref, title=title)
         width, height = 600, 500
         x, y = get_relative_center_location(self.root, width, height)
         sys_ref.geometry('{}x{}+{}+{}'.format(width, height, x, y))
@@ -822,7 +779,7 @@ class Application:
         text_frame.columnconfigure(0, weight=1)
 
         textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
-        with open(REF.sys_ref_loc) as stream:
+        with open(filename) as stream:
             content = stream.read()
             self.set_textarea(textarea, content)
 
@@ -847,10 +804,24 @@ class Application:
 
         set_modal_dialog(sys_ref)
 
+    def callback_preferences_system_reference(self):
+        """Callback for Menu Preferences > System References"""
+        self.do_show_system_references_or_symbol_references(
+            title="System References",
+            filename=Data.system_reference_filename
+        )
+
+    def callback_preferences_symbol_reference(self):
+        """Callback for Menu Preferences > System References"""
+        self.do_show_system_references_or_symbol_references(
+            title="Symbol References",
+            filename=Data.symbol_reference_filename
+        )
+
     def callback_preferences_user_reference(self):
         """Callback for Menu Preferences > User References"""
         def save(node):
-            fn_ = REF.user_ref_loc
+            fn_ = Data.user_reference_filename
             origin_content = open(fn_).read()
             new_content = node.get('1.0', 'end')
             if new_content.strip() == origin_content.strip():
@@ -895,13 +866,15 @@ class Application:
             node.delete("1.0", "end")
             node.insert(tk.INSERT, new_content_)
 
-        fn = REF.user_ref_loc
+        fn = Data.user_reference_filename
         file_obj = Path(fn)
         if not file_obj.exists():
             question = '{!r} IS NOT EXISTED.\nDo you want to create?'.format(fn)
             result = create_msgbox(question=question)
             if result == 'yes':
-                not file_obj.parent.exists() and file_obj.parent.mkdir()
+                parent = file_obj.parent
+                if not parent.exists():
+                    parent.mkdir(parents=True, exist_ok=True)
                 file_obj.touch()
             else:
                 return
@@ -929,7 +902,7 @@ class Application:
 
         textarea = self.TextArea(text_frame, width=20, height=5, wrap='none')
 
-        with open(REF.user_ref_loc) as stream:
+        with open(Data.user_reference_filename) as stream:
             content = stream.read()
             self.set_textarea(textarea, content)
 
@@ -993,6 +966,10 @@ class Application:
         preferences.add_command(
             label='System References',
             command=lambda: self.callback_preferences_system_reference()
+        )
+        preferences.add_command(
+            label='Symbol References',
+            command=lambda: self.callback_preferences_symbol_reference()
         )
         preferences.add_separator()
         preferences.add_command(
