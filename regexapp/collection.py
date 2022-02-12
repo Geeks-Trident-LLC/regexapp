@@ -84,7 +84,7 @@ class VarCls:
     def __init__(self, name='', pattern='', option=''):
         self.name = str(name).strip()
         self.pattern = str(pattern)
-        self.option = ','.join(re.split(r'\s*_\s*', str(option)))
+        self.option = ','.join(re.split(r'\s*_\s*', str(option).title()))
         self.option = self.option.replace(' ', '')
 
     @property
@@ -95,7 +95,7 @@ class VarCls:
     def value(self):
         if self.option:
             fmt = 'Value {} {} ({})'
-            value = fmt.format(self.name, self.option, self.pattern)
+            value = fmt.format(self.option, self.name, self.pattern)
         else:
             fmt = 'Value {} ({})'
             value = fmt.format(self.name, self.pattern)
