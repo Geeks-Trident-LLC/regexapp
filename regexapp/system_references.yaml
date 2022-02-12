@@ -7,6 +7,13 @@ anything:
   positive test:
     pattern matches any character: "a"
 
+something:
+  group: character
+  description: a pattern to match at least one character.
+  pattern: ".+"
+  positive test:
+    pattern matches any character: "abc"
+
 everything:
   group: character
   description: a pattern to match all characters.

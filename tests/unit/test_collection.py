@@ -145,6 +145,7 @@ class TestElementPattern:
             # predefined keyword test                                          #
             ####################################################################
             ('anything()', '.'),
+            ('something()', '.+'),
             ('everything()', '.+'),
             ('space()', ' '),
             ('spaces()', ' +'),
