@@ -73,7 +73,7 @@ class VarCls:
     ---------
     name (str): variable name.  Default is empty.
     pattern (str): a regex pattern.  Default is empty.
-    option (str): a option for value assignment.  Default is empty.
+    option (str): an option for value assignment.  Default is empty.
 
     Properties
     ----------
@@ -94,6 +94,8 @@ class VarCls:
     @property
     def value(self):
         if self.option:
+            self.option = ','.join(re.split(r'\s*_\s*', str(self.option).title()))
+            self.option = self.option.replace(' ', '')
             fmt = 'Value {} {} ({})'
             value = fmt.format(self.option, self.name, self.pattern)
         else:
