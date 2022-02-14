@@ -145,6 +145,8 @@ class TestElementPattern:
             # predefined keyword test                                          #
             ####################################################################
             ('anything()', '.'),
+            ('something()', '.+'),
+            ('something_but()', '.*'),
             ('everything()', '.+'),
             ('space()', ' '),
             ('spaces()', ' +'),
@@ -186,6 +188,8 @@ class TestElementPattern:
             ('mac_address(var_mac_addr, or_n/a)', '(?P<mac_addr>([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})|n/a)'),   # noqa
             ('ipv4_address()', '((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3}'),   # noqa
             ('ipv6_address()', '(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))'),     # noqa
+            ('interface()', '[a-zA-Z][a-zA-Z0-9_/.-]*[0-9]'),
+            ('version()', '[0-9]\\S*'),
             ####################################################################
             # predefined keyword test combining with other flags               #
             ####################################################################
@@ -644,6 +648,14 @@ class TestLinePattern:
                 "'My Documents' -> /c/Users/test/Documents/",  # test data
                 'mixed_words(var_file_name) data(->, or_empty) mixed_words(var_link_name, or_empty) end()',
                 '(?i)(?P<file_name>\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)*)\\s*(->|)\\s*(?P<link_name>(\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)*)|)$',    # noqa
+                False, False, True,
+                True
+            ),
+            (
+                "software version is 1.1.1.",  # test data
+                'software version is version(var_ver).',
+                '(?i)software version is (?P<ver>[0-9]\\S*)\\.',
+                # noqa
                 False, False, True,
                 True
             ),

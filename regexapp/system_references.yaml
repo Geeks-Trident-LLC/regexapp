@@ -7,6 +7,20 @@ anything:
   positive test:
     pattern matches any character: "a"
 
+something:
+  group: character
+  description: a pattern to match at least one character.
+  pattern: ".+"
+  positive test:
+    pattern matches any character: "abc"
+
+something_but:
+  group: character
+  description: a pattern to match zero or at least one character.
+  pattern: ".*"
+  positive test:
+    pattern matches any character: "a"
+
 everything:
   group: character
   description: a pattern to match all characters.
@@ -390,3 +404,18 @@ ipv6_address:
         "1:2:3:4:5:abgd",
         "1:::a",
     ]
+
+interface:
+  group: name
+  description: a pattern to match a network interface name.
+  pattern: "[a-zA-Z][a-zA-Z0-9_/.-]*[0-9]"
+  positive test:
+    pattern matches any character: ["fa1/1", "fa1/1.1"]
+
+version:
+  group: version
+  description: a pattern to match software version.
+  pattern: "[0-9]\\S*"
+  positive test:
+    pattern matches any character: ["1", "1.1", "1.1.1", "1.1.1-a"]
+
