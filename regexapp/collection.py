@@ -691,7 +691,7 @@ class ElementPattern(str):
         match = re.match(sep_pat, text.strip())
         if match:
             keyword = match.group('keyword')
-            params = match.group('params')
+            params = match.group('params').strip()
             pattern = cls.build_pattern(keyword, params)
         else:
             pattern = do_soft_regex_escape(text)
