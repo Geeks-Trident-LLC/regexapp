@@ -431,18 +431,18 @@ class TextPattern(str):
         if self == '':
             return True
         else:
-            result = re.match(self, '')     # noqa
+            result = re.match(str(self), '')
             return bool(result)
 
     @property
     def is_empty_or_whitespace(self):
         is_empty = self.is_empty
-        is_ws = bool(re.match(self, ' '))   # noqa
+        is_ws = bool(re.match(str(self), ' '))
         return is_empty or is_ws
 
     @property
     def is_whitespace(self):
-        is_ws = bool(re.match(self, ' '))   # noqa
+        is_ws = bool(re.match(str(self), ' '))
         return is_ws
 
     @classmethod
