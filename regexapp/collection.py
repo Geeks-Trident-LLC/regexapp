@@ -640,6 +640,7 @@ class ElementPattern(str):
         ])
     )
     meta_data_pattern = r'^meta_data_\w+'
+    _variable = None
 
     def __new__(cls, text, as_is=False):
         cls._variable = VarCls()
@@ -807,7 +808,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -910,7 +911,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')  # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1007,7 +1008,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1084,7 +1085,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1161,7 +1162,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1320,8 +1321,8 @@ class ElementPattern(str):
         str: new pattern with variable name.
         """
         if name:
-            cls._variable.name = name       # noqa
-            cls._variable.pattern = pattern     # noqa
+            cls._variable.name = name
+            cls._variable.pattern = pattern
             if pattern.startswith('(') and pattern.endswith(')'):
                 sub_pat = pattern[1:-1]
                 if pattern.endswith('|)'):
@@ -1329,7 +1330,7 @@ class ElementPattern(str):
                 else:
                     try:
                         re.compile(sub_pat)
-                        cls._variable.pattern = sub_pat     # noqa
+                        cls._variable.pattern = sub_pat
                         new_pattern = '(?P<{}>{})'.format(name, sub_pat)
                     except Exception as ex:     # noqa
                         new_pattern = '(?P<{}>{})'.format(name, pattern)
@@ -1718,6 +1719,7 @@ class LinePattern(str):
     LinePatternError: raise an exception if pattern is invalid.
 
     """
+
     def __new__(cls, text, prepended_ws=False, appended_ws=False,
                 ignore_case=False):
         cls._variables = list()
