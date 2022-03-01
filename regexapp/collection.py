@@ -289,7 +289,7 @@ class PatternReference(dict):
                 return False
 
     def is_violated(self, dict_obj):
-        """Check if new pattern reference doesnt violate with system reference
+        """Check if new pattern reference doesn't violate with system reference
 
         Parameters
         ----------
@@ -374,7 +374,7 @@ SYMBOL = SymbolCls()
 class TextPattern(str):
     """Use to convert text data to regex pattern
 
-    Parameters
+    Attributes
     ----------
     text (str): a text.
     as_is (bool): keeping text an AS-IS pattern.
@@ -1544,7 +1544,7 @@ class ElementPattern(str):
         Parameters
         ----------
         lst (lst): a list of sub pattens
-        occurrence (str): a occurrence expression.  Default is empty.
+        occurrence (str): an occurrence expression.  Default is empty.
 
         Returns
         -------
@@ -1788,6 +1788,7 @@ class LinePattern(str):
 
         lst = []
         start = 0
+        m = None
         for m in re.finditer(r'\w+[(][^)]*[)]', line):
             pre_match = m.string[start:m.start()]
             if pre_match:
@@ -1798,8 +1799,8 @@ class LinePattern(str):
             lst.append(elm_pat)
             start = m.end()
         else:
-            if start:
-                after_match = m.string[start:]      # noqa
+            if m and start:
+                after_match = m.string[start:]
                 if after_match:
                     lst.append(TextPattern(after_match))
 
