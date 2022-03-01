@@ -289,7 +289,7 @@ class PatternReference(dict):
                 return False
 
     def is_violated(self, dict_obj):
-        """Check if new pattern reference doesnt violate with system reference
+        """Check if new pattern reference doesn't violate with system reference
 
         Parameters
         ----------
@@ -374,7 +374,7 @@ SYMBOL = SymbolCls()
 class TextPattern(str):
     """Use to convert text data to regex pattern
 
-    Parameters
+    Attributes
     ----------
     text (str): a text.
     as_is (bool): keeping text an AS-IS pattern.
@@ -431,18 +431,18 @@ class TextPattern(str):
         if self == '':
             return True
         else:
-            result = re.match(self, '')     # noqa
+            result = re.match(str(self), '')
             return bool(result)
 
     @property
     def is_empty_or_whitespace(self):
         is_empty = self.is_empty
-        is_ws = bool(re.match(self, ' '))   # noqa
+        is_ws = bool(re.match(str(self), ' '))
         return is_empty or is_ws
 
     @property
     def is_whitespace(self):
-        is_ws = bool(re.match(self, ' '))   # noqa
+        is_ws = bool(re.match(str(self), ' '))
         return is_ws
 
     @classmethod
@@ -640,6 +640,7 @@ class ElementPattern(str):
         ])
     )
     meta_data_pattern = r'^meta_data_\w+'
+    _variable = None
 
     def __new__(cls, text, as_is=False):
         cls._variable = VarCls()
@@ -807,7 +808,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -910,7 +911,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')  # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1007,7 +1008,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1084,7 +1085,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1161,7 +1162,7 @@ class ElementPattern(str):
                 if arg == 'meta_data_raw':
                     'meta_data' not in lst and lst.append('meta_data')
                 else:
-                    cls._variable.option = arg.lstrip('meta_data_')     # noqa
+                    cls._variable.option = arg.lstrip('meta_data_')
             else:
                 match = re.match(or_pat, arg, flags=re.I)
                 if match:
@@ -1320,8 +1321,8 @@ class ElementPattern(str):
         str: new pattern with variable name.
         """
         if name:
-            cls._variable.name = name       # noqa
-            cls._variable.pattern = pattern     # noqa
+            cls._variable.name = name
+            cls._variable.pattern = pattern
             if pattern.startswith('(') and pattern.endswith(')'):
                 sub_pat = pattern[1:-1]
                 if pattern.endswith('|)'):
@@ -1329,7 +1330,7 @@ class ElementPattern(str):
                 else:
                     try:
                         re.compile(sub_pat)
-                        cls._variable.pattern = sub_pat     # noqa
+                        cls._variable.pattern = sub_pat
                         new_pattern = '(?P<{}>{})'.format(name, sub_pat)
                     except Exception as ex:     # noqa
                         new_pattern = '(?P<{}>{})'.format(name, pattern)
@@ -1544,7 +1545,7 @@ class ElementPattern(str):
         Parameters
         ----------
         lst (lst): a list of sub pattens
-        occurrence (str): a occurrence expression.  Default is empty.
+        occurrence (str): an occurrence expression.  Default is empty.
 
         Returns
         -------
@@ -1718,6 +1719,9 @@ class LinePattern(str):
     LinePatternError: raise an exception if pattern is invalid.
 
     """
+
+    _variables = None
+
     def __new__(cls, text, prepended_ws=False, appended_ws=False,
                 ignore_case=False):
         cls._variables = list()
@@ -1788,18 +1792,19 @@ class LinePattern(str):
 
         lst = []
         start = 0
+        m = None
         for m in re.finditer(r'\w+[(][^)]*[)]', line):
             pre_match = m.string[start:m.start()]
             if pre_match:
                 lst.append(TextPattern(pre_match))
             elm_pat = ElementPattern(m.group())
             if not elm_pat.variable.is_empty:
-                cls._variables.append(elm_pat.variable)     # noqa
+                cls._variables.append(elm_pat.variable)
             lst.append(elm_pat)
             start = m.end()
         else:
-            if start:
-                after_match = m.string[start:]      # noqa
+            if m and start:
+                after_match = m.string[start:]
                 if after_match:
                     lst.append(TextPattern(after_match))
 

@@ -12,7 +12,7 @@ def run_gui_application(options):
 
     Parameters
     ----------
-    options (argparse.Namespace): a argparse.Namespace instance.
+    options (argparse.Namespace): argparse.Namespace instance.
 
     Returns
     -------
@@ -51,7 +51,7 @@ class Cli:
 
         Parameters
         ----------
-        options (argparse.Namespace): a argparse.Namespace instance.
+        options (argparse.Namespace): argparse.Namespace instance.
 
         Returns
         -------
