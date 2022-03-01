@@ -1720,6 +1720,8 @@ class LinePattern(str):
 
     """
 
+    _variables = None
+
     def __new__(cls, text, prepended_ws=False, appended_ws=False,
                 ignore_case=False):
         cls._variables = list()
@@ -1797,7 +1799,7 @@ class LinePattern(str):
                 lst.append(TextPattern(pre_match))
             elm_pat = ElementPattern(m.group())
             if not elm_pat.variable.is_empty:
-                cls._variables.append(elm_pat.variable)     # noqa
+                cls._variables.append(elm_pat.variable)
             lst.append(elm_pat)
             start = m.end()
         else:
