@@ -292,9 +292,13 @@ class TestElementPattern:
             ####################################################################
             ('start()', '^'),
             ('start(space)', '^ *'),
+            ('start(spaces)', '^ +'),
             ('start(space_plus)', '^ +'),
             ('start(ws)', '^\\s*'),
             ('start(ws_plus)', '^\\s+'),
+            ('start(whitespace)', '^\\s*'),
+            ('start(whitespaces)', '^\\s+'),
+            ('start(whitespace_plus)', '^\\s+'),
             ####################################################################
             # end keyword test                                               #
             ####################################################################
