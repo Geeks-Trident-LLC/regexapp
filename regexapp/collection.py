@@ -631,7 +631,7 @@ class ElementPattern(str):
     head_pattern = r'head(_raw|((_just)?_(whitespaces?|ws|spaces?)(_plus)?))?$'
     tail_pattern = r'tail(_raw|((_just)?_(whitespaces?|ws|spaces?)(_plus)?))?$'
     repetition_pattern = r'repetition_\d*(_\d*)?$'
-    occurrence_pattern = r'({})(?P<is_phrase>_phrase)?_occurrences?$'.format(
+    occurrence_pattern = r'({})(?P<is_phrase>_(group|phrase))?_occurrences?$'.format(
         '|'.join([
             r'((?P<fda>\d+)_or_(?P<lda>\d+))',
             r'((?P<fdb>\d+)_or_(?P<ldb>more))',

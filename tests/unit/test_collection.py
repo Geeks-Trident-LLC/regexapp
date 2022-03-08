@@ -270,6 +270,19 @@ class TestElementPattern:
             ('word(0_phrase_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)?'),
             ('word(1_phrase_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)'),
             ('word(3_phrase_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+){3}'),
+            ('word(0_or_1_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)?'),
+            ('word(0_or_more_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)*'),
+            ('word(1_or_more_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)+'),
+            ('word(3_or_more_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+){3,}'),
+            ('word(at_least_0_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)*'),
+            ('word(at_least_1_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+){1,}'),
+            ('word(at_least_3_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+){3,}'),
+            ('word(at_most_0_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)?'),
+            ('word(at_most_1_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+){,1}'),
+            ('word(at_most_3_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+){,3}'),
+            ('word(0_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)?'),
+            ('word(1_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+)'),
+            ('word(3_group_occurrence)', '[a-zA-Z0-9]+( [a-zA-Z0-9]+){3}'),
             ####################################################################
             # choice keyword test                                              #
             ####################################################################
