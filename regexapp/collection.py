@@ -628,10 +628,10 @@ class ElementPattern(str):
     """
     # patterns
     word_bound_pattern = r'word_bound(_left|_right|_raw)?$'
-    head_pattern = r'head(_raw|((_just)?_(whitespace|ws|space)(_plus)?))?$'
-    tail_pattern = r'tail(_raw|((_just)?_(whitespace|ws|space)(_plus)?))?$'
+    head_pattern = r'head(_raw|((_just)?_(whitespaces?|ws|spaces?)(_plus)?))?$'
+    tail_pattern = r'tail(_raw|((_just)?_(whitespaces?|ws|spaces?)(_plus)?))?$'
     repetition_pattern = r'repetition_\d*(_\d*)?$'
-    occurrence_pattern = r'({})(?P<is_phrase>_phrase)?_occurrences?$'.format(
+    occurrence_pattern = r'({})(?P<is_phrase>_(group|phrase))?_occurrences?$'.format(
         '|'.join([
             r'((?P<fda>\d+)_or_(?P<lda>\d+))',
             r'((?P<fdb>\d+)_or_(?P<ldb>more))',
@@ -1206,8 +1206,10 @@ class ElementPattern(str):
         if keyword != 'start':
             return False, ''
 
-        table = dict(space=r'^ *', space_plus=r'^ +',
-                     ws=r'^\s*', ws_plus=r'^\s+')
+        table = dict(space=r'^ *', spaces=r'^ +', space_plus=r'^ +',
+                     ws=r'^\s*', ws_plus=r'^\s+',
+                     whitespace=r'^\s*', whitespaces=r'^\s+',
+                     whitespace_plus=r'^\s+')
         pat = table.get(params, r'^')
         return True, pat
 
@@ -1227,8 +1229,10 @@ class ElementPattern(str):
         if keyword != 'end':
             return False, ''
 
-        table = dict(space=r' *$', space_plus=r' +$',
-                     ws=r'\s*$', ws_plus=r'\s+$')
+        table = dict(space=r' *$', spaces=r' +$', space_plus=r' +$',
+                     ws=r'\s*$', ws_plus=r'\s+$',
+                     whitespace=r'\s*$', whitespaces=r'\s+$',
+                     whitespace_plus=r'\s+$')
         pat = table.get(params, r'$')
         return True, pat
 
@@ -1408,6 +1412,9 @@ class ElementPattern(str):
             elif head == 'head_space_plus' and not pattern.startswith(case4):
                 new_pattern = '{}{}'.format(case4, pattern)
                 cls._prepended_pattern = case4
+            elif head == 'head_spaces' and not pattern.startswith(case4):
+                new_pattern = '{}{}'.format(case4, pattern)
+                cls._prepended_pattern = case4
             elif head == 'head' and not pattern.startswith(case5):
                 new_pattern = '{}{}'.format(case5, pattern)
                 cls._prepended_pattern = case5
@@ -1423,16 +1430,25 @@ class ElementPattern(str):
             elif head == 'head_just_space_plus' and not pattern.startswith(case9):
                 new_pattern = '{}{}'.format(case9, pattern)
                 cls._prepended_pattern = case9
+            elif head == 'head_just_spaces' and not pattern.startswith(case9):
+                new_pattern = '{}{}'.format(case9, pattern)
+                cls._prepended_pattern = case9
             elif head == 'head_whitespace' and not pattern.startswith(case10):
                 new_pattern = '{}{}'.format(case10, pattern)
                 cls._prepended_pattern = case10
             elif head == 'head_whitespace_plus' and not pattern.startswith(case11):
                 new_pattern = '{}{}'.format(case11, pattern)
                 cls._prepended_pattern = case11
+            elif head == 'head_whitespaces' and not pattern.startswith(case11):
+                new_pattern = '{}{}'.format(case11, pattern)
+                cls._prepended_pattern = case11
             elif head == 'head_just_whitespace' and not pattern.startswith(case12):
                 new_pattern = '{}{}'.format(case12, pattern)
                 cls._prepended_pattern = case12
             elif head == 'head_just_whitespace_plus' and not pattern.startswith(case13):
+                new_pattern = '{}{}'.format(case13, pattern)
+                cls._prepended_pattern = case13
+            elif head == 'head_just_whitespaces' and not pattern.startswith(case13):
                 new_pattern = '{}{}'.format(case13, pattern)
                 cls._prepended_pattern = case13
             else:
@@ -1476,6 +1492,9 @@ class ElementPattern(str):
             elif tail == 'tail_space_plus' and not pattern.endswith(case4):
                 new_pattern = '{}{}'.format(pattern, case4)
                 cls._appended_pattern = case4
+            elif tail == 'tail_spaces' and not pattern.endswith(case4):
+                new_pattern = '{}{}'.format(pattern, case4)
+                cls._appended_pattern = case4
             elif tail == 'tail' and not pattern.endswith(case5):
                 new_pattern = '{}{}'.format(pattern, case5)
                 cls._appended_pattern = case5
@@ -1491,16 +1510,25 @@ class ElementPattern(str):
             elif tail == 'tail_just_space_plus' and not pattern.startswith(case9):
                 new_pattern = '{}{}'.format(pattern, case9)
                 cls._appended_pattern = case9
+            elif tail == 'tail_just_spaces' and not pattern.startswith(case9):
+                new_pattern = '{}{}'.format(pattern, case9)
+                cls._appended_pattern = case9
             elif tail == 'tail_whitespace' and not pattern.startswith(case10):
                 new_pattern = '{}{}'.format(pattern, case10)
                 cls._appended_pattern = case10
             elif tail == 'tail_whitespace_plus' and not pattern.startswith(case11):
                 new_pattern = '{}{}'.format(pattern, case11)
                 cls._appended_pattern = case11
+            elif tail == 'tail_whitespaces' and not pattern.startswith(case11):
+                new_pattern = '{}{}'.format(pattern, case11)
+                cls._appended_pattern = case11
             elif tail == 'tail_just_whitespace' and not pattern.startswith(case12):
                 new_pattern = '{}{}'.format(pattern, case12)
                 cls._appended_pattern = case12
             elif tail == 'tail_just_whitespace_plus' and not pattern.startswith(case13):
+                new_pattern = '{}{}'.format(pattern, case13)
+                cls._appended_pattern = case13
+            elif tail == 'tail_just_whitespaces' and not pattern.startswith(case13):
                 new_pattern = '{}{}'.format(pattern, case13)
                 cls._appended_pattern = case13
             else:
