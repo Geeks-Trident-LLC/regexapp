@@ -1229,8 +1229,10 @@ class ElementPattern(str):
         if keyword != 'end':
             return False, ''
 
-        table = dict(space=r' *$', space_plus=r' +$',
-                     ws=r'\s*$', ws_plus=r'\s+$')
+        table = dict(space=r' *$', spaces=r' +$', space_plus=r' +$',
+                     ws=r'\s*$', ws_plus=r'\s+$',
+                     whitespace=r'\s*$', whitespaces=r'\s+$',
+                     whitespace_plus=r'\s+$')
         pat = table.get(params, r'$')
         return True, pat
 
