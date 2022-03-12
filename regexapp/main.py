@@ -29,6 +29,29 @@ def run_gui_application(options):
         sys.exit(0)
 
 
+def show_dependency(options):
+    if options.dependency:
+        from platform import uname, python_version
+        from regexapp.config import Data
+        lst = [
+            Data.main_app_text,
+            'Platform: {0.system} {0.release} - Python {1}'.format(
+                uname(), python_version()
+            ),
+            '--------------------',
+            'Dependencies:'
+        ]
+
+        for pkg in Data.get_dependency().values():
+            lst.append('  + Package: {0[package]}'.format(pkg))
+            lst.append('             {0[url]}'.format(pkg))
+
+        width = max(len(item) for item in lst)
+        txt = '\n'.join('| {1:{0}} |'.format(width, item) for item in lst)
+        print('+-{0}-+\n{1}\n+-{0}-+'.format(width * '-', txt))
+        sys.exit(0)
+
+
 class Cli:
     """regexapp console CLI application."""
 
@@ -52,13 +75,13 @@ class Cli:
         )
 
         parser.add_argument(
-            '-d', '--test-data', type=str, dest='test_data',
+            '-t', '--test-data', type=str, dest='test_data',
             default='',
             help='User test data.'
         )
 
         parser.add_argument(
-            '-t', '--test', action='store_true',
+            '-r', '--run-test', action='store_true', dest='test',
             help='To perform test between test data vs generated regex pattern.'
         )
 
@@ -72,6 +95,11 @@ class Cli:
             '-s', '--setting', type=str,
             default='',
             help='Settings for generated test script.'
+        )
+
+        parser.add_argument(
+            '-d', '--dependency', action='store_true',
+            help='Show Regexapp dependent package(s).'
         )
 
         self.parser = parser
@@ -208,6 +236,7 @@ class Cli:
 
     def run(self):
         """Take CLI arguments, parse it, and process."""
+        show_dependency(self.options)
         self.validate_cli_flags()
         run_gui_application(self.options)
         if not self.options.test_data:
