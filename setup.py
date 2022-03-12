@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='regexapp',
-    version='0.3.4',
+    version='0.3.5',
     license='BSD-3-Clause',
     license_files=['LICENSE'],
     description='The application to generate regex pattern.',
