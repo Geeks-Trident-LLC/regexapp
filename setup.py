@@ -27,6 +27,7 @@ setup(
     test_suite='tests',
     entry_points={
         'console_scripts': [
+            'regexapp = regexapp.main:execute',
             'regex-app = regexapp.application:execute',
         ]
     },

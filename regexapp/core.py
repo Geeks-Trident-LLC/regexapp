@@ -6,7 +6,7 @@ from regexapp.exceptions import RegexBuilderError
 from regexapp.exceptions import PatternReferenceError
 from regexapp.collection import REF
 import regexapp
-from copy import deepcopy
+from copy import copy, deepcopy
 from collections import OrderedDict
 from textwrap import indent
 from textwrap import dedent
@@ -553,7 +553,8 @@ class DynamicTestScriptBuilder:
         self.lst_of_tests = []
         test_info = self.test_info
         if isinstance(test_info, RegexBuilder):
-            testable = deepcopy(test_info)
+            # testable = deepcopy(test_info)
+            testable = copy(test_info)
             self.test_data = testable.test_data
         else:
             chk = isinstance(test_info, list) and len(test_info) == 2
