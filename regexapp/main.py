@@ -92,9 +92,9 @@ class Cli:
         )
 
         parser.add_argument(
-            '-s', '--setting', type=str,
+            '--config', type=str,
             default='',
-            help='Settings for generated test script.'
+            help='Config settings for generated test script.'
         )
 
         parser.add_argument(
@@ -141,9 +141,9 @@ class Cli:
                     print(failure)
                     sys.exit(1)
 
-        if self.options.setting:
-            setting = self.options.setting
-            m = re.match(pattern, setting, re.I)
+        if self.options.config:
+            config = self.options.config
+            m = re.match(pattern, config, re.I)
             if m:
                 try:
                     with open(m.group('filename')) as stream:
@@ -157,7 +157,7 @@ class Cli:
                     prepended_ws|appended_ws|ignore_case|
                     is_line|test_name|max_words|test_cls_name|
                     author|email|company|filename): *'''
-                content = re.sub(r' *: *', r': ', setting)
+                content = re.sub(r' *: *', r': ', config)
                 content = re.sub(other_pat, r'\n\1: ', content)
                 content = '\n'.join(line.strip(', ') for line in content.splitlines())
 
@@ -167,11 +167,11 @@ class Cli:
                     if isinstance(kwargs, dict):
                         self.kwargs = kwargs
                     else:
-                        failure = '*** INVALID-SETTING: {}'.format(setting)
+                        failure = '*** INVALID-CONFIG: {}'.format(config)
                         print(failure)
                         sys.exit(1)
                 except Exception as ex:
-                    failure = '*** LOADING-SETTING - {}'.format(ex)
+                    failure = '*** LOADING-CONFIG-ERROR - {}'.format(ex)
                     print(failure)
                     sys.exit(1)
 
