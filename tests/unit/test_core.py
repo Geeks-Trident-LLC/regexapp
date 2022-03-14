@@ -1,5 +1,3 @@
-import sys
-
 import pytest
 from textwrap import dedent
 from regexapp import RegexBuilder
@@ -9,12 +7,6 @@ from regexapp import remove_reference
 from regexapp.exceptions import PatternReferenceError
 from datetime import datetime
 from pathlib import Path, PurePath
-
-
-def is_python_v35_or_older():
-    major_ver = int(sys.version_info.major)
-    minor_ver = int(sys.version_info.minor)
-    return major_ver == 3 and minor_ver < 6
 
 
 @pytest.fixture
@@ -226,10 +218,6 @@ def tc_info():
 
 
 class TestRegexBuilder:
-    @pytest.mark.skipif(
-        is_python_v35_or_older(),
-        reason='Python 3.5 dictionary is unordered hash object'
-    )
     def test_regexbuilder_creation(self, tc_info):
         factory = RegexBuilder(
             user_data=tc_info.user_data, test_data=tc_info.test_data,
@@ -324,10 +312,6 @@ class TestRegexBuilder:
         assert test_script == tc_info.expected_snippet_script_for_multiline_pattern
 
 
-@pytest.mark.skipif(
-    is_python_v35_or_older(),
-    reason='Python 3.5 dictionary is unordered hash object'
-)
 def test_add_reference(tc_info):
     add_reference(name='file_type', pattern=r'\S')
     add_reference(name='file_permission', pattern=r'\S+')
