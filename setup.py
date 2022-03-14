@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='regexapp',
-    version='0.3.5',
+    version='0.3.6',
     license='BSD-3-Clause',
     license_files=['LICENSE'],
     description='The application to generate regex pattern.',
@@ -39,7 +39,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',

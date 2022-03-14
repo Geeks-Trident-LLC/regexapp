@@ -8,7 +8,7 @@ from pathlib import PurePath
 
 import yaml
 
-__version__ = '0.3.5'
+__version__ = '0.3.6'
 version = __version__
 __edition__ = 'Community'
 edition = __edition__
