@@ -47,7 +47,7 @@ class Data:
     main_app_text = 'RegexApp {} ({} Edition)'.format(version, edition)
 
     # packages
-    pyyaml_text = 'PyYAML v{}'.format(yaml.__version__)
+    pyyaml_text = 'pyyaml v{}'.format(yaml.__version__)
     pyyaml_link = 'https://pypi.org/project/PyYAML/'
 
     # company

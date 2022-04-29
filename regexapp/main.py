@@ -10,6 +10,10 @@ from regexapp.application import Application
 from regexapp import RegexBuilder
 from regexapp.core import enclose_string
 
+from regexapp.utils import Printer
+
+from regexapp.constant import ECODE
+
 
 def run_gui_application(options):
     """Run regexapp GUI application.
@@ -20,13 +24,13 @@ def run_gui_application(options):
 
     Returns
     -------
-    None: will invoke ``regexapp.Application().run()`` and ``sys.exit(0)``
+    None: will invoke ``regexapp.Application().run()`` and ``sys.exit(ECODE.SUCCESS)``
     if end user requests `--gui`
     """
     if options.gui:
         app = Application()
         app.run()
-        sys.exit(0)
+        sys.exit(ECODE.SUCCESS)
 
 
 def show_dependency(options):
@@ -46,10 +50,8 @@ def show_dependency(options):
             lst.append('  + Package: {0[package]}'.format(pkg))
             lst.append('             {0[url]}'.format(pkg))
 
-        width = max(len(item) for item in lst)
-        txt = '\n'.join('| {1:{0}} |'.format(width, item) for item in lst)
-        print('+-{0}-+\n{1}\n+-{0}-+'.format(width * '-', txt))
-        sys.exit(0)
+        Printer.print(lst)
+        sys.exit(ECODE.SUCCESS)
 
 
 class Cli:
@@ -111,13 +113,13 @@ class Cli:
 
         Returns
         -------
-        bool: show ``self.parser.print_help()`` and call ``sys.exit(1)`` if
+        bool: show ``self.parser.print_help()`` and call ``sys.exit(ECODE.BAD)`` if
         user_data flag is empty, otherwise, return True
         """
 
         if not self.options.user_data:
             self.parser.print_help()
-            sys.exit(1)
+            sys.exit(ECODE.BAD)
 
         pattern = r'file( *name)?:: *(?P<filename>\S*)'
         m = re.match(pattern, self.options.user_data, re.I)
@@ -128,7 +130,7 @@ class Cli:
             except Exception as ex:
                 failure = '*** {}: {}'.format(type(ex).__name__, ex)
                 print(failure)
-                sys.exit(1)
+                sys.exit(ECODE.BAD)
 
         if self.options.test_data:
             m = re.match(pattern, self.options.test_data, re.I)
@@ -139,7 +141,7 @@ class Cli:
                 except Exception as ex:
                     failure = '*** {}: {}'.format(type(ex).__name__, ex)
                     print(failure)
-                    sys.exit(1)
+                    sys.exit(ECODE.BAD)
 
         if self.options.config:
             config = self.options.config
@@ -151,7 +153,7 @@ class Cli:
                 except Exception as ex:
                     failure = '*** {}: {}'.format(type(ex).__name__, ex)
                     print(failure)
-                    sys.exit(1)
+                    sys.exit(ECODE.BAD)
             else:
                 other_pat = r'''(?x)(
                     prepended_ws|appended_ws|ignore_case|
@@ -169,11 +171,11 @@ class Cli:
                     else:
                         failure = '*** INVALID-CONFIG: {}'.format(config)
                         print(failure)
-                        sys.exit(1)
+                        sys.exit(ECODE.BAD)
                 except Exception as ex:
                     failure = '*** LOADING-CONFIG-ERROR - {}'.format(ex)
                     print(failure)
-                    sys.exit(1)
+                    sys.exit(ECODE.BAD)
 
         return True
 
@@ -197,11 +199,11 @@ class Cli:
                     lst.append(fmt.format(index, enclose_string(pattern)))
                 result = '\n'.join(lst)
                 print(result)
-            sys.exit(0)
+            sys.exit(ECODE.SUCCESS)
         else:
             fmt = '*** CANT generate regex pattern from\n{}'
             print(fmt.format(self.options.user_data))
-            sys.exit(1)
+            sys.exit(ECODE.BAD)
 
     def build_test_script(self):
         """Build test script"""
@@ -217,7 +219,7 @@ class Cli:
             factory.build()
             test_script = getattr(factory, method_name)()
             print('\n{}\n'.format(test_script))
-            sys.exit(0)
+            sys.exit(ECODE.SUCCESS)
         else:
             self.build_regex_pattern()
 
@@ -232,7 +234,7 @@ class Cli:
             factory.build()
             test_result = factory.test(showed=True)
             print(test_result)
-            sys.exit(0)
+            sys.exit(ECODE.SUCCESS)
 
     def run(self):
         """Take CLI arguments, parse it, and process."""
