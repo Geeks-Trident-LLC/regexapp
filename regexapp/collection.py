@@ -165,8 +165,8 @@ class PatternReference(dict):
                 msg = '{} is NOT FOUND.'.format(filename)
                 raise PatternReferenceError(msg)
             else:
-                fmt = '%s is NOT existed.  CANT load reference.'
-                logger.warning(fmt, filename)
+                # fmt = '%s is NOT existed.  CANT load reference.'
+                # logger.warning(fmt, filename)
                 return
 
         try:
