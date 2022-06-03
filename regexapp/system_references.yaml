@@ -1,0 +1,421 @@
+# version: 2021.09.10
+
+anything:
+  group: character
+  description: a pattern to match any character.
+  pattern: "."
+  positive test:
+    pattern matches any character: "a"
+
+something:
+  group: character
+  description: a pattern to match at least one character.
+  pattern: ".+"
+  positive test:
+    pattern matches any character: "abc"
+
+something_but:
+  group: character
+  description: a pattern to match zero or at least one character.
+  pattern: ".*"
+  positive test:
+    pattern matches any character: "a"
+
+everything:
+  group: character
+  description: a pattern to match all characters.
+  pattern: ".+"
+  positive test:
+    pattern match all characters: "abc"
+
+space:
+  group: tabulation
+  description: a pattern to match a blank space character.
+  pattern: " "
+  positive test:
+    pattern matches a blank space: " "
+  negative test:
+    the blank space pattern can not match data: "."
+
+spaces:
+  group: tabulation
+  description: a pattern to match multiple spaces.
+  pattern: " +"
+  positive test:
+    pattern match multiple blank space: "  "
+  negative test:
+    the multiple spaces pattern can not match data: "."
+
+non_space:
+  group: character
+  description: a pattern to match a non-blank space character.
+  pattern: "[^ ]"
+  positive test:
+    pattern matches a non-blank space: "\n"
+  negative test:
+    the non-blank space pattern can not match data: "a"
+
+non_spaces:
+  group: character
+  description: a pattern to match multiple non-blank space characters.
+  pattern: "[^ ]+"
+  positive test:
+    pattern match multiple non-blank spaces: "\n"
+  negative test:
+    the multiple non-blank space pattern can not match data: "a"
+
+ws:
+  group: tabulation
+  description: a pattern to match a character divider such as space, tab, newline, and more.
+  pattern: "\\s"
+  positive test:
+    pattern matches white space: " "
+  negative test:
+    the white space pattern can not match data: "."
+
+non_ws:
+  group: character
+  description: a pattern to match a character which is not a white space character.
+  pattern: "\\S"
+  positive test:
+    pattern matches non-white space: "a"
+  negative test:
+    the non-white space pattern can not match data: " "
+
+whitespace:
+  group: tabulation
+  description: a pattern to match a word divider such as space, tab, newline, and more.
+  pattern: "\\s"
+  positive test:
+    pattern matches white space: " "
+  negative test:
+    the white space pattern can not match data: "."
+
+whitespaces:
+  group: tabulation
+  description: a pattern to match multiple word divider such as space, tab, newline, and more.
+  pattern: "\\s+"
+  positive test:
+    pattern match multiple white spaces: " "
+  negative test:
+    the multiple white space pattern can not match data: "."
+
+non_whitespace:
+  group: character
+  description: a pattern to match any character which is not a white space character.
+  pattern: "\\S"
+  positive test:
+    pattern matches non-whitespace: "a"
+  negative test:
+    the non-white space pattern can not match data: " "
+
+non_whitespaces:
+  group: character
+  description: a pattern to match multiple characters which is not a white space character.
+  pattern: "\\S+"
+  positive test:
+    pattern match multiple non-white space: "ab"
+  negative test:
+    the multiple non-white space pattern can not match data: " "
+
+punctuation:
+  group: punctuation
+  description: a pattern to match a punctuation.
+  pattern: |-
+    [!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]
+  positive test:
+    pattern matches a punctuation: "."
+  negative test:
+    the punctuation pattern can not match data: "a"
+
+punctuations:
+  group: punctuation
+  description: a pattern to match multiple punctuation.
+  pattern: |-
+    [!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]+
+  positive test:
+    pattern match multiple punctuations: "."
+  negative test:
+    the punctuations pattern can not match data: "a"
+
+non_punctuation:
+  group: punctuation
+  description: a pattern to match a non-punctuation.
+  pattern: |-
+    [^!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]
+  positive test:
+    pattern matches a non-punctuation: "a"
+  negative test:
+    the non-punctuation pattern can not match data: "."
+
+non_punctuations:
+  group: punctuation
+  description: a pattern to match multiple non-punctuation.
+  pattern: |-
+    [^!\"#$%&\'()*+,-./:;<=>?@\[\\\]\^_`{|}~]+
+  positive test:
+    pattern match multiple non-punctuation: "a"
+  negative test:
+    the multiple non-punctuation pattern can not match data: "."
+
+letter:
+  group: word
+  description: a pattern to match a letter.
+  pattern: "[a-zA-Z]"
+  positive test:
+    pattern matches a letter: "a"
+  negative test:
+    the letter pattern can not match data: "."
+
+letters:
+  group: word
+  description: a pattern to match letters.
+  pattern: "[a-zA-Z]+"
+  positive test:
+    pattern matches letters: "abc"
+  negative test:
+    the letters pattern can not match data: "..."
+
+word:
+  group: word
+  description: a pattern to match a word.
+  pattern: "[a-zA-Z0-9]+"
+  positive test:
+    pattern matches a word: "abc"
+  negative test:
+    the word pattern can not match data: "[...]"
+
+words:
+  group: word
+  description: a pattern to match at least one word.
+  pattern: "[a-zA-Z0-9]+( [a-zA-Z0-9]+)*"
+  positive test:
+    pattern match words: "abc xyz"
+  negative test:
+    the words pattern can not match data: "... +++"
+
+mixed_word:
+  group: word
+  description: a pattern to match a mixed word that might include a punctuation.
+  pattern: "\\S*[a-zA-Z0-9]\\S*"
+  positive test:
+    pattern matches a mixed word: "abc@xyz.com"
+  negative test:
+    the mixed word pattern can not match data: "+-*/"
+
+mixed_words:
+  group: word
+  description: a pattern to match at least one mixed word.
+  pattern: "\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)*"
+  positive test:
+    pattern match mixed words: "email: abc@xyz.com"
+  negative test:
+    the mixed words pattern can not match data: "+-*/ -&^"
+
+phrase:
+  group: word
+  description: a pattern to match a phrase, i.e. at least two words.
+  pattern: "[a-zA-Z0-9]+( [a-zA-Z0-9]+)+"
+  positive test:
+    pattern match a pharse: "abc xyz"
+  negative test:
+    the phrase pattern can not match data: "abc"
+
+mixed_phrase:
+  group: word
+  description: a pattern to match a mixed pharse.
+  pattern: "\\S*[a-zA-Z0-9]\\S*( \\S*[a-zA-Z0-9]\\S*)+"
+  positive test:
+    pattern match a mixed phrase: "email: abc@xyz.com"
+  negative test:
+    the mixed phrase pattern can not match data: "email:"
+
+hexadecimal:
+  group: number
+  description: a pattern to match a hexadecimal.
+  pattern: "[0-9a-fA-F]"
+  positive test:
+    pattern match a hexadecimal: "5"
+  negative test:
+    the hexadecimal pattern can not match data: "x"
+
+hex:
+  group: number
+  description: a pattern to match a hexadecimal.
+  pattern: "[0-9a-fA-F]"
+  positive test:
+    pattern match a hexadecimal: "5"
+  negative test:
+    the hexadecimal pattern can not match data: "x"
+
+octal:
+  group: number
+  description: a pattern to match an octal number.
+  pattern: "[0-7]"
+  positive test:
+    pattern match an octal number: "5"
+  negative test:
+    the octal pattern can not match data: "9"
+
+binary:
+  group: number
+  description: a pattern to match a binary number.
+  pattern: "[01]"
+  positive test:
+    pattern match a binary number: "0"
+  negative test:
+    the binary pattern can not match data: "2"
+
+digit:
+  group: number
+  description: a pattern to match a single digit.
+  pattern: "\\d"
+  positive test:
+    pattern match a digit: "5"
+  negative test:
+    the digit pattern can not match data: "x"
+
+digits:
+  group: number
+  description: a pattern to match multiple digits.
+  pattern: "\\d+"
+  positive test:
+    pattern match at least one digit: "45"
+  negative test:
+    the digits pattern can not match data: "xyz"
+
+number:
+  group: number
+  description: a pattern to match a number.
+  pattern: "(\\d+)?[.]?\\d+"
+  positive test:
+    pattern match numbers: ["69", "69.95", "0.95", ".95"]
+  negative test:
+    the number pattern can not match data: ["ab"]
+
+signed_number:
+  group: number
+  description: a pattern to match a signed number.
+  pattern: "[+(-]?(\\d+)?[.]?\\d+[)]?"
+  positive test:
+    pattern match signed numbers: ["69", "-69.95", "+0.95", "(.95)"]
+  negative test:
+    the signed number pattern can not match data: ["a.b"]
+
+mixed_number:
+  group: number
+  description: a pattern to match a mixed number.
+  pattern: "[+\\(\\[\\$-]?(\\d+(,\\d+)*)?[.]?\\d+[\\]\\)%a-zA-Z]*"
+  positive test:
+    pattern match mixed numbers: [
+        "69", "-69.95", "+0.95", "(.95)",
+        "9.95%", "$19.99", "11,350.12",
+        "$11,350.12", "1.9Mb"
+    ]
+  negative test:
+    the mixed number pattern can not match data: ["a.b"]
+
+datetime:
+  group: datetime
+  description: a pattern to match datetime string
+  format: "[0-9]+/[0-9]+/[0-9]+"
+  format1: "[0-9]+/[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+"
+  format2: "[0-9]+ [a-zA-Z]+ +[0-9]+ [0-9]+:[0-9]+:[0-9]+"
+  format3: "[a-zA-Z]+, [a-zA-Z]+ +[0-9]+, [0-9]+ [0-9]+:[0-9]+:[0-9]+ [a-zA-Z]+"
+  format4: "[0-9]+-[0-9]+-[0-9]+ [0-9]+:[0-9]+"
+  positive test:
+    pattern matches a datetime format: 07/10/2021
+    pattern matches a datetime format1: 07/10/2021 08:56:45
+    pattern matches a datetime format2: 2021 Jun 16 14:44:01
+    pattern matches a datetime format3: Friday, April  9, 2021 8:43:15 PM
+    pattern matches a datetime format4: 2021-04-11 03:03
+  negative test:
+    the format datetime pattern can not match data: 07-10-2021
+    the format1 datetime pattern can not match data: 07-10-2021 08:56:45
+    the format2 datetime pattern can not match data: 2021 Jun 16, 14:44:01
+    the format3 datetime pattern can not match data: Friday April  9, 2021 8:43:15 PM
+    the format4 datetime pattern can not match data: 2021/04/11 03:03
+
+mac_address:
+  group: address
+  description: a pattern to match an MAC address.
+  pattern: "([0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}(-[0-9a-fA-F]{2}){5})|([0-9a-fA-F]{2}( [0-9a-fA-F]{2}){5})|([0-9a-fA-F]{4}([.][0-9a-fA-F]{4}){2})"
+  positive test:
+    pattern matches mac addresses: [
+        "11:22:33:aa:bb:cc",
+        "11-22-33-aa-bb-cc",
+        "11 22 33 aa bb cc",
+        "1122.33aa.bbcc"
+    ]
+  negative test:
+    the mac address pattern can not match data: [
+        "11:22:33 09:30:20",
+        "11:22 33:09 30:20",
+        "11:22:33:09 30-20",
+        "1122 33aa bbcc",
+        "1122-33aa-bbcc",
+        "1122:33aa:bbcc",
+    ]
+
+ipv4_address:
+  group: address
+  description: a pattern to match an ipv4 address.
+  pattern: "((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){3}"
+  positive test:
+    pattern matches ipv4 addresses: [
+        "127.0.0.1",
+        "192.168.0.1",
+        "255.255.255.255",
+    ]
+  negative test:
+    the ipv4 address pattern can not match data: [
+        "127.1111.0.1",
+        "127.256.1.1",
+        "256.1.1.1",
+        "127.0 0.1",
+    ]
+
+ipv6_address:
+  group: address
+  description: a pattern to match an ipv6 address.
+  pattern: "(([a-fA-F0-9]{1,4}(:[a-fA-F0-9]{1,4}){5})|([a-fA-F0-9]{1,4}:(:[a-fA-F0-9]{1,4}){1,4})|(([a-fA-F0-9]{1,4}:){1,2}(:[a-fA-F0-9]{1,4}){1,3})|(([a-fA-F0-9]{1,4}:){1,3}(:[a-fA-F0-9]{1,4}){1,2})|(([a-fA-F0-9]{1,4}:){1,4}:[a-fA-F0-9]{1,4})|(([a-fA-F0-9]{1,4}:){1,4}:)|(:(:[a-fA-F0-9]{1,4}){1,4}))"
+  positive test:
+    pattern matches ipv6 addresses: [
+        "1111:2222:3333:4444:5555:aaaa",
+        "1:2:3:4:5:A",
+        "1::a",
+        "1:2::a",
+        "1:2:3::a",
+        "1:2:3:4::a",
+        "1:2:3:4::",
+        "1:2:3::",
+        "1:2::",
+        "1::",
+        "::3",
+        "1::3",
+        "1::3:4:5:a",
+        "1:2::4:5:a",
+        "1:2:3::5:a",
+    ]
+  negative test:
+    the ipv6 address pattern can not match data: [
+        "1:2:3:4:55555:a",
+        "1::3:4::a",
+        "1:2:3:4:5:abgd",
+        "1:::a",
+    ]
+
+interface:
+  group: name
+  description: a pattern to match a network interface name.
+  pattern: "[a-zA-Z][a-zA-Z0-9_/.-]*[0-9]"
+  positive test:
+    pattern matches any character: ["fa1/1", "fa1/1.1"]
+
+version:
+  group: version
+  description: a pattern to match software version.
+  pattern: "[0-9]\\S*"
+  positive test:
+    pattern matches any character: ["1", "1.1", "1.1.1", "1.1.1-a"]
+
