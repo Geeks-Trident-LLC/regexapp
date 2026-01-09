@@ -40,7 +40,7 @@ from genericlib import File
 
 import regexapp.utils as utils
 
-__version__ = '0.5.1a2'
+__version__ = '0.6.0a1'
 version = __version__
 __edition__ = 'Community'
 edition = __edition__
@@ -155,8 +155,7 @@ class Data:
     user_reference_filename = str(
         PurePath(
             Path.home(),
-            '.geekstrident',
-            'regexapp',
+            '.regexapp',
             'user_references.yaml'
         )
     )
@@ -186,7 +185,7 @@ class Data:
 
     # License
     years = '2022'
-    license_name = f'{company_name} License'
+    license_name = f'RegexApp License'
     copyright_text = f'Copyright \xa9 {years}'
     license = utils.File.read('LICENSE')
 
@@ -312,7 +311,7 @@ class Data:
           object. Use `yaml.safe_load` or similar functions to parse the
           YAML content if structured access is required.
         - If the user reference file does not exist, it is created in the
-          user's home directory under `.geekstrident/regexapp/`.
+          user's home directory under `.regexapp/`.
         - The file is initialized with sample keyword definitions copied
           from `sample_user_keywords.yaml`.
         - This method does not perform validation of the YAML structure;
