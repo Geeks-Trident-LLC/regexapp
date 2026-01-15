@@ -53,11 +53,11 @@ from regexapp.config import Data
 
 import regexapp.utils as utils
 
-from genericlib import File
-from genericlib.text import WHITESPACE_CHARS
-from genericlib.text import Line
-from genericlib.text import dedent_and_strip
-from genericlib.exceptions import raise_exception
+from regexapp.deps import genericlib_File as File
+from regexapp.deps import genericlib_WHITESPACE_CHARS as WHITESPACE_CHARS
+from regexapp.deps import genericlib_Line as Line
+from regexapp.deps import genericlib_dedent_and_strip as dedent_and_strip
+from regexapp.deps import genericlib_raise_exception as raise_exception
 
 import logging
 logger = logging.getLogger(__file__)

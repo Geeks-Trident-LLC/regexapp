@@ -22,7 +22,7 @@ from regexapp.core import enclose_string
 
 import regexapp.utils as utils
 
-from genericlib.misc import sys_exit
+from regexapp.deps import genericlib_sys_exit as sys_exit
 
 
 def run_gui_application(options):

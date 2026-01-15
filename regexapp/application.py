@@ -24,7 +24,7 @@ Notes
   GUI
 """
 
-from genericlib.misc import ensure_tkinter_available
+from regexapp.deps import genericlib_ensure_tkinter_available as ensure_tkinter_available
 
 tk = ensure_tkinter_available(app_name="Regexapp")
 
@@ -47,8 +47,8 @@ from regexapp.config import Data
 import regexapp.ui as ui
 import regexapp.utils as utils
 
-from genericlib import DotObject
-from genericlib.text import dedent_and_strip
+from regexapp.deps import genericlib_DotObject as DotObject
+from regexapp.deps import genericlib_dedent_and_strip as dedent_and_strip
 
 import yaml
 import re

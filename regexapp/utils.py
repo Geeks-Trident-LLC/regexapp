@@ -16,8 +16,8 @@ from io import IOBase
 
 import yaml
 
-from genericlib.exceptions import raise_exception
-from genericlib.misc import sys_exit
+from regexapp.deps import genericlib_raise_exception as raise_exception
+from regexapp.deps import genericlib_sys_exit as sys_exit
 
 
 class File:
