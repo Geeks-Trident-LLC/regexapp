@@ -1,12 +1,49 @@
-"""Top-level module for regexapp.
+"""
+regexapp: Top-level package initializer.
 
-- support TextPattern, ElementPattern, LinePattern, MultilinePattern, and PatternBuilder
-- support predefine pattern reference on system_references.yaml
-- allow end-user to customize pattern on /home/.geekstrident/regexapp/user_references.yaml
-- allow end-user to generate test script or pattern on GUI application.
-- dynamically generate Python snippet script
-- dynamically generate Python unittest script
-- dynamically generate Python pytest script
+This module exposes the primary classes, builders, and utilities
+that form the core functionality of regexapp. It provides access
+to pattern definitions, dynamic test script generation, and
+reference management utilities. End-users can leverage these
+exports to build, customize, and validate regex patterns across
+different contexts.
+
+Features
+--------
+- Pattern support:
+  * `TextPattern`, `ElementPattern`, `LinePattern`, `MultilinePattern`
+    for diverse regex construction needs.
+  * `PatternBuilder` for assembling complex regex patterns.
+  * `PatternReference` for accessing predefined system references
+    from `system_references.yaml`.
+- Customization:
+  * End-users can override or extend predefined patterns by editing
+    `~/.geekstrident/regexapp/user_references.yaml`.
+- Test script generation:
+  * Dynamically generate Python snippet scripts.
+  * Dynamically generate Python unittest scripts.
+  * Dynamically generate Python pytest scripts.
+- Utilities:
+  * `RegexBuilder` and `DynamicTestScriptBuilder` for constructing
+    and validating regex-based test workflows.
+  * `add_reference` and `remove_reference` for managing reference
+    entries programmatically.
+
+Metadata
+--------
+- `version` : str
+    Current package version.
+- `edition` : str
+    Current package edition (e.g., Community).
+
+Notes
+-----
+- System references are defined in `system_references.yaml` and
+  shipped with the package.
+- User references are stored in the home directory under
+  `.geekstrident/regexapp/`.
+- This module centralizes imports and metadata for convenience,
+  making regexapp easier to use directly from the top-level package.
 """
 
 from regexapp.collection import TextPattern
@@ -19,8 +56,6 @@ from regexapp.core import RegexBuilder
 from regexapp.core import DynamicTestScriptBuilder
 from regexapp.core import add_reference
 from regexapp.core import remove_reference
-
-from regexapp.core import NonCommercialUseCls
 
 from regexapp.config import version
 from regexapp.config import edition
@@ -36,7 +71,6 @@ __all__ = [
     'PatternReference',
     'RegexBuilder',
     'DynamicTestScriptBuilder',
-    'NonCommercialUseCls',
     'add_reference',
     'remove_reference',
     'version',

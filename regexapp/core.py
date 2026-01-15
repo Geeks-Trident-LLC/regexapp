@@ -1,41 +1,105 @@
+"""
+regexapp.core
+=============
+Core functionality for regexapp: pattern building, reference management,
+and dynamic test script generation.
+
+This module provides the foundational classes and utilities used to
+construct, manage, and validate regular expressions within regexapp.
+It also supports generating test scripts across multiple frameworks
+(unittest, pytest, Robot Framework, and generic Python snippets).
+
+Contents
+--------
+Functions
+---------
+enclose_string(text: str) -> str
+    Wrap a string in double quotes or triple double quotes.
+create_docstring(test_framework='unittest', author='', email='', company='') -> str
+    Generate a module-level docstring for a test script with optional
+    metadata such as author, email, and company.
+add_reference(name: str, pattern: str, **kwargs) -> None
+    Add a keyword reference to the PatternReference collection for
+    quick inline testing.
+remove_reference(name: str) -> None
+    Remove a keyword reference previously added inline.
+
+Classes
+-------
+RegexBuilder
+    Build regex patterns from user data and test data. Provides
+    facilities for compiling patterns, generating reports, and
+    validating matches.
+DynamicTestScriptBuilder
+    Generate test scripts dynamically for multiple frameworks using
+    regex patterns and test data. Supports unittest, pytest, Robot
+    Framework (planned), and generic Python snippets.
+UnittestBuilder
+    Create unittest scripts from dynamic test case information.
+PytestBuilder
+    Create pytest scripts from dynamic test case information.
+PythonSnippetBuilder
+    Create lightweight Python snippet test scripts, including line
+    and multiline pattern validation.
+
+Exceptions
+----------
+RegexBuilderError
+    Raised for errors encountered during regex building.
+PatternReferenceError
+    Raised for invalid operations on pattern references.
+
+Notes
+-----
+- The module relies on `regexapp.collection.REF` as a baseline
+  reference set, which is deep-copied into `BASELINE_REF` for
+  local use.
+- All builders support optional metadata (author, email, company,
+  filename) to embed provenance into generated test scripts.
+- Community edition keyword arguments include `prepended_ws`,
+  `appended_ws`, and `ignore_case`.
+"""
+
+
 import re
 from datetime import datetime
+from copy import copy, deepcopy
+from collections import OrderedDict
+from textwrap import indent
+
 from regexapp import LinePattern
 from regexapp import MultilinePattern
 from regexapp.exceptions import RegexBuilderError
 from regexapp.exceptions import PatternReferenceError
-from regexapp.exceptions import NoUserDataError
-from regexapp.exceptions import NoTestDataError
 
-from regexapp.config import version
 from regexapp.collection import REF
 import regexapp
-from copy import copy, deepcopy
-from collections import OrderedDict
-from textwrap import indent
-from textwrap import dedent
+import regexapp.utils as utils
+
+from genericlib.text import dedent_and_strip
+
 
 BASELINE_REF = deepcopy(REF)
 
 
-def is_pro_edition():
-    """return True if regexapp is Pro or Enterprise edition"""
-    # TODO: Regex Pro Edition and Enterprise Edition will be deprecated and
-    #  removed in the upcoming migration to regexapp version 1.x.
-    chk = regexapp.edition == 'Pro' or regexapp.edition == 'Enterprise'
-    return chk
-
-
 def enclose_string(text):
-    """enclose text with either double-quote or triple double-quote
+    """
+    Return the given text enclosed in quotes.
+
+    - If the text spans multiple lines, it is wrapped in triple double quotes.
+    - If the text is a single line, it is wrapped in standard double quotes.
+    - Any existing double quotes inside the text are escaped.
 
     Parameters
     ----------
-    text (str): a text
+    text : str
+        Input text to be enclosed.
 
     Returns
     -------
-    str: a new string with enclosed double-quote or triple double-quote
+    str
+        A new string with the input text enclosed in either double quotes
+        or triple double quotes, depending on its length.
     """
     text = str(text)
     fmt = '"""{}"""' if len(text.splitlines()) > 1 else '"{}"'
@@ -43,61 +107,44 @@ def enclose_string(text):
     return enclosed_txt
 
 
-def create_custom_docstring(**kwargs):
-    """Generate custom docstring for Pro Edition or Enterprise Edition
-
-    Regex Pro Edition and Enterprise Edition will be deprecated and
-    removed in the upcoming migration to regexapp version 1.x.
-
-    Parameters
-    ----------
-    kwargs (dict): custom keyword arguments for
-            Pro Edition or Enterprise Edition.
-
-    Returns
-    -------
-    str: a custom docstring or empty string.
-
-    """
-    if kwargs:
-        # TODO: Regex Pro Edition and Enterprise Edition will be deprecated
-        #  and removed in the upcoming migration to regexapp version 1.x.
-        if is_pro_edition():
-            # fmt = ('Contact tuyen@geekstrident.com to use {!r} flags on '
-            #        'Regex Pro or Enterprise Edition.')
-            # print(fmt.format(kwargs))
-            return ''
-        else:
-            # fmt = 'CANT use {!r} flags with Regex Pro Edition.'
-            # print(fmt.format(kwargs))
-            return ''
-    else:
-        return ''
-
-
 def create_docstring(test_framework='unittest',
-                     author='', email='', company='', **kwargs):
-    """Generate module docstring for test script
+                     author='', email='', company=''):
+    """
+    Generate a standardized module-level docstring or header comment
+    for a test script.
+
+    The generated text includes metadata such as the test framework,
+    author, email, company, and creation date. For Python-based
+    frameworks (e.g., unittest, pytest), the output is enclosed in
+    triple quotes as a proper docstring. For Robot Framework, the
+    output is formatted as a comment block prefixed with `#`.
 
     Parameters
     ----------
-    test_framework (str): a test framework.  Default is unittest.
-    author (str): author name.  Default is empty.
-    email (str): author name.  Default is empty.
-    company (str): company name.  Default is empty.
-    kwargs (dict): custom keyword arguments for
-            Pro Edition or Enterprise Edition.
-            Regex Pro Edition and Enterprise Edition will be deprecated
-            and removed in the upcoming migration to regexapp version 1.x.
-
+    test_framework : str, optional
+        Target test framework. Defaults to "unittest".
+        - "unittest" or "pytest": produces a Python docstring.
+        - "robotframework": produces a comment block.
+    author : str, optional
+        Author name. Defaults to empty string.
+    email : str, optional
+        Author email. Defaults to empty string.
+    company : str, optional
+        Company name. Defaults to empty string.
 
     Returns
     -------
-    str: a module docstring
-    """
+    str
+        A formatted module docstring or comment block containing
+        framework information, author metadata, and creation date.
 
-    # TODO: Regex Pro Edition and Enterprise Edition will be deprecated and
-    #  removed in the upcoming migration to regexapp version 1.x.
+    Notes
+    -----
+    - If both `author` and `company` are provided, `author` takes
+      precedence in the "Created by" field.
+    - The `regexapp.edition` value is included to indicate which
+      edition of regexapp generated the script.
+    """
 
     lang = '' if test_framework == 'robotframework' else 'Python '
     fmt = '{}{} script is generated by Regex {} Edition'
@@ -109,13 +156,10 @@ def create_docstring(test_framework='unittest',
     lst = list()
     author = author or company
     lst.append(fmt.format(lang, test_framework, regexapp.edition))
-    lst.append('')
     author and lst.append(fmt1.format(author))
     email and lst.append(fmt2.format(email))
     company and company != author and lst.append(fmt3.format(company))
     lst.append(fmt4.format(datetime.now()))
-    custom_docstr = create_custom_docstring(**kwargs)
-    custom_docstr and lst.append(custom_docstr)
 
     if test_framework == 'robotframework':
         new_lst = [line.strip() for line in indent('\n'.join(lst), '# ').splitlines()]
@@ -126,81 +170,98 @@ def create_docstring(test_framework='unittest',
         return module_docstr
 
 
-def save_file(filename, content):
-    """Save data to file
-
-    Parameters
-    ----------
-    filename (str): a file name
-    content (str): a file content
-    """
-    filename = str(filename).strip()
-    if filename:
-        with open(filename, 'w') as stream:
-            stream.write(content)
-
-
 class RegexBuilder:
-    """Use for building regex pattern
+    """
+    Core builder for constructing and validating regular expression patterns.
+
+    The `RegexBuilder` class provides functionality to generate regex patterns
+    from user-provided data and test data. It supports customization such as
+    whitespace handling, case sensitivity, and test name generation. In addition,
+    it can produce test scripts for multiple frameworks (unittest, pytest,
+    Robot Framework, and generic Python snippets).
 
     Attributes
     ----------
-    user_data (str, list): a user data can be either string or list of string.
-    test_data (str, list): a test data can be either string or list of string.
+    user_data : str or list of str
+        Input data from the user. Can be a single string or a list of strings.
+    test_data : str or list of str
+        Test data used to validate generated regex patterns.
 
-    prepended_ws (bool): prepend a whitespace at the beginning of a pattern.
-            Default is False.
-    appended_ws (bool): append a whitespace at the end of a pattern.
-            Default is False.
-    ignore_case (bool): prepend (?i) at the beginning of a pattern.
-            Default is False.
+    prepended_ws : bool, optional
+        If True, prepend a whitespace at the beginning of each pattern.
+        Default is False.
+    appended_ws : bool, optional
+        If True, append a whitespace at the end of each pattern.
+        Default is False.
+    ignore_case : bool, optional
+        If True, prepend the inline flag `(?i)` to make patterns case-insensitive.
+        Default is False.
 
-    is_line (bool): a flag to use LinePattern.  Default is False.
-    test_name (str): a predefined test name.  Default is empty.
-            + unittest will use either predefined test name or
-                generated test name from test data
-            + pytest will use predefined test name.
-            + robotframework test will depend on test workflow.  It might be
-                either used predefined test name or generated test name.
-    max_words (int): total number of words for generating test name.
-            Default is 6 words.
-    test_cls_name (str): a test class name for test script.  This test class
-            name only be applicable for unittest or pytest.
-            Default is TestDynamicGenTestScript.
+    is_line : bool, optional
+        Flag to enable `LinePattern` usage. Default is False.
+    is_exact : bool, optional
+        Flag to enforce exact matching of patterns. Default is False.
+    test_name : str, optional
+        Predefined test name. Defaults to empty string.
+        - unittest: uses predefined name or generates one from test data.
+        - pytest: uses predefined name.
+        - Robot Framework: may use either predefined or generated name.
+    max_words : int, optional
+        Maximum number of words used when generating a test name.
+        Default is 6.
+    test_cls_name : str, optional
+        Name of the test class for unittest/pytest scripts.
+        Default is "TestDynamicGenTestScript".
 
-    author (str): author name.  Default is empty.
-    email (str): author name.  Default is empty.
-    company (str): company name.  Default is empty.
+    author : str, optional
+        Author name. Defaults to empty string.
+    email : str, optional
+        Author email. Defaults to empty string.
+    company : str, optional
+        Company name. Defaults to empty string.
 
-    filename (str): save a generated test script to file name.
-    kwargs (dict): an optional keyword arguments.
-            Community edition will use the following keywords:
-                prepended_ws, appended_ws, ignore_case
-            Pro or Enterprise edition will be deprecated and removed in
-                the upcoming migration to regexapp version 1.x.
-                prepended_ws, appended_ws, ignore_case, other keywords
+    filename : str, optional
+        File name to save the generated test script.
+    kwargs : dict, optional
+        Additional keyword arguments. Community edition supports:
+        `prepended_ws`, `appended_ws`, `ignore_case`.
 
-    patterns (list): a list of patterns.
-    test_report (str): a test report.
-    test_result (bool): a test result.
-    user_data_pattern_table (OrderedDict): a variable holds (user_data, pattern) pair.
-    pattern_user_data_table (OrderedDict): a variable holds (pattern, user_data) pair.
-    test_data_pattern_table (OrderedDict): a variable holds (test_data, pattern) pair.
-    pattern_test_data_table (OrderedDict): a variable holds (pattern, test_data) pair.
+    patterns : list
+        List of regex patterns generated from user data.
+    test_report : str
+        Report summarizing test execution results.
+    test_result : bool
+        Boolean flag indicating overall test success or failure.
+    user_data_pattern_table : OrderedDict
+        Mapping of user data to generated patterns.
+    pattern_user_data_table : OrderedDict
+        Mapping of patterns back to user data.
+    test_data_pattern_table : OrderedDict
+        Mapping of test data to generated patterns.
+    pattern_test_data_table : OrderedDict
+        Mapping of patterns back to test data.
 
     Methods
     -------
-    RegexBuilder.validate_data(data, name) -> bool
+    validate_data(data, name) -> bool
+        Validate input data format for regex building.
     build() -> None
+        Construct regex patterns from user and test data.
     test(showed=True) -> bool
+        Execute tests against generated patterns and return results.
     create_unittest() -> str
+        Generate a Python unittest script.
     create_pytest() -> str
+        Generate a Python pytest script.
     create_rf_test() -> str
+        Generate a Robot Framework test script.
     create_python_test() -> str
+        Generate a generic Python test script snippet.
 
     Raises
     ------
-    RegexBuilderError: if user_data or test_data is invalid format.
+    RegexBuilderError
+        Raised if `user_data` or `test_data` is provided in an invalid format.
     """
     def __init__(self, user_data='', test_data='',
                  prepended_ws=False, appended_ws=False, ignore_case=False,
@@ -241,22 +302,36 @@ class RegexBuilder:
 
     @classmethod
     def validate_data(cls, **kwargs):
-        """validate data
+        """
+        Validate input data for regex building.
+
+        This method checks that each provided keyword argument value is either
+        a string or a list of strings. Empty values are considered invalid.
+        If any argument fails validation, a `RegexBuilderError` is raised.
 
         Parameters
         ----------
-        kwargs (dict): keyword argument
+        **kwargs : keyword arguments
+            Arbitrary keyword arguments representing named data inputs.
+            Each value must be either:
+            - str: a single string of data
+            - list of str: a list containing only strings
 
         Returns
         -------
-        bool: True or False
+        bool
+            True if all provided data is valid and non-empty,
+            False otherwise.
 
         Raises
         ------
-        RegexBuilderError: if failed to validate data.
+        RegexBuilderError
+            If no keyword arguments are provided, or if any value is not
+            a string or list of strings, or if a list contains non-string
+            elements.
         """
         if not kwargs:
-            msg = 'CANT validate data without providing data.'
+            msg = "Data validation failed: no data provided."
             raise RegexBuilderError(msg)
 
         is_validated = True
@@ -275,18 +350,53 @@ class RegexBuilder:
         return is_validated
 
     def build(self):
-        """Build regex pattern"""
-        pattern = r"# \S+commercial use: generated by[^\r\n]+[\r\n]+" \
-                  r"# Created Date: [^\r\n]+[\r\n]+#{4,} *[\r\n]+"
-        if re.match(pattern, self.raw_user_data.lstrip()):
-            # excluding commercial use text in user data
-            self.user_data = re.sub(pattern, "", self.raw_user_data.lstrip())
+        """
+        Construct regex patterns from user-provided data.
 
+        This method validates the `user_data` attribute and generates
+        regex patterns based on its content. Patterns are created using
+        either `LinePattern` (for line-based input) or `MultilinePattern`
+        (for multi-line or grouped input), depending on the `is_line` flag.
+
+        Workflow
+        --------
+        1. Validate `user_data` using `validate_data`.
+        2. If `user_data` is empty, record a failure message in
+           `self.test_report` and return early.
+        3. Normalize `user_data` into a list of strings:
+           - If `is_line` is True: split into lines or copy list/tuple.
+           - If `is_line` is False: wrap strings in a list, or join
+             nested lists/tuples into multi-line strings.
+        4. For each normalized entry, build a regex pattern:
+           - `LinePattern`: respects `prepended_ws`, `appended_ws`,
+             and `ignore_case`.
+           - `MultilinePattern`: respects `ignore_case` and `is_exact`.
+        5. Append new patterns to `self.patterns` and update mapping
+           tables (`user_data_pattern_table`, `pattern_user_data_table`).
+
+        Returns
+        -------
+        None
+            This method does not return a value. It updates internal
+            attributes (`patterns`, `test_report`, mapping tables).
+
+        Raises
+        ------
+        RegexBuilderError
+            If `user_data` fails validation (not a string or list of strings).
+
+        Side Effects
+        ------------
+        - Updates `self.patterns` with newly built regex patterns.
+        - Populates mapping tables for user data ↔ pattern relationships.
+        - Prints a message if `user_data` is empty.
+        - Sets `self.test_report` when build fails due to empty input.
+        """
         data = self.user_data
-        self.__class__.validate_data(user_data=data)
+        self.__class__.validate_data(user_data=data)    # noqa
 
         if not data:
-            self.test_report = 'CANT build regex pattern with an empty data.'
+            self.test_report = "Regex pattern generation failed: no data provided."
             print(self.test_report)
             return
 
@@ -323,21 +433,61 @@ class RegexBuilder:
             self.pattern_user_data_table[pattern] = user_data
 
     def test(self, showed=False):
-        """test regex pattern via test data.
+        """
+        Execute regex pattern tests against provided test data.
+
+        This method validates the `test_data` attribute and attempts to
+        match each entry against the regex patterns built by the instance.
+        It records results, updates mapping tables, and optionally prints
+        a formatted test report.
 
         Parameters
         ----------
-        showed (bool): show test report if set to True.  Default is False.
+        showed : bool, optional
+            If True, print the generated test report to stdout.
+            Default is False.
 
         Returns
         -------
-        bool: True if passed a test, otherwise, False.
+        bool
+            True if all test data matched at least one pattern,
+            False otherwise.
+
+        Raises
+        ------
+        RegexBuilderError
+            If `test_data` is invalid (not a string or list of strings).
+
+        Workflow
+        --------
+        1. Validate `test_data` using `validate_data`.
+        2. If `test_data` is empty, record a failure message in
+           `self.test_report`, optionally print it, and return False.
+        3. Normalize `test_data` into a list of strings:
+           - If `is_line` is True: split into lines or copy list/tuple.
+           - Otherwise: wrap strings in a list, or join nested lists/tuples
+             into multi-line strings.
+        4. For each regex pattern in `self.patterns`:
+           - Attempt to match against each test data entry.
+           - Record matches, including any named groups.
+           - Update mapping tables (`test_data_pattern_table`,
+             `pattern_test_data_table`).
+           - Append results to the report.
+        5. Store overall success/failure in `self.test_result` and
+           formatted report in `self.test_report`.
+
+        Side Effects
+        ------------
+        - Updates `self.test_result` with overall pass/fail status.
+        - Updates `self.test_report` with a detailed report string.
+        - Populates mapping tables for test data ↔ pattern relationships.
+        - Optionally prints the report if `showed=True`.
         """
         data = self.test_data
-        self.__class__.validate_data(test_data=data)
+        self.__class__.validate_data(test_data=data)    # noqa
 
         if not data:
-            self.test_report = 'CANT run test with an empty data.'
+            self.test_report = "Test execution failed: no data provided."
             showed and print(self.test_report)
             return False
 
@@ -382,22 +532,56 @@ class RegexBuilder:
         return test_result
 
     def create_unittest(self):
-        """dynamically generate Python unittest script
+        """
+        Generate a Python unittest script from the current RegexBuilder instance.
+
+        This method delegates to `DynamicTestScriptBuilder` to construct a
+        fully formatted unittest script based on the regex patterns and
+        test data defined in the current builder. The generated script
+        includes a test class, test methods, and metadata such as author,
+        email, and company if provided.
 
         Returns
         -------
-        str: python unittest script
+        str
+            A string containing the complete Python unittest script.
+
+        Notes
+        -----
+        - The returned script is dynamically generated and can be saved
+          to a file or executed directly.
+        - Metadata (author, email, company, filename) from the builder
+          instance is embedded into the script if available.
+        - This method does not execute the generated tests; it only
+          produces the script text.
         """
         factory = DynamicTestScriptBuilder(test_info=self)
         script = factory.create_unittest()
         return script
 
     def create_pytest(self):
-        """dynamically generate Python pytest script
+        """
+        Generate a Python pytest script from the current RegexBuilder instance.
+
+        This method delegates to `DynamicTestScriptBuilder` to construct a
+        fully formatted pytest script based on the regex patterns and
+        test data defined in the current builder. The generated script
+        includes a test class, test functions, and optional metadata such
+        as author, email, and company if provided.
 
         Returns
         -------
-        str: python pytest script
+        str
+            A string containing the complete Python pytest script.
+
+        Notes
+        -----
+        - The returned script is dynamically generated and can be saved
+          to a file or executed directly with pytest.
+        - Metadata (author, email, company, filename) from the builder
+          instance is embedded into the script if available.
+        - This method does not execute the generated tests; it only
+          produces the script text.
         """
         factory = DynamicTestScriptBuilder(test_info=self)
         script = factory.create_pytest()
@@ -415,11 +599,30 @@ class RegexBuilder:
         return script
 
     def create_python_test(self):
-        """dynamically generate Python test script
+        """
+        Generate a Robot Framework test script from the current RegexBuilder instance.
+
+        This method delegates to `DynamicTestScriptBuilder` to construct a
+        Robot Framework test script based on the regex patterns and test
+        data defined in the current builder. The generated script includes
+        test cases and optional metadata such as author, email, and company
+        if provided.
 
         Returns
         -------
-        str: python test script
+        str
+            A string containing the complete Robot Framework test script.
+
+        Notes
+        -----
+        - The returned script is dynamically generated and can be saved
+          to a file or executed directly with Robot Framework.
+        - Metadata (author, email, company, filename) from the builder
+          instance is embedded into the script if available.
+        - This method does not execute the generated tests; it only
+          produces the script text.
+        - Robot Framework support may be partially implemented depending
+          on the edition of regexapp.
         """
         factory = DynamicTestScriptBuilder(test_info=self)
         script = factory.create_python_test()
@@ -427,19 +630,46 @@ class RegexBuilder:
 
 
 def add_reference(name='', pattern='', **kwargs):
-    """add keyword reference to PatternReference.  This is an inline adding
-    PatternReference for quick test.
+    """
+    Add a keyword reference to the PatternReference collection.
+
+    This function registers a new keyword-to-pattern mapping for quick
+    inline testing. If the keyword already exists in the baseline
+    references (`system_references.yaml` or `user_references.yaml`),
+    a `PatternReferenceError` is raised. Special handling is provided
+    for the keyword `"datetime"`, allowing additional format options
+    to be passed via keyword arguments.
 
     Parameters
     ----------
-    name (str): a keyword.
-    pattern (str): a regex pattern.
-    kwargs (dict): keyword argument which will use for special case such as datetime.
+    name : str, optional
+        The keyword to associate with the regex pattern.
+        Must be non-empty.
+    pattern : str, optional
+        The regex pattern string to register.
+    **kwargs : dict, optional
+        Additional keyword arguments for special cases.
+        For `"datetime"`, keys matching `formatN` (e.g., `format1`,
+        `format2`) can be used to define custom datetime formats.
+
+    Returns
+    -------
+    None
+        This function does not return a value. It updates the
+        `REF` collection in place.
 
     Raises
     ------
-    PatternReferenceError: if adding an existing keyword from
-        system_references.yaml or user_references.yaml
+    PatternReferenceError
+        If `name` is empty, or if the keyword already exists in
+        `system_references.yaml` or `user_references.yaml`.
+
+    Notes
+    -----
+    - Inline references are intended for quick testing and do not
+      persist beyond the current runtime unless explicitly saved.
+    - For `"datetime"`, additional formats are merged into the
+      existing reference entry.
     """
     if not name:
         fmt = '{} keyword can not be empty name.'
@@ -464,21 +694,44 @@ def add_reference(name='', pattern='', **kwargs):
 
 
 def remove_reference(name=''):
-    """remove keyword reference from PatternReference.  This method only remove
-    any inline adding keyword reference.
+    """
+    Remove a keyword reference from the PatternReference collection.
+
+    This function deletes an inline keyword-to-pattern mapping previously
+    added via `add_reference`. Baseline references defined in
+    `system_references.yaml` or `user_references.yaml` cannot be removed,
+    except for the special case `"datetime"`, which is reset to its
+    baseline definition.
 
     Parameters
     ----------
-    name (str): a keyword.
+    name : str, optional
+        The keyword to remove. Must be non-empty.
+
+    Returns
+    -------
+    None
+        This function does not return a value. It updates the `REF`
+        collection in place.
 
     Raises
     ------
-    PatternReferenceError: if removing an existing keyword from
-        system_references.yaml or user_references.yaml
+    PatternReferenceError
+        - If `name` is empty.
+        - If the keyword exists only in baseline references and cannot
+          be removed (other than `"datetime"`).
+        - If the keyword does not exist in the current references.
+
+    Notes
+    -----
+    - Inline references are intended for quick testing and can be
+      removed with this function.
+    - For `"datetime"`, the reference is restored to its baseline
+      configuration rather than being deleted outright.
     """
     if not name:
-        fmt = '{} keyword can not be empty name.'
-        PatternReferenceError(fmt.format(name))
+        error = f"Keyword '{name}' must have a non-empty name."
+        raise PatternReferenceError(error)
 
     if name in REF:
         if name not in BASELINE_REF:
@@ -487,37 +740,38 @@ def remove_reference(name=''):
             if name == 'datetime':
                 REF['datetime'] = deepcopy(BASELINE_REF['datetime'])
             else:
-                fmt = ('CANT remove {!r} from system_references.yaml '
-                       'or user_references.yaml')
-                raise PatternReferenceError(fmt.format(name))
+                error = (f"Keyword {repr(name)} cannot be removed from "
+                         f"system_references.yaml or user_references.yaml.")
+                raise PatternReferenceError(error)
     else:
-        fmt = 'CANT remove {!r} keyword because it does not exist.'
-        raise PatternReferenceError(fmt.format(name))
+        error = f"Keyword {repr(name)} cannot be removed because it does not exist."
+        raise PatternReferenceError(error)
 
 
 class DynamicTestScriptBuilder:
     """
-    Dynamically generate test scripts for multiple frameworks.
+    Builder for dynamically generating test scripts across multiple frameworks.
 
-    This builder class constructs test scripts (unittest, pytest,
-    Robot Framework, or generic Python snippets) based on provided
-    regex patterns and test data. It supports both direct use of a
-    `RegexBuilder` instance and a simplified list format containing
-    user_data and test_data. The builder automates test name generation,
-    pattern compilation, and script creation.
+    The `DynamicTestScriptBuilder` constructs test scripts for unittest,
+    pytest, Robot Framework, or generic Python snippets based on regex
+    patterns and test data. It supports both direct use of a `RegexBuilder`
+    instance and a simplified list format containing `[user_data, test_data]`.
+    The builder automates test name generation, pattern compilation, and
+    script creation, embedding optional metadata such as author, email,
+    company, and filename.
 
     Attributes
     ----------
     test_info : RegexBuilder or list
-        Either a `RegexBuilder` instance or a two‑element list
-        containing [user_data, test_data].
+        Either a `RegexBuilder` instance or a two-element list containing
+        [user_data, test_data].
     test_name : str
         Predefined test name. Defaults to empty string.
         - unittest: uses predefined name or generates one from test data.
         - pytest: uses predefined name.
         - Robot Framework: may use either predefined or generated name.
     is_line : bool
-        Flag to enable LinePattern. Defaults to False.
+        Flag to enable `LinePattern`. Defaults to False.
     max_words : int
         Maximum number of words used when generating a test name.
         Default is 6.
@@ -535,29 +789,45 @@ class DynamicTestScriptBuilder:
     kwargs : dict
         Optional keyword arguments. Community edition supports:
         `prepended_ws`, `appended_ws`, `ignore_case`.
-        Pro/Enterprise keywords are deprecated in regexapp v1.x.
+    prepended_ws : bool
+        If True, prepend a whitespace at the beginning of each pattern.
+        Default is False.
+    appended_ws : bool
+        If True, append a whitespace at the end of each pattern.
+        Default is False.
+    ignore_case : bool
+        If True, prepend the inline flag `(?i)` to make patterns case-insensitive.
+        Default is False.
     lst_of_tests : list
-        Compiled list of test cases, each containing test name,
-        test data, prepared data, and pattern.
-    test_data : str
-        Test data string used for validation.
-    patterns : list
-        List of regex patterns generated from user data.
+        Compiled list of test cases, each containing test name, test data,
+        prepared data, and pattern.
+    test_data : str or None
+        Test data string used for validation. Initialized as None.
+    patterns : list or None
+        List of regex patterns generated from user data. Initialized as None.
 
     Methods
     -------
     compile_test_info() -> None
         Prepare a list of test cases from `test_info`.
-    generate_test_name(test_data='') -> str
+    generate_test_name(test_data: str = '') -> str
         Generate a valid test name from provided test data.
     create_unittest() -> str
         Generate a Python unittest script.
     create_pytest() -> str
         Generate a Python pytest script.
     create_rf_test() -> str
-        Generate a Robot Framework test script (not yet implemented).
+        Generate a Robot Framework test script (may be partially implemented).
     create_python_test() -> str
         Generate a generic Python test script snippet.
+
+    Notes
+    -----
+    - Metadata (author, email, company, filename) is embedded into generated
+      scripts if provided.
+    - Inline keyword arguments (`prepended_ws`, `appended_ws`, `ignore_case`)
+      are consumed during initialization and removed from `kwargs`.
+    - This class does not execute generated tests; it only produces script text.
     """
     def __init__(self, test_info=None, test_name='', is_line=False,
                  max_words=6, test_cls_name='TestDynamicGenTestScript',
@@ -606,8 +876,50 @@ class DynamicTestScriptBuilder:
         self.compile_test_info()
 
     def compile_test_info(self):
-        """prepare a list of test cases from test info"""
+        """
+        Compile test cases from the provided test information.
 
+        This method processes `test_info` (either a `RegexBuilder` instance
+        or a two-element list of `[user_data, test_data]`) to generate a
+        structured list of test cases. Each test case includes a generated
+        test name, the test data, the prepared user data, and the associated
+        regex pattern. The compiled test cases are stored in
+        `self.lst_of_tests`.
+
+        Workflow
+        --------
+        1. Reset `self.lst_of_tests` to an empty list.
+        2. Determine the source of `test_info`:
+           - If a `RegexBuilder` instance: copy it and extract `test_data`.
+           - If a list: validate format, extract `user_data` and `test_data`,
+             and construct a new `RegexBuilder` instance.
+        3. Build regex patterns and run tests using the `RegexBuilder`.
+        4. Extract generated patterns and mapping tables.
+        5. Validate that prepared data exists; raise `RegexBuilderError` if not.
+        6. For each test data entry:
+           - Generate a test name via `generate_test_name`.
+           - Retrieve prepared user data from mapping tables.
+           - Append `[test_name, test_data, prepared_data, pattern]` to
+             `self.lst_of_tests`.
+
+        Returns
+        -------
+        None
+            This method does not return a value. It updates internal
+            attributes (`lst_of_tests`, `test_data`, `patterns`).
+
+        Raises
+        ------
+        RegexBuilderError
+            - If `test_info` is not a valid `RegexBuilder` or two-element list.
+            - If no prepared data is available to build test cases.
+
+        Side Effects
+        ------------
+        - Updates `self.lst_of_tests` with compiled test cases.
+        - Updates `self.test_data` with extracted test data.
+        - Updates `self.patterns` with regex patterns generated by `RegexBuilder`.
+        """
         self.lst_of_tests = []
         test_info = self.test_info
         if isinstance(test_info, RegexBuilder):
@@ -639,7 +951,8 @@ class DynamicTestScriptBuilder:
         test_data_pattern_table = testable.test_data_pattern_table
 
         if not test_data_pattern_table and not user_data_pattern_table:
-            raise RegexBuilderError('No prepared_data to build test script')
+            error = "Test script generation failed: no prepared data provided."
+            raise RegexBuilderError(error)
 
         for test_data, pattern in test_data_pattern_table.items():
             test_name = self.generate_test_name(test_data=test_data)
@@ -648,13 +961,13 @@ class DynamicTestScriptBuilder:
 
     def generate_test_name(self, test_data=''):
         """
-        Generate a valid test function name from provided test data.
+        Generate a sanitized test function name from provided test data.
 
         This method normalizes the input string, extracts up to `max_words`
         words, and converts them into a safe identifier suitable for use
-        as a test function name. If a predefined `self.test_name` exists,
-        it will be used instead. The final name is guaranteed to start
-        with the prefix ``test_``.
+        as a Python test function name. If a predefined `self.test_name`
+        exists, it takes precedence over the generated name. The final
+        name is guaranteed to start with the prefix ``test_``.
 
         Parameters
         ----------
@@ -665,10 +978,19 @@ class DynamicTestScriptBuilder:
         Returns
         -------
         str
-            A sanitized test name string that:
-            - Contains only alphanumeric characters and underscores.
+            A valid test function name string that:
+            - Contains only lowercase alphanumeric characters and underscores.
             - Is truncated to at most `max_words` words.
             - Always begins with ``test_``.
+
+        Notes
+        -----
+        - Non-alphanumeric characters are replaced with underscores.
+        - Leading and trailing underscores are stripped.
+        - If `test_data` is empty and no predefined `self.test_name` exists,
+          the result will be ``test_`` followed by an empty suffix.
+        - This ensures compatibility with Python naming conventions for
+          test discovery in frameworks such as unittest and pytest.
         """
         pat = r'[^0-9a-zA-Z]*\s+[^0-9a-zA-Z]*'
         test_data = str(test_data).lower().strip()
@@ -682,42 +1004,78 @@ class DynamicTestScriptBuilder:
 
     def create_unittest(self):
         """
-        Generate a Python unittest script from the current builder state.
+        Generate and optionally save a Python unittest script.
 
-        This method uses the `UnittestBuilder` to construct a complete
+        This method delegates to `UnittestBuilder` to construct a complete
         unittest script based on the test cases and configuration stored
-        in the `DynamicTestScriptBuilder` instance. The generated script
-        is also saved to the file specified by `self.filename`.
+        in the current `DynamicTestScriptBuilder` instance. The generated
+        script includes a test class, test methods, and optional metadata
+        such as author, email, company, and filename. If `self.filename`
+        is set, the script is also written to disk.
 
         Returns
         -------
         str
             A string containing the full Python unittest script.
-            The script is written to disk if `self.filename` is set.
+
+        Raises
+        ------
+        OSError
+            If writing the generated script to disk fails.
+
+        Notes
+        -----
+        - The returned script is dynamically generated and can be executed
+          directly with Python’s unittest framework.
+        - Metadata (author, email, company, filename) is embedded into the
+          script if available.
+        - Saving to disk is performed via `utils.File.write`; if `self.filename`
+          is empty, the script is returned but not saved.
+        - This method does not execute the generated tests; it only produces
+          the script text.
         """
         factory = UnittestBuilder(self)
         test_script = factory.create()
-        save_file(self.filename, test_script)
+        if self.filename:
+            utils.File.write(self.filename, test_script)
         return test_script
 
     def create_pytest(self):
         """
-        Generate a Python pytest script from the current builder state.
+        Generate and optionally save a Python pytest script.
 
-        This method uses the `PytestBuilder` to construct a complete
+        This method delegates to `PytestBuilder` to construct a complete
         pytest script based on the test cases and configuration stored
-        in the `DynamicTestScriptBuilder` instance. The generated script
-        is also saved to the file specified by `self.filename`.
+        in the current `DynamicTestScriptBuilder` instance. The generated
+        script includes a test class, test functions, and optional metadata
+        such as author, email, company, and filename. If `self.filename`
+        is set, the script is also written to disk.
 
         Returns
         -------
         str
             A string containing the full Python pytest script.
-            The script is written to disk if `self.filename` is set.
+
+        Raises
+        ------
+        OSError
+            If writing the generated script to disk fails.
+
+        Notes
+        -----
+        - The returned script is dynamically generated and can be executed
+          directly with pytest.
+        - Metadata (author, email, company, filename) is embedded into the
+          script if available.
+        - Saving to disk is performed via `utils.File.write`; if `self.filename`
+          is empty, the script is returned but not saved.
+        - This method does not execute the generated tests; it only produces
+          the script text.
         """
         factory = PytestBuilder(self)
         test_script = factory.create()
-        save_file(self.filename, test_script)
+        if self.filename:
+            utils.File.write(self.filename, test_script)
         return test_script
 
     def create_rf_test(self):     # noqa
@@ -740,36 +1098,88 @@ class DynamicTestScriptBuilder:
             Always raised until Robot Framework test generation is
             implemented.
         """
-        msg = 'TODO: need to implement generated_rf_test for robotframework'
-        NotImplementedError(msg)
+        msg = "Robotframework test script generation is not implemented yet."
+        raise NotImplementedError(msg)
 
     def create_python_test(self):
-        """dynamically generate Python test script
+        """
+        Generate and optionally save a generic Python test script.
+
+        This method delegates to `PythonSnippetBuilder` to construct a
+        lightweight Python test script based on the test cases and
+        configuration stored in the current `DynamicTestScriptBuilder`
+        instance. The generated script is returned as a string and, if
+        `self.filename` is set, also written to disk.
 
         Returns
         -------
-        str: a Python test script
+        str
+            A string containing the complete Python test script.
+
+        Raises
+        ------
+        OSError
+            If writing the generated script to disk fails.
+
+        Notes
+        -----
+        - The returned script is dynamically generated and can be executed
+          directly with Python.
+        - Metadata (author, email, company, filename) is embedded into the
+          script if available.
+        - Saving to disk is performed via `utils.File.write`; if `self.filename`
+          is empty, the script is returned but not saved.
+        - This method does not execute the generated tests; it only produces
+          the script text.
         """
         factory = PythonSnippetBuilder(self)
         test_script = factory.create()
-        save_file(self.filename, test_script)
+        if self.filename:
+            utils.File.write(self.filename, test_script)
         return test_script
 
 
 class UnittestBuilder:
-    """Create Unittest script
+    """
+    Builder for dynamically generating Python unittest scripts.
+
+    The `UnittestBuilder` constructs a complete unittest script based on
+    the test cases and configuration provided by a `DynamicGenTestScript`
+    instance. It automates the creation of test classes, test methods,
+    and loader functions, embedding optional metadata such as author,
+    email, and company into the module-level docstring.
 
     Attributes
     ----------
-    tc_gen (DynamicGenTestScript): an DynamicGenTestScript instance.
-    module_docstring (str): a Python snippet docstring.
+    tc_gen : DynamicGenTestScript
+        A `DynamicGenTestScript` instance containing test cases,
+        patterns, and configuration details used to generate the
+        unittest script.
+    module_docstring : str
+        A module-level docstring snippet generated via `create_docstring`,
+        including metadata such as author, email, and company.
 
     Methods
     -------
     create_testcase_class() -> str
+        Generate the Python code for the unittest test class definition.
     create_testcase_method() -> str
+        Generate Python code for individual unittest test methods
+        based on compiled test cases.
     create_testcase_load() -> str
+        Generate Python code for loading and running the unittest suite.
     create() -> str
+        Assemble the complete unittest script, including the module
+        docstring, test class, test methods, and loader function.
+
+    Notes
+    -----
+    - The generated script is returned as a string and can be saved
+      to a file or executed directly with Python’s unittest framework.
+    - Metadata (author, email, company) is embedded into the script
+      if provided by the `DynamicGenTestScript` instance.
+    - This class does not execute the generated tests; it only produces
+      the script text.
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
@@ -778,13 +1188,39 @@ class UnittestBuilder:
             author=tc_gen.author,
             email=tc_gen.email,
             company=tc_gen.company,
-            **tc_gen.kwargs
         )
 
     def create_testcase_class(self):
-        """return partial unit test class definition"""
+        """
+        Generate the partial definition of a unittest test class.
 
-        tmpl = """
+        This method constructs the initial portion of a Python unittest
+        class, including the module-level docstring, required imports,
+        and the class header with its constructor. The generated snippet
+        serves as the foundation for building a complete unittest script,
+        to which test methods and loader functions can later be appended.
+
+        Returns
+        -------
+        str
+            A string containing the partial unittest class definition,
+            including:
+            - The module docstring with metadata (author, email, company).
+            - Imports for `unittest` and `re`.
+            - A test class definition derived from `self.tc_gen.test_cls_name`.
+            - An `__init__` method that initializes `test_name`, `test_data`,
+              and `pattern`.
+
+        Notes
+        -----
+        - The returned script is incomplete by design; it provides only
+          the class skeleton and constructor.
+        - Additional methods (e.g., test cases, loader functions) must be
+          appended separately to form a runnable unittest script.
+        - Metadata is embedded via `self.module_docstring`, generated
+          during initialization of the builder.
+        """
+        tmpl = dedent_and_strip("""
           {module_docstring}
 
           import unittest
@@ -795,8 +1231,7 @@ class UnittestBuilder:
                   super().__init__(test_name)
                   self.test_data = test_data
                   self.pattern = pattern
-        """
-        tmpl = dedent(tmpl).strip()
+        """)
 
         tc_gen = self.tc_gen
         partial_script = tmpl.format(
@@ -807,14 +1242,48 @@ class UnittestBuilder:
         return partial_script
 
     def create_testcase_method(self):
-        """return partial unit test method definition"""
+        """
+        Generate partial unittest method definitions for compiled test cases.
 
-        tmpl = """
+        This method constructs Python unittest test methods based on the
+        list of test cases stored in `self.tc_gen.lst_of_tests`. Each
+        generated method attempts to match `self.test_data` against
+        `self.pattern` using `re.search`, and asserts that a match is
+        found. The resulting code snippet can be appended to the test
+        class definition created by `create_testcase_class`.
+
+        Workflow
+        --------
+        1. Define a template for a unittest method that:
+           - Performs a regex search using `self.pattern` and `self.test_data`.
+           - Asserts that the result is not None.
+        2. Iterate over all test cases in `self.tc_gen.lst_of_tests`.
+        3. For each test case:
+           - Format the template with the generated test name.
+           - Indent the method definition for proper placement inside a class.
+           - Avoid duplicates by checking against previously added methods.
+        4. Concatenate all method definitions into a single string.
+
+        Returns
+        -------
+        str
+            A string containing one or more unittest method definitions,
+            each corresponding to a compiled test case.
+
+        Notes
+        -----
+        - The returned script is partial; it provides only the test methods
+          and must be combined with the class definition and loader to form
+          a complete unittest script.
+        - Each generated method name is derived from `generate_test_name`
+          and guaranteed to be a valid Python identifier.
+        - Duplicate method definitions are skipped to prevent redundancy.
+        """
+        tmpl = dedent_and_strip("""
             def {test_name}(self):
                 result = re.search(self.pattern, self.test_data)
                 self.assertIsNotNone(result)
-        """
-        tmpl = dedent(tmpl).strip()
+        """)
 
         tc_gen = self.tc_gen
         lst = []
@@ -831,9 +1300,54 @@ class UnittestBuilder:
         return partial_script
 
     def create_testcase_load(self):
-        """return partial unit test load_tests function definition"""
+        """
+        Generate the partial definition of a unittest `load_tests` function.
 
-        tmpl = """
+        This method constructs a `load_tests` function that dynamically
+        assembles a `unittest.TestSuite` from the compiled test cases in
+        `self.tc_gen.lst_of_tests`. Each test case is inserted into the
+        suite by instantiating the generated test class with its name,
+        data, and associated regex pattern. The returned snippet can be
+        appended to the test class and method definitions to form a
+        complete unittest script.
+
+        Workflow
+        --------
+        1. Define a template for the `load_tests` function that:
+           - Initializes a `unittest.TestSuite`.
+           - Iterates over prepared arguments (test name, test data, pattern).
+           - Instantiates the test class (`self.tc_gen.test_cls_name`) for
+             each argument.
+           - Adds each test case to the suite.
+           - Returns the assembled suite.
+        2. Build argument entries for each test case in `self.tc_gen.lst_of_tests`:
+           - Format test name, test data, and pattern.
+           - Insert descriptive comments for readability.
+           - Ensure proper indentation for valid Python code.
+        3. Insert the generated argument list into the template.
+        4. Return the completed `load_tests` function definition as a string.
+
+        Returns
+        -------
+        str
+            A string containing the partial definition of a unittest
+            `load_tests` function, including:
+            - Initialization of an empty test suite.
+            - Argument insertion for each compiled test case.
+            - Loop to instantiate and add test cases to the suite.
+
+        Notes
+        -----
+        - The returned script is partial; it provides only the loader
+          function and must be combined with the class and method
+          definitions to form a runnable unittest script.
+        - Each test case entry includes inline comments for clarity,
+          showing the test name, test data, and pattern.
+        - The generated loader ensures that all compiled test cases are
+          discoverable and executable by the unittest framework.
+        """
+
+        tmpl = dedent_and_strip("""
             def load_tests(loader, tests, pattern):
                 test_cases = unittest.TestSuite()
                 
@@ -848,10 +1362,9 @@ class UnittestBuilder:
                     )
                     test_cases.addTest(testcase)
                 return test_cases
-        """
-        tmpl = dedent(tmpl).strip()
+        """)
 
-        tmpl_data = """
+        tmpl_data = dedent_and_strip("""
             arguments.append(
                 (
                     {test_name},    # test name
@@ -859,8 +1372,7 @@ class UnittestBuilder:
                     r{pattern}   # pattern
                 )
             )
-        """
-        tmpl_data = dedent(tmpl_data).strip()
+        """)
 
         tc_gen = self.tc_gen
         lst = ['arguments = list()']
@@ -898,16 +1410,39 @@ class UnittestBuilder:
 
 
 class PytestBuilder:
-    """Create Pytest script
+    """
+    Builder for dynamically generating Python pytest scripts.
+
+    The `PytestBuilder` constructs a complete pytest script based on
+    the test cases and configuration provided by a `DynamicGenTestScript`
+    instance. It automates the creation of test functions and embeds
+    optional metadata such as author, email, and company into the
+    module-level docstring.
 
     Attributes
     ----------
-    tc_gen (DynamicGenTestScript): an DynamicGenTestScript instance.
-    module_docstring (str): a Python snippet docstring.
+    tc_gen : DynamicGenTestScript
+        A `DynamicGenTestScript` instance containing test cases,
+        patterns, and configuration details used to generate the
+        pytest script.
+    module_docstring : str
+        A module-level docstring snippet generated via `create_docstring`,
+        including metadata such as author, email, and company.
 
     Methods
     -------
     create() -> str
+        Assemble and return the complete pytest script, including
+        the module docstring and all generated test functions.
+
+    Notes
+    -----
+    - The generated script is returned as a string and can be saved
+      to a file or executed directly with pytest.
+    - Metadata (author, email, company) is embedded into the script
+      if provided by the `DynamicGenTestScript` instance.
+    - This class does not execute the generated tests; it only produces
+      the script text.
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
@@ -916,13 +1451,52 @@ class PytestBuilder:
             author=tc_gen.author,
             email=tc_gen.email,
             company=tc_gen.company,
-            **tc_gen.kwargs
         )
 
     def create(self):
-        """return pytest script"""
+        """
+        Assemble and return a complete pytest script.
 
-        tmpl = """
+        This method constructs a fully formatted pytest script based on
+        the test cases stored in `self.tc_gen.lst_of_tests`. It embeds
+        metadata into the module-level docstring, defines a test class,
+        and generates a parameterized test function that validates regex
+        patterns against provided test data.
+
+        Workflow
+        --------
+        1. Define a template for the pytest script that includes:
+           - The module docstring with metadata (author, email, company).
+           - Imports for `pytest` and `re`.
+           - A test class definition (`self.tc_gen.test_cls_name`).
+           - A parameterized test function using `pytest.mark.parametrize`.
+        2. Build parameterized data entries for each test case:
+           - Format test data and regex pattern.
+           - Insert inline comments for readability.
+           - Use placeholders to safely handle string quoting.
+        3. Replace placeholders with actual test data values.
+        4. Ensure the test function name begins with ``test_``.
+        5. Format and clean up the final script for consistent indentation.
+
+        Returns
+        -------
+        str
+            A string containing the complete pytest script, including
+            module docstring, test class, and parameterized test function.
+
+        Notes
+        -----
+        - The returned script is dynamically generated and can be saved
+          to a file or executed directly with pytest.
+        - Metadata (author, email, company) is embedded into the script
+          if available.
+        - Each test case is parameterized, allowing pytest to run them
+          individually with clear reporting.
+        - This method does not execute the generated tests; it only
+          produces the script text.
+        """
+
+        tmpl = dedent_and_strip("""
             {module_docstring}
             
             import pytest
@@ -938,16 +1512,14 @@ class PytestBuilder:
                 def {test_name}(self, test_data, pattern):
                     result = re.search(pattern, test_data)
                     assert result is not None
-        """
-        tmpl = dedent(tmpl).strip()
+        """)
 
-        tmpl_data = """
+        tmpl_data = dedent_and_strip("""
             (
                 {test_data},    # test data
                 r{pattern}   # pattern
             ),
-        """
-        tmpl_data = dedent(tmpl_data).strip()
+        """)
 
         tc_gen = self.tc_gen
         lst = []
@@ -984,19 +1556,50 @@ class PytestBuilder:
 
 
 class PythonSnippetBuilder:
-    """Create Python snippet test script
+    """
+    Builder for dynamically generating lightweight Python test scripts.
+
+    The `PythonSnippetBuilder` constructs simple Python test snippets
+    based on the test cases and configuration provided by a
+    `DynamicGenTestScript` instance. Unlike full framework builders
+    (e.g., unittest or pytest), this builder produces minimal scripts
+    that demonstrate regex validation logic in a straightforward,
+    executable form. Metadata such as author, email, and company is
+    embedded into the module-level docstring.
 
     Attributes
     ----------
-    tc_gen (DynamicGenTestScript): an DynamicGenTestScript instance.
-    module_docstring (str): a Python snippet docstring.
+    tc_gen : DynamicGenTestScript
+        A `DynamicGenTestScript` instance containing test cases,
+        patterns, and configuration details used to generate the
+        Python snippet script.
+    module_docstring : str
+        A module-level docstring snippet generated via `create_docstring`,
+        including metadata such as author, email, and company.
 
     Methods
     -------
     create() -> str
-    create_line_via_pattern_script(test_data, pattern) -> str
-    create_line_via_patterns_script(test_data, patterns) -> str
-    create_multiline_via_pattern_script(test_data, pattern) -> str
+        Assemble and return the complete Python test script, including
+        the module docstring and generated test functions.
+    create_line_via_pattern_script(test_data: str, pattern: str) -> str
+        Generate a script snippet that tests a single line of input
+        against a single regex pattern.
+    create_line_via_patterns_script(test_data: str, patterns: list[str]) -> str
+        Generate a script snippet that tests a single line of input
+        against multiple regex patterns.
+    create_multiline_via_pattern_script(test_data: str, pattern: str) -> str
+        Generate a script snippet that tests multi-line input against
+        a single regex pattern.
+
+    Notes
+    -----
+    - The generated scripts are returned as strings and can be saved
+      to a file or executed directly with Python.
+    - Metadata (author, email, company) is embedded into the script
+      if provided by the `DynamicGenTestScript` instance.
+    - This class does not execute the generated tests; it only produces
+      the script text.
     """
     def __init__(self, tc_gen):
         self.tc_gen = tc_gen
@@ -1005,23 +1608,46 @@ class PythonSnippetBuilder:
             author=tc_gen.author,
             email=tc_gen.email,
             company=tc_gen.company,
-            **tc_gen.kwargs
         )
 
     def create_line_via_pattern_script(self, test_data, pattern):
-        """return python test script - line via pattern
+        """
+        Generate a Python test script that validates a regex pattern against line-based input.
+
+        This method constructs a standalone Python script snippet that tests
+        each line of the provided `test_data` against the given regex `pattern`.
+        The generated script prints the pattern being tested, iterates through
+        each line of the input, and reports whether matches are found. If no
+        matches occur, the script outputs "Result: No match".
 
         Parameters
         ----------
-        test_data (str): a test data.
-        pattern (str): a regex pattern.
+        test_data : str
+            A string containing one or more lines of test data to validate.
+        pattern : str
+            A regex pattern string to apply against each line of the test data.
 
         Returns
         -------
-        str: a python test script
+        str
+            A complete Python script as a string, including:
+            - The module-level docstring with metadata (author, email, company).
+            - Imports for `re`.
+            - Inline comments describing test data and regex pattern.
+            - A `test_regex` function that performs line-by-line regex matching.
+            - A function call to execute the test.
+
+        Notes
+        -----
+        - Matches are reported with either the full match or captured groups
+          if the regex defines named groups.
+        - The script is dynamically generated and can be saved to a file or
+          executed directly with Python.
+        - This method does not execute the test itself; it only produces
+          the script text.
         """
 
-        tmpl = '''
+        tmpl = dedent_and_strip('''
             {module_docstring}
 
             import re
@@ -1056,8 +1682,7 @@ class PythonSnippetBuilder:
 
             # function call
             test_regex(test_data, pattern)
-        '''
-        tmpl = dedent(tmpl).strip()
+        ''')
 
         test_script = tmpl.format(
             module_docstring=self.module_docstring,
@@ -1078,7 +1703,7 @@ class PythonSnippetBuilder:
         -------
         str: a python test script
         """
-        tmpl = '''
+        tmpl = dedent_and_strip('''
             {module_docstring}
             
             import re
@@ -1118,8 +1743,7 @@ class PythonSnippetBuilder:
             
             # function call
             test_regex(test_data, patterns)
-        '''
-        tmpl = dedent(tmpl).strip()
+        ''')
 
         lst = []
         for pattern in patterns:
@@ -1143,7 +1767,7 @@ class PythonSnippetBuilder:
         -------
         str: a python test script
         """
-        tmpl = '''
+        tmpl = dedent_and_strip('''
             {module_docstring}
             
             import re
@@ -1175,8 +1799,7 @@ class PythonSnippetBuilder:
             
             # function call
             test_regex(test_data, pattern)
-        '''
-        tmpl = dedent(tmpl).strip()
+        ''')
         test_script = tmpl.format(
             module_docstring=self.module_docstring,
             test_data=test_data, pattern=pattern
@@ -1184,7 +1807,51 @@ class PythonSnippetBuilder:
         return test_script
 
     def create(self):
-        """return python test script"""
+        """
+        Assemble and return a Python test script snippet.
+
+        This method generates a complete Python test script based on the
+        current builder state (`self.tc_gen`). Depending on whether the
+        builder is configured for line-based or multiline testing, it
+        delegates to one of the specialized snippet creation methods:
+        - `create_line_via_pattern_script` for a single regex pattern
+          tested line-by-line.
+        - `create_line_via_patterns_script` for multiple regex patterns
+          tested line-by-line.
+        - `create_multiline_via_pattern_script` for a single regex pattern
+          tested against multiline input.
+
+        Workflow
+        --------
+        1. Inspect `self.tc_gen.is_line` to determine line-based vs.
+           multiline testing.
+        2. Normalize `test_data`:
+           - If provided as a list/tuple, join or select appropriate
+             elements.
+           - Otherwise, use the raw string.
+        3. Select the appropriate snippet builder method based on the
+           number of patterns and test mode.
+        4. Return the generated Python script as a string.
+
+        Returns
+        -------
+        str
+            A dynamically generated Python test script, including:
+            - The module-level docstring with metadata (author, email, company).
+            - Regex pattern(s) and test data.
+            - A test function that validates regex matches and prints results.
+
+        Notes
+        -----
+        - Line-based mode (`is_line=True`) tests each line of input against
+          one or more regex patterns.
+        - Multiline mode (`is_line=False`) tests the entire input string
+          against a single regex pattern.
+        - The script is returned as text and can be saved to a file or
+          executed directly with Python.
+        - This method does not execute the test itself; it only produces
+          the script text.
+        """
         tc_gen = self.tc_gen
         if self.tc_gen.is_line:
             if isinstance(tc_gen.test_data, (list, tuple)):
@@ -1213,123 +1880,3 @@ class PythonSnippetBuilder:
             )
 
         return test_script
-
-
-class NonCommercialUseCls:
-    def __init__(self, user_data, is_line=False, is_multi_test_data=False,
-                 is_exact=False):
-        self.user_data = str(user_data)
-        self.is_line = is_line
-        self.is_multi_test_data = is_multi_test_data
-        self.is_exact = is_exact
-        self.factory = None
-        self.process()
-        self.comment = (f"# Non-commercial use: generated by RegexApp v.{version} "
-                        f"(geekstrident.com)\n"
-                        f"# Created Date: {datetime.now():%Y-%m-%d %H:%M}\n"
-                        "################################")
-
-    def process(self):
-        if not self.user_data.strip():
-            raise NoUserDataError("Please provide valid user data.")
-        self.factory = RegexBuilder(self.user_data, is_line=self.is_line,
-                                    is_exact=self.is_exact)
-        self.factory.build()
-
-    def get_pattern_snippet(self):
-        pattern = "pattern = r%s" % enclose_string(self.factory.patterns[0])
-        snippet = f"{self.comment}\n{pattern}"
-        return snippet
-
-    def get_code_snippet(self):
-        func = self.get_snippet_v2 if self.is_multi_test_data else self.get_snippet_v1
-        code_snippet = func()
-        return code_snippet
-
-    def get_snippet_v1(self):
-        pattern = "pattern = r%s" % enclose_string(self.factory.patterns[0])
-        script = dedent(f"""
-            import re
-
-            def test_generated_pattern(test_data, pattern):
-              match = re.search(pattern, test_data)
-              if match:
-                print(match)
-                print(match.group())
-                match.groupdict() and print(match.groupdict())
-              else:
-                print('??? Generated pattern NOT match any data ???')      
-            
-            {pattern}
-            test_data = '''...'''   # replace actual data in ellipsis
-            test_generated_pattern(test_data, pattern)
-            ################################""").strip()
-        code_snippet = f"{self.comment}\n{script}"
-        return code_snippet
-
-    def get_snippet_v2(self):
-        pattern = "pattern = r%s" % enclose_string(self.factory.patterns[0])
-        script = dedent(f"""
-            import re
-
-            def test_generated_pattern(test_data, pattern):
-              split_pat = r'(?i)\\r?\\n? *<<separator>> *\\r?\\n?'
-              if re.search(split_pat, test_data):
-                blocks = re.split(split_pat, test_data)
-              else:
-                blocks = test_data.splitlines()
-              for i, block in enumerate(blocks, 1):
-                match = re.search(pattern, block)
-                print('##### block #%s #####' % i)
-                if match:
-                  print('%s\\n%s' % (match, match.group()))
-                  match.groupdict() and print(match.groupdict())
-                else:
-                  print('??? Generated pattern NOT match data in block #%s ???' % i)      
-            
-            {pattern}
-            test_data = '''...'''   # replace actual data in ellipsis
-            test_generated_pattern(test_data, pattern)
-            ################################""").strip()
-        code_snippet = f"{self.comment}\n{script}"
-        return code_snippet
-
-    def get_test_result(self, test_data):
-        test_data = str(test_data)
-        if not test_data:
-            raise NoTestDataError("Please provide valid test data.")
-        if self.is_multi_test_data:
-            test_result = self.get_tresult_v2(test_data)
-        else:
-            test_result = self.get_tresult_v1(test_data)
-        return test_result
-
-    def get_tresult_v1(self, test_data):
-        pattern = self.factory.patterns[0]
-        match = re.search(pattern, test_data)
-        if not match:
-            return "??? Generated pattern NOT match any data ???"
-
-        test_result = f"{match}\n{match.group()}"
-        if match.groupdict():
-            test_result = f"{test_result}\n{match.groupdict()}"
-        return test_result
-
-    def get_tresult_v2(self, test_data):
-        pattern = self.factory.patterns[0]
-        split_pat = r'(?i)\r?\n? *<<separator>> *\r?\n?'
-        if re.search(split_pat, test_data):
-            blocks = re.split(split_pat, test_data)
-        else:
-            blocks = test_data.splitlines()
-        lst = list()
-        for i, block in enumerate(blocks, 1):
-            match = re.search(pattern, block)
-            lst.append(f"##### block #{i} #####")
-            if not match:
-                lst.append(f"??? Generated pattern NOT match data in block #{i} ???")
-                continue
-            lst.append(f"{match}\n{match.group()}")
-            match.groupdict() and lst.append(f"{match.groupdict()}")
-        test_result = str.join("\n", lst)
-        return test_result

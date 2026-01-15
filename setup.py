@@ -7,7 +7,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="regexapp",
-    version="0.5.1a1",  # pre-beta versioning to signal alpha/beta status
+    version="0.6.0a1",  # pre-beta versioning to signal alpha/beta status
     license="BSD-3-Clause",
     license_files=["LICENSE"],
     description="A versatile utility that generates regex patterns seamlessly"
@@ -34,6 +34,7 @@ setup(
     },
     python_requires=">=3.9",
     include_package_data=True,
+    package_data={"": ["LICENSE", "README.md"]},
     entry_points={
         "console_scripts": [
             "regexapp = regexapp.main:execute",

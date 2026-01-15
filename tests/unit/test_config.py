@@ -1,28 +1,14 @@
 from regexapp import version as expected_version
-from subprocess import check_output
-from subprocess import STDOUT
+
 import re
 from pathlib import PurePath
 
 from regexapp import LinePattern
 from regexapp.config import Data
 
-import pytest       # noqa
+import pytest
 
-
-def get_package_info(pkg_name):
-    """return package name from pip freeze command line"""
-    output = check_output('pip freeze', stderr=STDOUT, shell=True)
-    if isinstance(output, bytes):
-        output = output.decode()
-    else:
-        output = str(output)
-
-    found = [l.strip() for l in output.splitlines() if l.startswith(pkg_name)]  # noqa
-    if found:
-        return found[0]
-    else:
-        return output
+from tests.unit import get_package_info
 
 
 pkg_info = get_package_info('regexapp')
@@ -47,7 +33,7 @@ def test_installed_version_synchronization():
 @pytest.mark.parametrize(
     'pkg',
     [
-        'pyyaml'
+        'pyyaml', 'genericlib'
     ]
 )
 def test_package_dependencies(pkg):

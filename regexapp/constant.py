@@ -1,49 +1,65 @@
-"""Module containing the logic for constant definition"""
+"""
+regexapp.constant
+=================
 
-import re
-from enum import IntFlag
+Centralized definitions of constants used throughout the `regexapp` package.
 
+Notes
+-----
+Keeping constants in a dedicated module makes it easier to update
+values globally and provides a single source of truth for the
+application’s configuration and error handling.
+"""
 
-class ICSValue:
-    """Treating value as ignore case and ignore space during evaluating
-    string equality"""
-    def __init__(self, value, *additions):
-        self.value = value
-        self.additions = additions
-
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            other_value = re.sub(' +', ' ', str(other.value).lower()).strip()
-        else:
-            other_value = re.sub(' +', ' ', str(other).lower()).strip()
-
-        chk_lst = []
-        for item in [self.value] + list(self.additions):
-            value = re.sub(' +', ' ', str(item).lower()).strip()
-            chk_lst.append(value)
-
-        chk = other_value in chk_lst
-        return chk
-
-    def __repr__(self):
-        return repr(self.value)
-
-    def __str__(self):
-        return str(self.value)
-
-
-class ECODE(IntFlag):
-    SUCCESS = 0
-    BAD = 1
+from genericlib.constant import ICSValue
 
 
 class FWTYPE:
+    """
+    Enumeration of supported test framework types.
+
+    This class defines symbolic constants for the test frameworks
+    recognized by the application. Each constant is represented by
+    an `ICSValue` instance, which provides both a canonical name
+    and optional shorthand.
+
+    Attributes
+    ----------
+    UNITTEST : ICSValue
+        Represents the built-in Python `unittest` framework.
+    PYTEST : ICSValue
+        Represents the `pytest` framework.
+    ROBOTFRAMEWORK : ICSValue
+        Represents the `Robot Framework` testing tool. Includes both
+        the full name ("robotframework") and shorthand ("rf").
+    """
     UNITTEST = ICSValue('unittest')
     PYTEST = ICSValue('pytest')
     ROBOTFRAMEWORK = ICSValue('robotframework', 'rf')
 
 
 class FORMATTYPE:
+    """
+    Enumeration of supported data format types.
+
+    This class defines symbolic constants for the data formats
+    recognized by the application. Each constant is represented by
+    an `ICSValue` instance, which provides both a canonical name
+    and optional shorthand.
+
+    Attributes
+    ----------
+    CSV : ICSValue
+        Represents the `CSV` (comma-separated values) format.
+    JSON : ICSValue
+        Represents the `JSON` (JavaScript Object Notation) format.
+    YAML : ICSValue
+        Represents the `YAML` format. Includes both the full name
+        ("yaml") and shorthand ("yml").
+    TEMPLATE : ICSValue
+        Represents a generic `template` format used for custom
+        or user-defined structures.
+    """
     CSV = ICSValue('csv')
     JSON = ICSValue('json')
     YAML = ICSValue('yaml', 'yml')

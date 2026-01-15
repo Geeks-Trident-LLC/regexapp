@@ -1,4 +1,6 @@
 """
+regexapp.main
+=============
 Entry-point logic for the regexapp project.
 
 This module provides the command-line interface (CLI) and GUI entry
@@ -11,7 +13,6 @@ and automated CLI workflows, ensuring flexibility for developers and
 end users.
 """
 
-import sys
 import argparse
 import re
 import yaml
@@ -19,7 +20,9 @@ from regexapp.application import Application
 from regexapp import RegexBuilder
 from regexapp.core import enclose_string
 
-from genericlib import ECODE
+import regexapp.utils as utils
+
+from genericlib.misc import sys_exit
 
 
 def run_gui_application(options):
@@ -34,13 +37,14 @@ def run_gui_application(options):
     Returns
     -------
     None
-        Invokes ``Application().run()`` and exits with
-        ``ECODE.SUCCESS`` if `--gui` is specified.
+        This function does not return a value. It either runs the GUI and
+        exits the program successfully, or does nothing if `options.gui`
+        is False.
     """
     if options.gui:
         app = Application()
         app.run()
-        sys.exit(ECODE.SUCCESS)
+        sys_exit(success=True)
 
 
 def show_dependency(options):
@@ -55,8 +59,9 @@ def show_dependency(options):
     Returns
     -------
     None
-        Prints platform and dependency details to stdout and exits
-        with ``ECODE.SUCCESS`` if `--dependency` is specified.
+        This function does not return a value. It prints platform and
+        dependency details to stdout and exits the program successfully
+        if `--dependency` is specified.
     """
     if options.dependency:
         from platform import uname, python_version
@@ -75,9 +80,9 @@ def show_dependency(options):
             lst.append('             {0[url]}'.format(pkg))
 
         width = max(len(item) for item in lst)
-        txt = '\n'.join('| {1:{0}} |'.format(width, item) for item in lst)
-        print('+-{0}-+\n{1}\n+-{0}-+'.format(width * '-', txt))
-        sys.exit(ECODE.SUCCESS)
+        txt = "\n".join(f"| {item:<{width}} |" for item in lst)
+        border = "+" + "-" * width + "+"
+        sys_exit(success=True, msg=f"{border}\n{txt}\n{border}")
 
 
 def show_version(options):
@@ -97,13 +102,12 @@ def show_version(options):
     Returns
     -------
     None
-        Prints the application version and exits with
-        ``ECODE.SUCCESS`` if `--version` is specified.
+        Prints the application version and exits program successfully
+        if `--version` is specified.
     """
     if options.version:
         from regexapp import version
-        print(f'regexapp {version}')
-        sys.exit(ECODE.SUCCESS)
+        sys_exit(success=True, msg=f'regexapp {version}')
 
 
 class Cli:
@@ -189,46 +193,31 @@ class Cli:
         bool
             True if validation succeeds. If required flags are missing
             or files cannot be loaded, prints an error/help message and
-            exits with ``ECODE.BAD``.
+            exits program with failure exit code, i.e., 1.
         """
 
         if not self.options.user_data:
             self.parser.print_help()
-            sys.exit(ECODE.BAD)
+            sys_exit(success=False)
 
         pattern = r'file( *name)?:: *(?P<filename>\S*)'
         m = re.match(pattern, self.options.user_data, re.I)
         if m:
-            try:
-                with open(m.group('filename')) as stream:
-                    self.options.user_data = stream.read()
-            except Exception as ex:
-                failure = '*** {}: {}'.format(type(ex).__name__, ex)
-                print(failure)
-                sys.exit(ECODE.BAD)
+            filename = m.group('filename')
+            self.options.user_data = utils.File.read_with_exit(filename)
 
         if self.options.test_data:
             m = re.match(pattern, self.options.test_data, re.I)
             if m:
-                try:
-                    with open(m.group('filename')) as stream:
-                        self.options.test_data = stream.read()
-                except Exception as ex:
-                    failure = '*** {}: {}'.format(type(ex).__name__, ex)
-                    print(failure)
-                    sys.exit(ECODE.BAD)
+                filename = m.group('filename')
+                self.options.user_data = utils.File.read_with_exit(filename)
 
         if self.options.config:
             config = self.options.config
             m = re.match(pattern, config, re.I)
             if m:
-                try:
-                    with open(m.group('filename')) as stream:
-                        content = stream.read()
-                except Exception as ex:
-                    failure = '*** {}: {}'.format(type(ex).__name__, ex)
-                    print(failure)
-                    sys.exit(ECODE.BAD)
+                filename = m.group('filename')
+                content = utils.File.read_with_exit(filename)
             else:
                 other_pat = r'''(?x)(
                     prepended_ws|appended_ws|ignore_case|
@@ -244,13 +233,11 @@ class Cli:
                     if isinstance(kwargs, dict):
                         self.kwargs = kwargs
                     else:
-                        failure = '*** INVALID-CONFIG: {}'.format(config)
-                        print(failure)
-                        sys.exit(ECODE.BAD)
+                        failure = f"*** INVALID-CONFIG: {config}"
+                        sys_exit(success=False, msg=failure)
                 except Exception as ex:
-                    failure = '*** LOADING-CONFIG-ERROR - {}'.format(ex)
-                    print(failure)
-                    sys.exit(ECODE.BAD)
+                    failure = f"*** LOADING-CONFIG-ERROR - {ex}"
+                    sys_exit(success=False, msg=failure)
 
         return True
 
@@ -261,9 +248,8 @@ class Cli:
         Returns
         -------
         None
-            Prints generated regex patterns to stdout and exits with
-            ``ECODE.SUCCESS`` if successful. Exits with ``ECODE.BAD``
-            if no patterns can be generated.
+            Prints generated regex patterns to stdout. Exits with code 0
+            on success, or code 1 if no patterns are generated.
         """
         factory = RegexBuilder(
             user_data=self.options.user_data,
@@ -275,19 +261,16 @@ class Cli:
         if total >= 1:
             if total == 1:
                 result = 'pattern = r{}'.format(enclose_string(patterns[0]))
-                print(result)
             else:
                 lst = []
                 fmt = 'pattern{} = r{}'
                 for index, pattern in enumerate(patterns, 1):
                     lst.append(fmt.format(index, enclose_string(pattern)))
                 result = '\n'.join(lst)
-                print(result)
-            sys.exit(ECODE.SUCCESS)
+            sys_exit(success=True, msg=result)
         else:
-            fmt = '*** CANT generate regex pattern from\n{}'
-            print(fmt.format(self.options.user_data))
-            sys.exit(ECODE.BAD)
+            failure = f"*** CANT generate regex pattern from\n{self.options.user_data}"
+            sys_exit(success=False, msg=failure)
 
     def build_test_script(self):
         """
@@ -296,9 +279,9 @@ class Cli:
         Returns
         -------
         None
-            Generates an unittest/pytest/snippet script based on CLI
-            options, prints it to stdout, and exits with ``ECODE.SUCCESS``.
-            Falls back to regex pattern generation if no platform is set.
+            Generates a unittest, pytest, or snippet script based on
+            CLI options and prints it to stdout. Exits with code 0 on success,
+            or falls back to regex pattern generation if no platform is specified.
         """
         platform = self.options.platform.lower()
         if platform:
@@ -311,8 +294,7 @@ class Cli:
             )
             factory.build()
             test_script = getattr(factory, method_name)()
-            print('\n{}\n'.format(test_script))
-            sys.exit(ECODE.SUCCESS)
+            sys_exit(success=True, msg=f"\n{test_script}\n")
         else:
             self.build_regex_pattern()
 
@@ -323,8 +305,8 @@ class Cli:
         Returns
         -------
         None
-            Runs tests and prints results to stdout. Exits with
-            ``ECODE.SUCCESS`` upon completion.
+            Executes all tests and outputs results to stdout. Terminates
+            with exit code 0 upon successful completion.
         """
         if self.options.test:
             factory = RegexBuilder(
@@ -334,8 +316,7 @@ class Cli:
             )
             factory.build()
             test_result = factory.test(showed=True)
-            print(test_result)
-            sys.exit(ECODE.SUCCESS)
+            sys_exit(success=True, msg=test_result)
 
     def run(self):
         """

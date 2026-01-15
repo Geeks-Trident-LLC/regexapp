@@ -1,4 +1,6 @@
 """
+regexapp.exceptions
+===================
 Exception classes for the regexapp project.
 
 This module defines a hierarchy of custom exceptions used throughout
