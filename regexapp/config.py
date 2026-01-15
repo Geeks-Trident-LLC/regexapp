@@ -35,8 +35,8 @@ from pathlib import PurePath
 
 import yaml
 
-from genericlib import version as gtlib_version
-from genericlib import File
+from regexapp.deps import genericlib_version as gtlib_version
+from regexapp.deps import genericlib_File as File
 
 import regexapp.utils as utils
 

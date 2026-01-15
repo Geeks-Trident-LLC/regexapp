@@ -15,7 +15,7 @@ the project.
 import re
 from argparse import ArgumentParser
 
-from genericlib import DotObject
+from regexapp.deps import genericlib_DotObject as DotObject
 
 
 class MiscArgs:

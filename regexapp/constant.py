@@ -11,8 +11,7 @@ values globally and provides a single source of truth for the
 application’s configuration and error handling.
 """
 
-from genericlib.constant import ICSValue
-
+from regexapp.deps import genericlib_ICSValue as ICSValue
 
 class FWTYPE:
     """

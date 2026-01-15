@@ -76,7 +76,7 @@ from regexapp.collection import REF
 import regexapp
 import regexapp.utils as utils
 
-from genericlib.text import dedent_and_strip
+from regexapp.deps import genericlib_dedent_and_strip as dedent_and_strip
 
 
 BASELINE_REF = deepcopy(REF)
