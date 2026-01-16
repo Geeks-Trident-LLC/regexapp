@@ -16,11 +16,12 @@ Run pytest in the project root to execute these tests:
 from regexapp import RegexBuilder
 from regexapp import DynamicTestScriptBuilder
 
+from regexapp.deps import genericlib_decorators as decorators
+
 from tests.unit import get_test_script         # import from tests/unit/__init__.py
-from tests.unit import normalize_string_output # import from tests/unit/__init__.py
 
 
-@normalize_string_output
+@decorators.normalize_return_output_text
 def get_user_data():
     """
     Provide normalized sample user data for test script generation.
@@ -33,7 +34,7 @@ def get_user_data():
     return user_data
 
 
-@normalize_string_output
+@decorators.normalize_return_output_text
 def get_test_data():
     """
     Provide normalized sample test data for pytest script validation.

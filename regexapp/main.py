@@ -23,6 +23,7 @@ from regexapp.core import enclose_string
 import regexapp.utils as utils
 
 from regexapp.deps import genericlib_sys_exit as sys_exit
+from textfsmgen.deps import genericlib_decorate_list_of_line as decorate_list_of_line
 
 
 def run_gui_application(options):
@@ -64,25 +65,26 @@ def show_dependency(options):
         if `--dependency` is specified.
     """
     if options.dependency:
-        from platform import uname, python_version
+        from platform import uname
+        from platform import python_version
         from regexapp.config import Data
+
+        os_name = uname().system
+        os_release = uname().release
+        py_ver = python_version()
         lst = [
             Data.main_app_text,
-            'Platform: {0.system} {0.release} - Python {1}'.format(
-                uname(), python_version()
-            ),
+            f'Platform: {os_name} {os_release} - Python {py_ver}',
             '--------------------',
             'Dependencies:'
         ]
 
         for pkg in Data.get_dependency().values():
-            lst.append('  + Package: {0[package]}'.format(pkg))
-            lst.append('             {0[url]}'.format(pkg))
+            lst.append(f'  + Package: {pkg["package"]}')
+            lst.append(f'             {pkg["url"]}')
 
-        width = max(len(item) for item in lst)
-        txt = "\n".join(f"| {item:<{width}} |" for item in lst)
-        border = "+" + "-" * width + "+"
-        sys_exit(success=True, msg=f"{border}\n{txt}\n{border}")
+        msg = decorate_list_of_line(lst)
+        sys_exit(success=True, msg=msg)
 
 
 def show_version(options):

@@ -1180,7 +1180,7 @@ class Application:
 
         # genericlib package
         label = self.create_custom_label(
-            frame, text=Data.gtgenlib_text, link=Data.gtgenlib_link
+            frame, text=Data.genericlib_text, link=Data.genericlib_link
         )
         ui.grid(label, row=3, column=1, padx=(20, 0), pady=(0, 10), sticky=tk.W)
 

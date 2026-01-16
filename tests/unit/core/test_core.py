@@ -57,10 +57,10 @@ from regexapp import add_reference
 from regexapp import remove_reference
 from regexapp.exceptions import PatternReferenceError
 
-from tests.unit import normalize_string_output # import from tests/unit/__init__.py
+from regexapp.deps import genericlib_decorators as decorators
 
 
-@normalize_string_output
+@decorators.normalize_return_output_text
 def get_user_data():
     """
     Provide normalized sample user data for regexapp pattern creation.
@@ -72,7 +72,7 @@ def get_user_data():
     return user_data
 
 
-@normalize_string_output
+@decorators.normalize_return_output_text
 def get_test_data():
     """
     Provide normalized sample test data for regexapp pattern creation.
@@ -85,7 +85,7 @@ def get_test_data():
     return test_data
 
 
-@normalize_string_output
+@decorators.normalize_return_output_text
 def get_test_report():
     """
     Provide normalized sample test report for regexapp pattern verification.
@@ -109,7 +109,7 @@ def get_test_report():
     return test_report
 
 
-@normalize_string_output
+@decorators.normalize_return_output_text
 def get_other_user_data():
     """
     Provide normalized sample user data for regexapp pattern creation.
@@ -120,7 +120,7 @@ def get_other_user_data():
     return user_data
 
 
-@normalize_string_output
+@decorators.normalize_return_output_text
 def get_other_test_data():
     """
     Provide normalized sample test data for regexapp pattern creation.
@@ -133,7 +133,7 @@ def get_other_test_data():
     return test_data
 
 
-@normalize_string_output
+@decorators.normalize_return_output_text
 def get_other_test_report():
     """
     Provide normalized sample test report for regexapp pattern verification.
