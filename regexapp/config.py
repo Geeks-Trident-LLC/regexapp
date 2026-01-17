@@ -21,7 +21,7 @@ from regexapp.deps import genericlib_File as File
 
 import regexapp.utils as utils
 
-__version__ = '0.6.0a1'
+__version__ = '0.6.1a1'
 version = __version__
 __edition__ = 'Community'
 edition = __edition__
