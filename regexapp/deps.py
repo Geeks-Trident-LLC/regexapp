@@ -24,8 +24,9 @@ Notes
 import genericlib.file as genericlib_file_module        # noqa
 import genericlib.text as genericlib_text_module        # noqa
 import genericlib.number as genericlib_number_module    # noqa
-import genericlib.datatype as genericlib_datatype_module    # noqa
-import genericlib.decorators as genericlib_decorators   # noqa
+import genericlib.datatype as genericlib_datatype_module        # noqa
+import genericlib.decorators as genericlib_decorators_module    # noqa
+import genericlib.shell as genericlib_shell_module      # noqa
 
 # Core classes
 # Fundamental data structures and helpers for object handling, printing, and text manipulation.

@@ -9,14 +9,16 @@ normalized test data and ensures consistency across test runs.
 Usage
 -----
 Run pytest in the project root to execute these tests:
-    $ pytest tests/unit/test_autogenerate_unittest_script.py
+    $ pytest tests/unit/core/test_autogenerate_unittest_script.py
+    or
+    $ python -m pytest tests/unit/core/test_autogenerate_unittest_script.py
 """
 
 
 from regexapp import RegexBuilder
 from regexapp import DynamicTestScriptBuilder
 
-from regexapp.deps import genericlib_decorators as decorators
+from regexapp.deps import genericlib_decorators_module as decorators
 
 from tests.unit import get_test_script         # import from tests/unit/__init__.py
 

@@ -1,11 +1,22 @@
-import pytest       # noqa
+"""
+Unit tests for the `textfsmgen.collection.ElementPattern` class.
+
+Usage
+-----
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/collection/test_combination_flags_for_pattern_keyword.py
+    or
+    $ python -m pytest tests/unit/collection/test_combination_flags_for_pattern_keyword.py
+"""
+
+import pytest
 import re
 from regexapp import ElementPattern
 
 
-class TestElementPatternA:
+class TestCombinationFlagsForPatternKeyword:
     @pytest.mark.parametrize(
-        ('data', 'expected_result'),
+        "data, expected_result",
         [
             ####################################################################
             # predefined keyword test combining with other flags               #

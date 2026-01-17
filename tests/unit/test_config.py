@@ -8,36 +8,32 @@ Run pytest in the project root to execute these tests:
     or
     $ python -m pytest tests/unit/test_config.py
 """
+
 import pytest
 from regexapp import version
-import re
+
 from pathlib import Path
 from pathlib import PurePath
 
-from regexapp import LinePattern
-from regexapp import version as expected_version
 import regexapp.config as config
+from regexapp.deps import genericlib_shell_module as shell
 
-from tests.unit import get_package_info
 
+# Package info for regexapp
+pkg_info = shell.PackageInfo("regexapp")
 
-pkg_info = get_package_info('regexapp')
-
-installed_pkg_check = pytest.mark.skipif(
-    pkg_info.startswith('regexapp @ '),
-    reason='skip because regexapp installed locally <<{}>>.'.format(pkg_info)
+# Skip marker if regexapp is not installed
+skip_if_missing_regexapp = pytest.mark.skipif(
+    not pkg_info.is_installed,
+    reason="Skipping: regexapp package is not installed."
 )
 
 
-@installed_pkg_check
-def test_installed_version_synchronization():
-    pattern = LinePattern('data(regexapp==)mixed_word(var_version)end()')
-    match = re.match(pattern, pkg_info.strip())     # noqa
-    if match:
-        installed_version = match.group('version')
-        assert installed_version == expected_version, pkg_info
-    else:
-        assert False, pkg_info
+@skip_if_missing_regexapp
+def test_version_matches_config():
+    """Ensure installed package version matches config version."""
+    assert pkg_info.is_installed is True
+    assert pkg_info.version == config.version
 
 
 class TestData:

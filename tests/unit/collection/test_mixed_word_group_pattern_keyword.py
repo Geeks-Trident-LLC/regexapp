@@ -1,14 +1,22 @@
-import pytest       # noqa
-import re
+"""
+Unit tests for the `textfsmgen.collection.ElementPattern` class.
+
+Usage
+-----
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/collection/test_mixed_word_group_pattern_keyword.py
+    or
+    $ python -m pytest tests/unit/collection/test_mixed_word_group_pattern_keyword.py
+"""
+
+import pytest
 from regexapp import ElementPattern
 
 
-class TestElementPatternF:
+class TestMixedWordGroupPattern(object):
 
     @pytest.mark.parametrize(
-        (
-            'data', 'expected_pattern',
-        ),
+        "data, expected_pattern",
         [
             (
                 'mixed_word_group(var_meats)',

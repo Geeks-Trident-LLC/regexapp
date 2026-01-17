@@ -1,4 +1,15 @@
-import pytest       # noqa
+"""
+Unit tests for the `textfsmgen.collection.LinePattern` class.
+
+Usage
+-----
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/collection/test_line_pattern_class.py
+    or
+    $ python -m pytest tests/unit/collection/test_line_pattern_class.py
+"""
+
+import pytest
 import re
 
 from regexapp import LinePattern
@@ -410,3 +421,22 @@ class TestLinePattern:
         for line in test_data:
             match = re.search(pattern, line)    # noqa
             assert match is not None
+
+
+class TestLinePatternOtherCase:
+    @pytest.mark.parametrize(
+        "user_data, expected_pattern",
+        [
+            (
+                'start() Food: word(var_food, or_empty)  Total: digits(var_total, N/A) end()',  # user prepared data
+                '^Food:\\s*(?P<food>([a-zA-Z][a-zA-Z0-9]*)|) +Total: (?P<total>(\\d+)|N/A)$'        # expected_pattern
+            ),
+            (
+                'digits(var_v1)   letters(var_v2, or_empty)     digits(var_v3)',
+                '(?P<v1>\\d+)\\s*(?P<v2>([a-zA-Z]+)|) +(?P<v3>\\d+)'
+            )
+        ]
+    )
+    def test_generated_pattern(self, user_data, expected_pattern):
+        pattern = LinePattern(user_data)
+        assert pattern == expected_pattern

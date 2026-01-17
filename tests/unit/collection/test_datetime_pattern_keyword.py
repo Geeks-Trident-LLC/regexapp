@@ -1,12 +1,23 @@
-import pytest       # noqa
+"""
+Unit tests for the `textfsmgen.collection.ElementPattern` class.
+
+Usage
+-----
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/collection/test_datetime_pattern_keyword.py
+    or
+    $ python -m pytest tests/unit/collection/test_datetime_pattern_keyword.py
+"""
+
+import pytest
 import re
 from regexapp import ElementPattern
 
 
-class TestElementPatternD:
+class TestDateTimePatternKeyword(object):
 
     @pytest.mark.parametrize(
-        ('data', 'expected_result'),
+        "data, expected_result",
         [
             ####################################################################
             # predefined keyword test                                          #

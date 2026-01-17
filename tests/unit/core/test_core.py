@@ -1,53 +1,12 @@
 """
-Unit tests for regexapp pattern creation and reference management.
+Unit tests for the `textfsmgen.core` module.
 
-This module validates the functionality of `RegexBuilder` and the
-reference management utilities (`add_reference`, `remove_reference`)
-provided by regexapp. It ensures that regex patterns are correctly
-built, tested against sample data, and produce expected reports.
-
-Helpers
--------
-get_user_data() -> str
-    Returns normalized sample user data with placeholder variables
-    for subjects, degrees, units, and IPv4 addresses.
-get_test_data() -> str
-    Returns normalized sample test data with concrete values for
-    temperatures and IPv4 addresses.
-get_test_report() -> str
-    Returns a normalized sample test report showing expected matches
-    for subject, degree, unit, and IPv4 address patterns.
-get_other_user_data() -> str
-    Returns normalized sample user data with placeholders for file
-    attributes such as type, permission, owner, group, size, date,
-    time, and filename.
-get_other_test_data() -> str
-    Returns normalized sample test data with concrete file listings.
-get_other_test_report() -> str
-    Returns a normalized sample test report showing expected matches
-    for file attributes.
-
-Tests
+Usage
 -----
-TestRegexBuilder.test_regex_builder_creation
-    Verifies that `RegexBuilder` builds and tests regex patterns
-    correctly, producing a report identical to the expected output.
-test_add_reference
-    Confirms that custom references can be added and used in regex
-    pattern creation, producing the expected report.
-test_remove_reference
-    Ensures that a previously added reference can be removed without
-    error.
-test_add_reference_exception
-    Validates that attempting to remove or re-remove references raises
-    `PatternReferenceError` as expected.
-
-Notes
------
-- All helper functions are decorated with `normalize_string_output`
-  to guarantee consistent formatting of returned strings.
-- These tests assert strict equality between generated and expected
-  reports, ensuring regex patterns remain stable and predictable.
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/core/test_core.py
+    or
+    $ python -m pytest tests/unit/core/test_core.py
 """
 
 
@@ -57,7 +16,7 @@ from regexapp import add_reference
 from regexapp import remove_reference
 from regexapp.exceptions import PatternReferenceError
 
-from regexapp.deps import genericlib_decorators as decorators
+from regexapp.deps import genericlib_decorators_module as decorators
 
 
 @decorators.normalize_return_output_text

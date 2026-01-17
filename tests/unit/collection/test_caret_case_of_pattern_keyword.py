@@ -1,14 +1,22 @@
-import pytest       # noqa
-import re
+"""
+Unit tests for the `textfsmgen.collection.ElementPattern` class.
+
+Usage
+-----
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/collection/test_caret_case_of_pattern_keyword.py
+    or
+    $ python -m pytest tests/unit/collection/test_caret_case_of_pattern_keyword.py
+"""
+
+import pytest
 from regexapp import ElementPattern
 
 
-class TestElementPatternE:
+class TestCaretOfPatternKeyword:
 
     @pytest.mark.parametrize(
-        (
-            'data', 'expected_pattern', 'expected_pattern_after_removed'
-        ),
+        "data, expected_pattern, expected_pattern_after_removed",
         [
             (
                 'words(head)',
@@ -31,9 +39,7 @@ class TestElementPatternE:
         assert removed_head_of_str_pattern == expected_pattern_after_removed
 
     @pytest.mark.parametrize(
-        (
-            'data', 'expected_pattern', 'expected_pattern_after_removed'
-        ),
+        "data, expected_pattern, expected_pattern_after_removed",
         [
             (
                 'words(tail)',

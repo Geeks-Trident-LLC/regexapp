@@ -1,4 +1,14 @@
-import pytest       # noqa
+"""
+Unit tests for the `textfsmgen.collection.ElementPattern` class.
+
+Usage
+-----
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/collection/test_punctuation_pattern_keyword.py
+    or
+    $ python -m pytest tests/unit/collection/test_punctuation_pattern_keyword.py
+"""
+
 from regexapp import ElementPattern
 import string
 import re

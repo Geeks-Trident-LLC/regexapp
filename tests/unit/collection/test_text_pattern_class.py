@@ -1,4 +1,15 @@
-import pytest       # noqa
+"""
+Unit tests for the `textfsmgen.collection.TextPattern` class.
+
+Usage
+-----
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/collection/test_text_pattern_class.py
+    or
+    $ python -m pytest tests/unit/collection/test_text_pattern_class.py
+"""
+
+import pytest
 
 from regexapp import PatternReference
 from regexapp import TextPattern
@@ -12,7 +23,7 @@ class TestPatternReference:
 
 class TestTextPattern:
     @pytest.mark.parametrize(
-        ('data', 'expected_result'),
+        "data, expected_result",
         [
             ('first last', 'first last'),
             ('first\tlast', 'first\\slast'),
@@ -55,7 +66,7 @@ class TestTextPattern:
         assert chk
 
     @pytest.mark.parametrize(
-        ('data', 'chars', 'expected_result'),
+        "data, chars, expected_result",
         [
             ('  abc  123  xyz  ', None, 'abc +123 +xyz +'),
             ('  abc  123  xyz  ', ' a', 'bc +123 +xyz +'),
@@ -68,7 +79,7 @@ class TestTextPattern:
         assert result == expected_result
 
     @pytest.mark.parametrize(
-        ('data', 'chars', 'expected_result'),
+        "data, chars, expected_result",
         [
             ('  abc  123  xyz  ', None, ' +abc +123 +xyz'),
             ('  abc  123  xyz  ', ' z', ' +abc +123 +xy'),
@@ -81,7 +92,7 @@ class TestTextPattern:
         assert result == expected_result
 
     @pytest.mark.parametrize(
-        ('data', 'chars', 'expected_result'),
+        "data, chars, expected_result",
         [
             ('  abc  123  xyz  ', None, 'abc +123 +xyz'),
             ('  abc  123  xyz  ', ' a', 'bc +123 +xyz'),
@@ -95,7 +106,7 @@ class TestTextPattern:
         assert result == expected_result
 
     @pytest.mark.parametrize(
-        ('data', 'other', 'as_is', 'expected_result'),
+        "data, other, as_is, expected_result",
         [
             ('a', 'b', True, 'ab'),
             ('a', '*', True, 'a*'),
@@ -111,7 +122,7 @@ class TestTextPattern:
         assert result == expected_result
 
     @pytest.mark.parametrize(
-        ('data', 'other', 'as_is', 'expected_result'),
+        "data, other, as_is, expected_result",
         [
             ('a', 'b', True, 'ab'),
             ('a', '*', True, 'a*'),

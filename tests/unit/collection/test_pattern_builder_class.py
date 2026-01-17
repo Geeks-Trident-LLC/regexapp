@@ -1,15 +1,26 @@
-import pytest       # noqa
+"""
+Unit tests for the `textfsmgen.collection.PatternBuilder` class.
+
+Usage
+-----
+Run pytest in the project root to execute these tests:
+    $ pytest tests/unit/collection/test_pattern_builder_class.py
+    or
+    $ python -m pytest tests/unit/collection/test_pattern_builder_class.py
+"""
+
+
+import pytest
 import re
 from textwrap import dedent
 
-from regexapp import LinePattern
 from regexapp import PatternBuilder
 from regexapp import MultilinePattern
 
 
 class TestPatternBuilder:
     @pytest.mark.parametrize(
-        ('test_data', 'expected_pattern', 'var_name', 'word_bound'),
+        "test_data, expected_pattern, var_name, word_bound",
         [
             (
                 ['Friday, April  9, 2021 8:43:15 PM'],
