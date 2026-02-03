@@ -7,7 +7,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="regexapp",
-    version="0.6.1a1",  # pre-beta versioning to signal alpha/beta status
+    version="0.6.1a2",  # pre-beta versioning to signal alpha/beta status
     license="BSD-3-Clause",
     license_files=["LICENSE"],
     description="A versatile utility that generates regex patterns seamlessly"
