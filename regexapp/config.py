@@ -22,7 +22,7 @@ from regexapp.deps import genericlib_dedent_and_strip as dedent_and_strip
 
 import regexapp.utils as utils
 
-__version__ = '0.6.1a2'
+__version__ = '0.6.2'
 version = __version__
 __edition__ = 'Community'
 edition = __edition__
